@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Kamus Kolok Digital</title>
+  
+  <!-- Tailwind CSS & Font Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Fonts: Playfair Display & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            book: ['"Playfair Display"', 'serif'],
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            parchment: '#FAF7F2',
+            bookpage: '#FFFFFF',
+            leather: '#1E293B',
+            goldaccent: '#D97706',
+            bookred: '#991B1B',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Desain Tekstur & Gaya Buku Kamus */
+    body {
+      background-color: #FAF7F2;
+      background-image: radial-gradient(#E2D9CC 0.75px, transparent 0.75px);
+      background-size: 16px 16px;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    /* Scrollbar Halus untuk Tab Alfabet */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Efek Lembaran Buku */
+    .book-card {
+      box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04), inset 0 0 0 1px rgba(0,0,0,0.06);
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+    }
+    .book-card:active {
+      transform: scale(0.98);
+    }
+
+    /* Efek Pembatas Buku (Bookmark Ribbon) */
+    .ribbon {
+      position: absolute;
+      top: -6px;
+      right: 18px;
+      width: 22px;
+      height: 38px;
+      background: #B91C1C;
+      clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 50% 80%, 0% 100%);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.25);
+    }
+  </style>
+</head>
+<body class="font-sans text-slate-800 antialiased min-h-screen pb-32">
+
+  <!-- ==================== HEADER APLIKASI BUKU DIGITAL ==================== -->
+  <header id="mainHeader" class="sticky top-0 z-40 bg-[#1E293B] text-white shadow-lg border-b-2 border-amber-600/40 hidden">
+    <div class="max-w-4xl mx-auto px-4 py-3 relative">
+      <!-- Ribbon Pembatas Buku -->
+      <div class="ribbon hidden sm:block"></div>
+
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <!-- Tombol Kembali ke Menu Utama -->
+          <button onclick="switchView('menu')" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 flex items-center justify-center transition-all border border-slate-700" title="Kembali ke Menu Utama">
+            <i class="fa-solid fa-house text-sm"></i>
+          </button>
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-md border border-amber-300/30">
+            <i class="fa-solid fa-book-bookmark text-xl text-white"></i>
+          </div>
+          <div>
+            <h1 class="font-book text-lg sm:text-xl font-bold tracking-wide text-amber-50 flex items-center gap-2">
+              Kamus Kolok Digital
+            </h1>
+            <p class="text-xs text-slate-300">Bahasa Isyarat Asli Bengkala • Versi Digital</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bilah Pencarian Kosakata Cepat (Hanya muncul di halaman Kamus) -->
+      <div id="searchBarContainer" class="mt-3 relative hidden">
+        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+        <input type="text" id="searchInput" oninput="filterWords()" placeholder="Cari kata (contoh: Banana, Airplane, Sleep)..." 
+          class="w-full pl-10 pr-10 py-2.5 bg-slate-900/90 text-white placeholder-slate-400 text-sm rounded-xl border border-slate-700 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all">
+        <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1">
+          <i class="fa-solid fa-circle-xmark text-sm"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- ==================== THUMB INDEX TABS ==================== -->
+    <div id="alphabetIndexBar" class="bg-[#15202B] border-t border-slate-800 py-1.5 px-2 shadow-inner hidden">
+      <div class="max-w-4xl mx-auto flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5" id="alphabetList">
+        <!-- Generasi Tombol via JavaScript -->
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== KONTEN UTAMA ==================== -->
+  <main class="max-w-4xl mx-auto px-3 sm:px-4 pt-4">
+
+    <!-- VIEW 0: HALAMAN MENU UTAMA (Tampil Pertama Kali) -->
+    <section id="viewMenu" class="py-6 sm:py-10">
+      <!-- Kartu Sambutan & Deskripsi Singkat Aplikasi -->
+      <div class="bg-gradient-to-br from-slate-900 to-[#1E293B] rounded-3xl p-6 sm:p-8 text-white shadow-xl border border-amber-600/30 mb-8 relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="flex items-center gap-3.5 mb-4">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-lg border border-amber-300/30 flex-shrink-0">
+            <i class="fa-solid fa-hands-asl-interpreting text-2xl text-white"></i>
+          </div>
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-amber-400 bg-amber-500/20 px-2.5 py-1 rounded-full border border-amber-500/30">Aplikasi Pembelajaran Isyarat</span>
+            <h2 class="font-book text-2xl sm:text-3xl font-bold text-white mt-1">Kamus Kolok Digital</h2>
+          </div>
+        </div>
+        <p class="text-sm sm:text-base text-slate-300 leading-relaxed font-sans">
+          Selamat datang di platform digital interaktif untuk mempelajari <strong class="text-amber-300">Bahasa Isyarat Kolok</strong>, bahasa isyarat tradisional unik yang lahir dan berkembang secara alami di Desa Bengkala, Buleleng, Bali.
+        </p>
+      </div>
+
+      <!-- Pilihan Menu Utama (Simpel, Tanpa Deskripsi Per Menu) -->
+      <div class="mb-4">
+        <h3 class="font-book text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+          <i class="fa-solid fa-compass text-amber-600"></i>
+          Pilih Menu Utama
+        </h3>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <!-- Tombol Menu 1: Kamus -->
+        <button onclick="switchView('kamus'); window.scrollTo({top: 0, behavior: 'smooth'});" class="bg-white hover:bg-amber-50/50 p-6 rounded-3xl border border-slate-200 shadow-sm hover:border-amber-400 transition-all text-left flex items-center justify-between group">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+              <i class="fa-solid fa-book-atlas"></i>
+            </div>
+            <h4 class="font-book text-lg font-bold text-slate-900 group-hover:text-amber-700 transition-colors">Kamus</h4>
+          </div>
+          <i class="fa-solid fa-arrow-right text-slate-400 group-hover:text-amber-600 transition-colors"></i>
+        </button>
+
+        <!-- Tombol Menu 2: Lembar kerja -->
+        <button onclick="switchView('lkpd'); window.scrollTo({top: 0, behavior: 'smooth'});" class="bg-white hover:bg-blue-50/50 p-6 rounded-3xl border border-slate-200 shadow-sm hover:border-blue-400 transition-all text-left flex items-center justify-between group">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+              <i class="fa-solid fa-file-pen"></i>
+            </div>
+            <h4 class="font-book text-lg font-bold text-slate-900 group-hover:text-blue-700 transition-colors">Lembar kerja</h4>
+          </div>
+          <i class="fa-solid fa-arrow-right text-slate-400 group-hover:text-blue-600 transition-colors"></i>
+        </button>
+
+        <!-- Tombol Menu 3: Latihan -->
+        <button onclick="switchView('padlet'); window.scrollTo({top: 0, behavior: 'smooth'});" class="bg-white hover:bg-rose-50/50 p-6 rounded-3xl border border-slate-200 shadow-sm hover:border-rose-400 transition-all text-left flex items-center justify-between group">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+            </div>
+            <h4 class="font-book text-lg font-bold text-slate-900 group-hover:text-rose-700 transition-colors">Latihan</h4>
+          </div>
+          <i class="fa-solid fa-arrow-right text-slate-400 group-hover:text-rose-600 transition-colors"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- VIEW 1: BUKU KAMUS -->
+    <section id="viewKamus" class="hidden">
+      <div class="flex items-center justify-between mb-3 text-xs text-slate-500 px-1">
+        <span id="wordCountLabel" class="font-medium">Kosakata digital</span>
+      </div>
+
+      <!-- Container Kosakata Berdasarkan Section Huruf -->
+      <div id="dictionaryContainer" class="space-y-6">
+        <!-- Kosakata di-render otomatis melalui JavaScript -->
+      </div>
+    </section>
+
+    <!-- VIEW 2: TEMPAT UNDUH LEMBAR KERJA & UPLOAD PADLET -->
+    <section id="viewLkpd" class="hidden">
+      <!-- SATU PUSAT TEMPAT UPLOAD TUGAS LKPD -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm mb-5">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0 text-xl font-bold">
+            <i class="fa-solid fa-file-pen"></i>
+          </div>
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900">Lembar Kerja Peserta Didik</h2>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+              Pilih lembar kerja per huruf di bawah. Setiap lembar kerja berisi latihan identifikasi gambar, mencocokkan kata, terjemahan, pilihan ganda, dan susun huruf. Lembar kerja bisa dicetak (print) untuk dikerjakan secara offline.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid Lembar Kerja -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5" id="lkpdListGrid">
+        <!-- Lembar Kerja di-generate via JavaScript -->
+      </div>
+    </section>
+
+    <!-- VIEW 3: PADLET LATIHAN GERAKAN -->
+    <section id="viewPadlet" class="hidden">
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm mb-4">
+        <div class="flex items-center gap-3.5 mb-4">
+          <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl font-bold flex-shrink-0">
+            <i class="fa-solid fa-video"></i>
+          </div>
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900">Padlet Latihan Gerakan Isyarat</h2>
+            <p class="text-xs text-slate-600">Unggah foto atau video latihan gerakan isyarat mandiri Anda di sini.</p>
+          </div>
+        </div>
+        <div class="p-4 bg-amber-50/70 border border-amber-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3">
+          <span class="text-xs text-slate-700 font-medium">Klik tombol di samping untuk membuka halaman Padlet latihan kelas.</span>
+          <a href="https://padlet.com" target="_blank" id="btnDirectPadlet" class="w-full sm:w-auto px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-2">
+            <span>Buka Padlet Latihan</span>
+            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================== MODAL DETAIL KATA ==================== -->
+  <div id="wordDetailModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl border border-slate-100 transform transition-all">
+      <div class="relative bg-slate-100 p-2">
+        <button onclick="closeDetailModal()" class="absolute top-3 right-3 z-10 w-9 h-9 bg-black/60 hover:bg-black text-white rounded-full flex items-center justify-center text-sm transition-all">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div class="w-full h-56 bg-slate-200 rounded-2xl overflow-hidden flex items-center justify-center relative">
+          <img id="modalImage" src="" alt="Detail Kata Kolok" class="w-full h-full object-contain">
+        </div>
+      </div>
+      <div class="p-5 text-center">
+        <h3 id="modalWord" class="font-book text-xl sm:text-2xl font-bold text-slate-900 tracking-wide uppercase">AMBULANCE</h3>
+        
+        <!-- Terjemahan Bahasa Indonesia -->
+        <div class="mt-3 p-3 bg-amber-50/80 rounded-2xl border border-amber-200/60">
+          <p id="modalTranslation" class="font-bold text-slate-800 text-base">Ambulans</p>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-100">
+          <button onclick="closeDetailModal()" class="w-full py-2.5 bg-slate-100 text-slate-600 rounded-xl text-xs font-semibold hover:bg-slate-200 transition-all">
+            Tutup
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== BOTTOM NAV ==================== -->
+  <div id="bottomNav" class="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200 py-2.5 px-6 z-40 flex items-center justify-around shadow-2xl max-w-4xl mx-auto hidden">
+    <button onclick="switchView('kamus'); window.scrollTo({top: 0, behavior: 'smooth'});" id="botNavKamus" class="flex flex-col items-center text-amber-700 font-bold text-[11px] gap-1 transition-all">
+      <i class="fa-solid fa-book-atlas text-lg"></i>
+      <span>Kamus</span>
+    </button>
+    <button onclick="switchView('lkpd'); window.scrollTo({top: 0, behavior: 'smooth'});" id="botNavLkpd" class="flex flex-col items-center text-slate-400 hover:text-slate-800 font-medium text-[11px] gap-1 transition-all">
+      <i class="fa-solid fa-file-pen text-lg"></i>
+      <span>Lembar Kerja</span>
+    </button>
+    <button onclick="switchView('padlet'); window.scrollTo({top: 0, behavior: 'smooth'});" id="botNavPadlet" class="flex flex-col items-center text-slate-400 hover:text-slate-800 font-medium text-[11px] gap-1 transition-all">
+      <i class="fa-solid fa-cloud-arrow-up text-lg"></i>
+      <span>Latihan (Padlet)</span>
+    </button>
+  </div>
+
+  <!-- ==================== LOGIKA DATA & JAVASCRIPT LENGKAP ==================== -->
+  <script>
+    /* =========================================================================
+       1. KONFIGURASI TAUTAN (PADLET & GOOGLE DRIVE)
+       ========================================================================= */
+    let padletPracticeUrl = "https://padlet.com";   
+    let padletLkpdUploadUrl = "https://padlet.com"; 
+
+    // Daftar Lembar Kerja per Huruf (link ke halaman lkpd.html lokal)
+    const LKPD_DATA = [
+      { no: 1, title: "Lembar Kerja Huruf A", range: "Kosakata Huruf A (3 kata)", huruf: "A", drive: "lkpd.html?huruf=A&no=1" },
+      { no: 2, title: "Lembar Kerja Huruf B", range: "Kosakata Huruf B (14 kata)", huruf: "B", drive: "lkpd.html?huruf=B&no=2" },
+      { no: 3, title: "Lembar Kerja Huruf C", range: "Kosakata Huruf C (20 kata)", huruf: "C", drive: "lkpd.html?huruf=C&no=3" },
+      { no: 4, title: "Lembar Kerja Huruf D", range: "Kosakata Huruf D (7 kata)", huruf: "D", drive: "lkpd.html?huruf=D&no=4" },
+      { no: 5, title: "Lembar Kerja Huruf E", range: "Kosakata Huruf E (8 kata)", huruf: "E", drive: "lkpd.html?huruf=E&no=5" },
+      { no: 6, title: "Lembar Kerja Huruf F", range: "Kosakata Huruf F (17 kata)", huruf: "F", drive: "lkpd.html?huruf=F&no=6" },
+      { no: 7, title: "Lembar Kerja Huruf G", range: "Kosakata Huruf G (8 kata)", huruf: "G", drive: "lkpd.html?huruf=G&no=7" },
+      { no: 8, title: "Lembar Kerja Huruf H", range: "Kosakata Huruf H (7 kata)", huruf: "H", drive: "lkpd.html?huruf=H&no=8" },
+      { no: 9, title: "Lembar Kerja Huruf I", range: "Kosakata Huruf I (1 kata)", huruf: "I", drive: "lkpd.html?huruf=I&no=9" },
+      { no: 10, title: "Lembar Kerja Huruf J", range: "Kosakata Huruf J (1 kata)", huruf: "J", drive: "lkpd.html?huruf=J&no=10" },
+      { no: 11, title: "Lembar Kerja Huruf K", range: "Kosakata Huruf K (2 kata)", huruf: "K", drive: "lkpd.html?huruf=K&no=11" },
+      { no: 12, title: "Lembar Kerja Huruf L", range: "Kosakata Huruf L (4 kata)", huruf: "L", drive: "lkpd.html?huruf=L&no=12" },
+      { no: 13, title: "Lembar Kerja Huruf M", range: "Kosakata Huruf M (11 kata)", huruf: "M", drive: "lkpd.html?huruf=M&no=13" },
+      { no: 14, title: "Lembar Kerja Huruf N", range: "Kosakata Huruf N (4 kata)", huruf: "N", drive: "lkpd.html?huruf=N&no=14" },
+      { no: 15, title: "Lembar Kerja Huruf O", range: "Kosakata Huruf O (4 kata)", huruf: "O", drive: "lkpd.html?huruf=O&no=15" },
+      { no: 16, title: "Lembar Kerja Huruf P", range: "Kosakata Huruf P (8 kata)", huruf: "P", drive: "lkpd.html?huruf=P&no=16" },
+      { no: 17, title: "Lembar Kerja Huruf R", range: "Kosakata Huruf R (5 kata)", huruf: "R", drive: "lkpd.html?huruf=R&no=17" },
+      { no: 18, title: "Lembar Kerja Huruf S", range: "Kosakata Huruf S (19 kata)", huruf: "S", drive: "lkpd.html?huruf=S&no=18" },
+      { no: 19, title: "Lembar Kerja Huruf T", range: "Kosakata Huruf T (17 kata)", huruf: "T", drive: "lkpd.html?huruf=T&no=19" },
+      { no: 20, title: "Lembar Kerja Huruf W", range: "Kosakata Huruf W (11 kata)", huruf: "W", drive: "lkpd.html?huruf=W&no=20" },
+      { no: 21, title: "Lembar Kerja Huruf Y", range: "Kosakata Huruf Y (1 kata)", huruf: "Y", drive: "lkpd.html?huruf=Y&no=21" }
+    ];
+
+    /* =========================================================================
+       2. DATABASE KATA KAMUS KOLOK
+       ========================================================================= */
+    const DICTIONARY_DATA = [
+      // --- SECTION A (3 kata) ---
+      { id: 1, letter: "A", word: "AMBULANCE", indo: "Ambulans", img: "ambulance.png" },
+      { id: 2, letter: "A", word: "AIRPLANE (1)", indo: "Pesawat Terbang", img: "airplane1.png" },
+      { id: 3, letter: "A", word: "AIRPLANE (2)", indo: "Pesawat Terbang", img: "airplane2.png" },
+
+      // --- SECTION B (14 kata) ---
+      { id: 4, letter: "B", word: "BALOON", indo: "Balon", img: "baloon.png" },
+      { id: 5, letter: "B", word: "BENZINE", indo: "Bensin", img: "bensin.png" },
+      { id: 6, letter: "B", word: "BIG MACHINE (BULDOSER)", indo: "Buldoser", img: "buldoser.png" },
+      { id: 7, letter: "B", word: "BEER/COLA", indo: "Bir Cola", img: "cola.png" },
+      { id: 8, letter: "B", word: "BALL", indo: "Bola", img: "ball.png" },
+      { id: 9, letter: "B", word: "BOSS", indo: "Bos", img: "boss.png" },
+      { id: 10, letter: "B", word: "BOOK", indo: "Buku", img: "book.png" },
+      { id: 11, letter: "B", word: "BAD", indo: "Jelek", img: "bad.png" },
+      { id: 12, letter: "B", word: "BIRD", indo: "Burung", img: "bird.png" },
+      { id: 13, letter: "B", word: "BEAUTIFUL", indo: "Cantik", img: "beautifull.png" },
+      { id: 14, letter: "B", word: "BITE (VERB)", indo: "Gigit", img: "bite.png" },
+      { id: 15, letter: "B", word: "BANANA", indo: "Pisang", img: "banana.png" },
+      { id: 16, letter: "B", word: "BICYCLE", indo: "Sepeda", img: "BICYCLE.png" },
+      { id: 17, letter: "B", word: "BREAST", indo: "Dada", img: "breast.png" },
+
+      // --- SECTION C (20 kata) ---
+      { id: 18, letter: "C", word: "CHILD BORN (1)", indo: "Kelahiran Anak", img: "CHILDBORN.png" },
+      { id: 19, letter: "C", word: "CHILD BORN (2)", indo: "Kelahiran Anak", img: "CHILDBORN2.png" },
+      { id: 20, letter: "C", word: "CHICKEN", indo: "Ayam", img: "CHICKEN.png" },
+      { id: 21, letter: "C", word: "CHILI", indo: "Cabai", img: "CHILI.png" },
+      { id: 22, letter: "C", word: "CANDLE", indo: "Lilin", img: "CANDLE.png" },
+      { id: 23, letter: "C", word: "CASSAVE", indo: "Singkong", img: "CASSAVE.png" },
+      { id: 24, letter: "C", word: "COLD (1)", indo: "Dingin", img: "COLD.png" },
+      { id: 25, letter: "C", word: "COLD (2)", indo: "Dingin", img: "COLD2.png" },
+      { id: 26, letter: "C", word: "COW", indo: "Sapi", img: "COW.png" },
+      { id: 27, letter: "C", word: "CAT", indo: "Kucing", img: "CAT.png" },
+      { id: 28, letter: "C", word: "COFFEE", indo: "Kopi", img: "COFFEE.png" },
+      { id: 29, letter: "C", word: "CAR", indo: "Mobil", img: "CAR.png" },
+      { id: 30, letter: "C", word: "CARPENTER", indo: "Tukang Kayu", img: "CARPENTER.png" },
+      { id: 31, letter: "C", word: "CAT FISH", indo: "Ikan Lele", img: "CF.png" },
+      { id: 32, letter: "C", word: "CHEEK", indo: "Pipi", img: "CHEEK.png" },
+      { id: 33, letter: "C", word: "CHIN", indo: "Dagu", img: "CHIN.png" },
+      { id: 34, letter: "C", word: "CHOPPING MEAT", indo: "Memotong Daging", img: "CHOPPING.png" },
+      { id: 35, letter: "C", word: "COLA", indo: "Cola", img: "cola.png" },
+      { id: 36, letter: "C", word: "COUGH", indo: "Batuk", img: "COUGH.png" },
+      { id: 37, letter: "C", word: "CRAZY LOVE", indo: "Cinta Gila", img: "CRAZY.png" },
+
+      // --- SECTION D (7 kata) ---
+      { id: 38, letter: "D", word: "DOG", indo: "Anjing", img: "dog.png" },
+      { id: 39, letter: "D", word: "DEAD", indo: "Mati", img: "dead.png" },
+      { id: 40, letter: "D", word: "DEAF", indo: "Tuli", img: "deaf.png" },
+      { id: 41, letter: "D", word: "DREAM", indo: "Mimpi", img: "dream.png" },
+      { id: 42, letter: "D", word: "DRINKING", indo: "Minum", img: "drinking.png" },
+      { id: 43, letter: "D", word: "DRYING SHIRT", indo: "Mengeringkan Baju", img: "dryingshirt.png" },
+      { id: 44, letter: "D", word: "DURIAN", indo: "Durian", img: "durian.png" },
+
+      // --- SECTION E (8 kata) ---
+      { id: 45, letter: "E", word: "EATING", indo: "Makan", img: "eating.png" },
+      { id: 46, letter: "E", word: "EGG", indo: "Telur", img: "egg.png" },
+      { id: 47, letter: "E", word: "EYEBROW", indo: "Alis", img: "eyebrow.png" },
+      { id: 48, letter: "E", word: "EAR", indo: "Telinga", img: "ear.png" },
+      { id: 49, letter: "E", word: "ELEPHANT", indo: "Gajah", img: "elephant.png" },
+      { id: 50, letter: "E", word: "EIGHT", indo: "Delapan(1)", img: "81.png" },
+      { id: 51, letter: "E", word: "EIGHT", indo: "Delapan(2)", img: "82.png" },
+      { id: 52, letter: "E", word: "EASY", indo: "Mudah", img: "easy.png" },
+
+      // --- SECTION F (17 kata) ---
+      { id: 53, letter: "F", word: "FISH", indo: "Ikan", img: "fish.png" },
+      { id: 54, letter: "F", word: "FRUIT(A)", indo: "Buah", img: "fa.png" },
+      { id: 55, letter: "F", word: "FOUR", indo: "Empat", img: "4.png" },
+      { id: 56, letter: "F", word: "FIVE", indo: "Lima", img: "five.png" },
+      { id: 57, letter: "F", word: "FATHER", indo: "Ayah", img: "father.png" },
+      { id: 58, letter: "F", word: "FRUIT(B)", indo: "Buah", img: "fb.png" },
+      { id: 59, letter: "F", word: "FRUIT(C)", indo: "Buah", img: "fc.png" },
+      { id: 60, letter: "F", word: "FOOTBALL", indo: "Sepak Bola", img: "fball.png" },
+      { id: 61, letter: "F", word: "FIVE MILLION FIVE", indo: "lima juta lima ratus ribu", img: "fivemf.png" },
+      { id: 62, letter: "F", word: "FRIEND", indo: "Teman", img: "friend.png" },
+      { id: 63, letter: "F", word: "FIVE MILLION", indo: "Lima Juta", img: "fivem.png" },
+      { id: 64, letter: "F", word: "FINISHED", indo: "Selesai", img: "finished.png" },
+      { id: 65, letter: "F", word: "FRY", indo: "Menggoreng", img: "fry.png" },
+      { id: 66, letter: "F", word: "FERMENTED SHRIMP", indo: "Udang Fermentasi", img: "fermantedshrimp.png" },
+      { id: 67, letter: "F", word: "FORK", indo: "Garpu", img: "fork.png" },
+      { id: 68, letter: "F", word: "FEMALE", indo: "Laki-laki", img: "female.png" },
+      { id: 69, letter: "F", word: "FEVER", indo: "Demam", img: "fever.png" },
+
+      // --- SECTION G (8 kata) ---
+      { id: 70, letter: "G", word: "GARDEN", indo: "Taman", img: "garden.png" },
+      { id: 71, letter: "G", word: "GARLIC", indo: "Bawang Putih", img: "garlic.png" },
+      { id: 72, letter: "G", word: "GREEN COLOUR", indo: "Warna Hijau", img: "greenc.png" },
+      { id: 73, letter: "G", word: "GECHO", indo: "Gecho", img: "gecho.png" },
+      { id: 74, letter: "G", word: "GRAND PARENTS", indo: "Kakek Nenek", img: "grandp.png" },
+      { id: 75, letter: "G", word: "GINGER", indo: "Jahe", img: "ginger.png" },
+      { id: 76, letter: "G", word: "GROWING UP", indo: "Tumbuh", img: "growup.png" },
+      { id: 77, letter: "G", word: "GRINDING MACHINE", indo: "Mesin Gerinda", img: "grinding.png" },
+
+      // --- SECTION H (7 kata) ---
+      { id: 78, letter: "H", word: "HOUSE", indo: "Rumah", img: "house.png" },
+      { id: 79, letter: "H", word: "HAIR", indo: "Rambut", img: "hair.png" },
+      { id: 80, letter: "H", word: "HAT(1)", indo: "Topi", img: "hat.png" },
+      { id: 81, letter: "H", word: "HAT(2)", indo: "Topi", img: "hat2.png" },
+      { id: 82, letter: "H", word: "HEART", indo: "Hati", img: "heart.png" },
+      { id: 83, letter: "H", word: "HELMET", indo: "Helm", img: "helmet.png" },
+      { id: 84, letter: "H", word: "HUNGRY", indo: "Lapar", img: "hungry.png" },
+
+      // --- SECTION I (1 kata) ---
+      { id: 85, letter: "I", word: "ICE", indo: "Es", img: "ice.png" },
+
+      // --- SECTION J (1 kata) ---
+      { id: 86, letter: "J", word: "JACKFRUIT", indo: "Nangka", img: "jack.png" },
+
+      // --- SECTION K (2 kata) ---
+      { id: 87, letter: "K", word: "KNIFE", indo: "Pisau", img: "knife.png" },
+      { id: 88, letter: "K", word: "KNOWING", indo: "Tahu", img: "knowing.png" },
+
+      // --- SECTION L (4 kata) ---
+      { id: 89, letter: "L", word: "LAMP", indo: "Lampu", img: "lamp.png" },
+      { id: 90, letter: "L", word: "LIE", indo: "Berbohong", img: "lie.png" },
+      { id: 91, letter: "L", word: "LIPS", indo: "Bibir", img: "lips.png" },
+      { id: 92, letter: "L", word: "LITTLE BROTHER/SISTER", indo: "Adik", img: "adik.png" },
+
+      // --- SECTION M (11 kata) ---
+      { id: 93, letter: "M", word: "MAN", indo: "Pria", img: "man.png" },
+      { id: 94, letter: "M", word: "MOTHER", indo: "Ibu", img: "mother.png" },
+      { id: 95, letter: "M", word: "MOUNT", indo: "Gunung", img: "mount.png" },
+      { id: 96, letter: "M", word: "MONKEY", indo: "Monyet", img: "monkey.png" },
+      { id: 97, letter: "M", word: "MONEY", indo: "Uang", img: "money.png" },
+      { id: 98, letter: "M", word: "MANGO", indo: "Mangga", img: "mango.png" },
+      { id: 99, letter: "M", word: "MUSHROOM", indo: "Jamur", img: "mushroom.png" },
+      { id: 100, letter: "M", word: "MOTORCYCLE", indo: "Sepeda Motor", img: "motor.png" },
+      { id: 101, letter: "M", word: "MUSTACHE", indo: "Kumis", img: "mustache.png" },
+      { id: 102, letter: "M", word: "MILLION", indo: "Juta", img: "million.png" },
+      { id: 103, letter: "M", word: "MARRIAGE", indo: "Menikah", img: "marriage.png" },
+
+      // --- SECTION N (4 kata) ---
+      { id: 104, letter: "N", word: "NOSE", indo: "Hidung", img: "nose.png" },
+      { id: 105, letter: "N", word: "NURSE", indo: "Suster", img: "nurse.png" },
+      { id: 106, letter: "N", word: "NINE", indo: "Sembilan", img: "nine.png" },
+      { id: 107, letter: "N", word: "NAUGHTY", indo: "Nakal", img: "naughty.png" },
+
+      // --- SECTION O (4 kata) ---
+      { id: 108, letter: "O", word: "ONE", indo: "Satu", img: "one.png" },
+      { id: 109, letter: "O", word: "ONION", indo: "Bawang Merah", img: "onion.png" },
+      { id: 110, letter: "O", word: "OLDER BROTHER/SISTER", indo: "Kakak", img: "kakak.png" },
+      { id: 111, letter: "O", word: "OIL", indo: "Minyak", img: "oil.png" },
+
+      // --- SECTION P (8 kata) ---
+      { id: 112, letter: "P", word: "PIG", indo: "Babi", img: "pig.png" },
+      { id: 113, letter: "P", word: "PAN(1)", indo: "Wajan", img: "pan.png" },
+      { id: 114, letter: "P", word: "PAN(2)", indo: "Wajan", img: "pan2.png" },
+      { id: 115, letter: "P", word: "PIL/CAPSULE", indo: "Pil/Kapsul", img: "pil.png" },
+      { id: 116, letter: "P", word: "PLANTING", indo: "Menanam", img: "planting.png" },
+      { id: 117, letter: "P", word: "PLATE", indo: "Piring", img: "plate.png" },
+      { id: 118, letter: "P", word: "PLOWING", indo: "Membajak", img: "plowing.png" },
+      { id: 119, letter: "P", word: "PINEAPPLE", indo: "Nanas", img: "pineapple.png" },
+
+      // --- SECTION R (5 kata) ---
+      { id: 120, letter: "R", word: "RUNNING", indo: "Berlari", img: "running.png" },
+      { id: 121, letter: "R", word: "RELAXING", indo: "Santai", img: "relaxing.png" },
+      { id: 122, letter: "R", word: "RED", indo: "Merah", img: "red.png" },
+      { id: 123, letter: "R", word: "RICE", indo: "Nasi", img: "rice.png" },
+      { id: 124, letter: "R", word: "ROUNDED SHAPE", indo: "Bentuk Bulat", img: "roundeds.png" },
+
+      // --- SECTION S (19 kata) ---
+      { id: 125, letter: "S", word: "SOUR", indo: "Asam", img: "sour.png" },
+      { id: 126, letter: "S", word: "SHIRT", indo: "Kemeja", img: "shirt.png" },
+      { id: 127, letter: "S", word: "STUPID/IDIOT", indo: "Bodoh", img: "stupid.png" },
+      { id: 128, letter: "S", word: "SIX", indo: "Enam", img: "six.png" },
+      { id: 129, letter: "S", word: "SHY/EMBARRASSED", indo: "Malu", img: "shy.png" },
+      { id: 130, letter: "S", word: "SWEET", indo: "Manis", img: "sweet.png" },
+      { id: 131, letter: "S", word: "SKIRT", indo: "Rok", img: "skirt.png" },
+      { id: 132, letter: "S", word: "SICK/DIZZY", indo: "Sakit", img: "sick.png" },
+      { id: 133, letter: "S", word: "SAME", indo: "Sama", img: "same.png" },
+      { id: 134, letter: "S", word: "SARONG", indo: "Sarung", img: "sarong.png" },
+      { id: 135, letter: "S", word: "SATAY", indo: "Sate", img: "satay.png" },
+      { id: 136, letter: "S", word: "SAW", indo: "Gergaji", img: "saw.png" },
+      { id: 137, letter: "S", word: "SEAL", indo: "Anjing Laut", img: "seal.png" },
+      { id: 138, letter: "S", word: "SPOON", indo: "Sendok", img: "spoon.png" },
+      { id: 139, letter: "S", word: "SHOES", indo: "Sepatu", img: "shoes.png" },
+      { id: 140, letter: "S", word: "SUKESTI (NAME OF PERSON)", indo: "Sukesti", img: "sukesti.png" },
+      { id: 141, letter: "S", word: "SLEEP", indo: "Tidur", img: "sleep.png" },
+      { id: 142, letter: "S", word: "SEVEN", indo: "Tujuh", img: "seven.png" },
+      { id: 143, letter: "S", word: "SNAKE", indo: "Ular", img: "snake.png" },
+
+      // --- SECTION T (17 kata) ---
+      { id: 144, letter: "T", word: "TROUSERS/PANTS", indo: "Celana", img: "trousers.png" },
+      { id: 145, letter: "T", word: "TIE", indo: "Dasi", img: "tie.png" },
+      { id: 146, letter: "T", word: "TWO", indo: "Dua", img: "two.png" },
+      { id: 147, letter: "T", word: "TEETH", indo: "Gigi", img: "teeth.png" },
+      { id: 148, letter: "T", word: "TONGUE", indo: "Lidah", img: "tongue.png" },
+      { id: 149, letter: "T", word: "TAKING BATH/SHOWER (1)", indo: "Mandi", img: "tbath.png" },
+      { id: 150, letter: "T", word: "TAKING BATH/SHOWER (2)", indo: "Mandi", img: "tbath2.png" },
+      { id: 151, letter: "T", word: "TABLE", indo: "Meja", img: "table.png" },
+      { id: 152, letter: "T", word: "TEN", indo: "Sepuluh", img: "ten.png" },
+      { id: 153, letter: "T", word: "TRIANGLE", indo: "Segitiga", img: "triangle.png" },
+      { id: 154, letter: "T", word: "TOOTH BRUSH", indo: "Sikat Gigi", img: "toothb.png" },
+      { id: 155, letter: "T", word: "TEA (1)", indo: "Teh", img: "tea1.png" },
+      { id: 156, letter: "T", word: "TEA (2)", indo: "Teh", img: "tea2.png" },
+      { id: 157, letter: "T", word: "TEA (3)", indo: "Teh", img: "tea3.png" },
+      { id: 158, letter: "T", word: "TEA (4)", indo: "Teh", img: "tea4.png" },
+      { id: 159, letter: "T", word: "THREE", indo: "Tiga", img: "three.png" },
+      { id: 160, letter: "T", word: "TOURIST", indo: "Wisatawan", img: "tourist.png" },
+
+      // --- SECTION W (11 kata) ---
+      { id: 161, letter: "W", word: "WATER", indo: "Air", img: "water.png" },
+      { id: 162, letter: "W", word: "WORK", indo: "Bekerja", img: "work.png" },
+      { id: 163, letter: "W", word: "WIN", indo: "Menang", img: "win.png" },
+      { id: 164, letter: "W", word: "WATERMELON", indo: "Semangka", img: "waterm.png" },
+      { id: 165, letter: "W", word: "WASHING", indo: "Mencuci", img: "washing.png" },
+      { id: 166, letter: "W", word: "WANT TO", indo: "Ingin", img: "want.png" },
+      { id: 167, letter: "W", word: "WALK(2)", indo: "Berjalan", img: "walk.png" },
+      { id: 168, letter: "W", word: "WALK(1)", indo: "Berjalan", img: "walk2.png" },
+      { id: 169, letter: "W", word: "WAKE UP", indo: "Bangun", img: "wakeup.png" },
+      { id: 170, letter: "W", word: "WAIT", indo: "Tunggu", img: "wait.png" },
+      { id: 171, letter: "W", word: "WINE", indo: "Anggur", img: "wine.png" },
+
+      // --- SECTION Y (1 kata) ---
+      { id: 172, letter: "Y", word: "YELLOW", indo: "Kuning", img: "yellow.png" }
+    ];
+
+    /* =========================================================================
+       3. INISIALISASI & RENDERING TAMPILAN
+       ========================================================================= */
+    const letters = [...new Set(DICTIONARY_DATA.map(item => item.letter))].sort();
+
+    // Render Tab Indeks
+    function renderAlphabetTabs() {
+      const bar = document.getElementById("alphabetList");
+      bar.innerHTML = "";
+      letters.forEach(letter => {
+        const btn = document.createElement("button");
+        btn.id = `tab-letter-${letter}`;
+        btn.className = "w-8 h-8 flex-shrink-0 rounded-lg font-book font-bold text-xs bg-slate-800 text-slate-300 hover:bg-amber-600 hover:text-white transition-all flex items-center justify-center border border-slate-700/60";
+        btn.innerText = letter;
+        btn.onclick = () => scrollToSection(letter);
+        bar.appendChild(btn);
+      });
+    }
+
+    // Scroll Mulus ke Section Huruf
+    function scrollToSection(letter) {
+      switchView('kamus');
+      const target = document.getElementById(`section-${letter}`);
+      if (target) {
+        const headerOffset = 130;
+        const elementPosition = target.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth"
+        });
+
+        // Update visual tab aktif
+        letters.forEach(l => {
+          const tab = document.getElementById(`tab-letter-${l}`);
+          if (tab) {
+            tab.className = l === letter 
+              ? "w-8 h-8 flex-shrink-0 rounded-lg font-book font-bold text-xs bg-amber-600 text-white shadow-md flex items-center justify-center border border-amber-400"
+              : "w-8 h-8 flex-shrink-0 rounded-lg font-book font-bold text-xs bg-slate-800 text-slate-300 hover:bg-amber-600 hover:text-white transition-all flex items-center justify-center border border-slate-700/60";
+          }
+        });
+      }
+    }
+
+    // Render Seluruh Kosakata Kamus
+    function renderDictionary(data) {
+      const container = document.getElementById("dictionaryContainer");
+      container.innerHTML = "";
+
+      if (data.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-16 bg-white rounded-3xl border border-dashed border-slate-300 p-8">
+            <div class="w-16 h-16 mx-auto rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-2xl mb-3">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <h3 class="font-bold text-slate-800 text-base">Kosakata Tidak Ditemukan</h3>
+            <p class="text-xs text-slate-500 mt-1">Coba ketik kata lain dalam bahasa Inggris yang tertera pada kamus.</p>
+            <button onclick="clearSearch()" class="mt-4 px-4 py-2 bg-slate-800 text-white text-xs font-semibold rounded-xl">
+              Lihat Semua Kata
+            </button>
+          </div>
+        `;
+        document.getElementById("wordCountLabel").innerText = "Tidak ada hasil";
+        return;
+      }
+
+      document.getElementById("wordCountLabel").innerText = `Menampilkan ${data.length} kosakata`;
+
+      const grouped = {};
+      data.forEach(item => {
+        if (!grouped[item.letter]) grouped[item.letter] = [];
+        grouped[item.letter].push(item);
+      });
+
+      Object.keys(grouped).sort().forEach(letter => {
+        const sectionDiv = document.createElement("div");
+        sectionDiv.id = `section-${letter}`;
+        sectionDiv.className = "pt-2";
+
+        sectionDiv.innerHTML = `
+          <div class="flex items-center gap-3 mb-3 border-b-2 border-slate-200 pb-2">
+            <div class="w-10 h-10 rounded-xl bg-slate-900 text-amber-400 font-book font-black text-xl flex items-center justify-center shadow-sm">
+              ${letter}
+            </div>
+            <div>
+              <h2 class="font-book text-lg font-bold text-slate-900 tracking-wide">Huruf ${letter}</h2>
+              <span class="text-[11px] text-slate-500 font-sans">${grouped[letter].length} kosakata</span>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4" id="grid-${letter}">
+          </div>
+        `;
+
+        container.appendChild(sectionDiv);
+        const grid = sectionDiv.querySelector(`#grid-${letter}`);
+
+        grouped[letter].forEach(item => {
+          const card = document.createElement("div");
+          card.className = "book-card bg-white rounded-2xl overflow-hidden border border-slate-200/90 flex flex-col group cursor-pointer relative";
+          card.onclick = () => openDetailModal(item);
+
+          card.innerHTML = `
+            <!-- Wadah Gambar -->
+            <div class="relative w-full aspect-[4/3] bg-slate-100 overflow-hidden flex items-center justify-center">
+              <img 
+                src="${item.img}" 
+                alt="${item.word}" 
+                loading="lazy"
+                onerror="this.onerror=null; this.src='https://placehold.co/400x300/f8fafc/475569?text=${encodeURIComponent(item.word)}';"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              >
+              <span class="absolute top-2 left-2 px-1.5 py-0.5 rounded-md bg-black/60 backdrop-blur-sm text-white text-[10px] font-mono font-bold">
+                #${String(item.id).padStart(3, '0')}
+              </span>
+            </div>
+
+            <!-- Satu Kata Translate -->
+            <div class="p-3 text-center flex-grow flex items-center justify-center bg-white border-t border-slate-100">
+              <h3 class="font-book text-sm sm:text-base font-bold text-slate-800 tracking-wide uppercase group-hover:text-amber-700 transition-colors leading-snug">
+                ${item.word}
+              </h3>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+      });
+    }
+
+    // Render Lembar Kerja
+    function renderLkpdSection() {
+      const grid = document.getElementById("lkpdListGrid");
+      grid.innerHTML = "";
+
+      LKPD_DATA.forEach(lk => {
+        const item = document.createElement("div");
+        item.className = "bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between";
+        item.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-1.5">
+              <span class="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[11px] font-bold border border-blue-200">
+                LKPD ${String(lk.no).padStart(2, '0')}
+              </span>
+              <span class="text-[10px] text-slate-400 font-mono"> </span>
+            </div>
+            <h4 class="font-bold text-slate-800 text-sm">${lk.title}</h4>
+            <p class="text-xs text-slate-500 mt-0.5 mb-3">${lk.range}</p>
+          </div>
+
+          <div class="pt-3 border-t border-slate-100">
+            <a href="${lk.drive}" class="w-full py-2 px-3 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm transition-all">
+              <i class="fa-solid fa-file-pen text-amber-400"></i>
+              <span>Buka Lembar Kerja</span>
+            </a>
+          </div>
+        `;
+        grid.appendChild(item);
+      });
+    }
+
+    /* =========================================================================
+       4. PENCARIAN & FILTER KOSAKATA
+       ========================================================================= */
+    function filterWords() {
+      const q = document.getElementById("searchInput").value.trim().toLowerCase();
+      const clearBtn = document.getElementById("clearSearchBtn");
+      
+      if (q.length > 0) {
+        clearBtn.classList.remove("hidden");
+        const filtered = DICTIONARY_DATA.filter(item => 
+          item.word.toLowerCase().includes(q) || item.letter.toLowerCase() === q || item.indo.toLowerCase().includes(q)
+        );
+        renderDictionary(filtered);
+      } else {
+        clearBtn.classList.add("hidden");
+        renderDictionary(DICTIONARY_DATA);
+      }
+    }
+
+    function clearSearch() {
+      const input = document.getElementById("searchInput");
+      input.value = "";
+      document.getElementById("clearSearchBtn").classList.add("hidden");
+      renderDictionary(DICTIONARY_DATA);
+    }
+
+    /* =========================================================================
+       5. NAVIGASI TAMPILAN UTAMA & MENU
+       ========================================================================= */
+    function switchView(view) {
+      const menuView = document.getElementById("viewMenu");
+      const kamusView = document.getElementById("viewKamus");
+      const lkpdView = document.getElementById("viewLkpd");
+      const padletView = document.getElementById("viewPadlet");
+      
+      const mainHeader = document.getElementById("mainHeader");
+      const searchBarContainer = document.getElementById("searchBarContainer");
+      const alphaBar = document.getElementById("alphabetIndexBar");
+      const bottomNav = document.getElementById("bottomNav");
+
+      const navKamus = document.getElementById("botNavKamus");
+      const navLkpd = document.getElementById("botNavLkpd");
+      const navPadlet = document.getElementById("botNavPadlet");
+
+      // Sembunyikan semua halaman
+      menuView.classList.add("hidden");
+      kamusView.classList.add("hidden");
+      lkpdView.classList.add("hidden");
+      padletView.classList.add("hidden");
+      
+      mainHeader.classList.add("hidden");
+      searchBarContainer.classList.add("hidden");
+      alphaBar.classList.add("hidden");
+      bottomNav.classList.add("hidden");
+
+      // Reset style tombol bawah
+      const inactiveClass = "flex flex-col items-center text-slate-400 hover:text-slate-800 font-medium text-[11px] gap-1 transition-all";
+      const activeClass = "flex flex-col items-center text-amber-700 font-bold text-[11px] gap-1 transition-all";
+
+      navKamus.className = inactiveClass;
+      navLkpd.className = inactiveClass;
+      navPadlet.className = inactiveClass;
+
+      if (view === 'menu') {
+        menuView.classList.remove("hidden");
+      } else {
+        // Tampilkan header dan nav bawah untuk halaman menu dalam
+        mainHeader.classList.remove("hidden");
+        bottomNav.classList.remove("hidden");
+
+        if (view === 'kamus') {
+          kamusView.classList.remove("hidden");
+          searchBarContainer.classList.remove("hidden");
+          alphaBar.classList.remove("hidden");
+          navKamus.className = activeClass;
+        } else if (view === 'lkpd') {
+          lkpdView.classList.remove("hidden");
+          navLkpd.className = activeClass;
+        } else if (view === 'padlet') {
+          padletView.classList.remove("hidden");
+          navPadlet.className = activeClass;
+        }
+      }
+    }
+
+    // Modal Detail Kata dengan Terjemahan Bahasa Indonesia
+    function openDetailModal(item) {
+      document.getElementById("modalImage").src = item.img;
+      document.getElementById("modalImage").onerror = function() {
+        this.src = `https://placehold.co/400x300/f8fafc/475569?text=${encodeURIComponent(item.word)}`;
+      };
+      document.getElementById("modalWord").innerText = item.word;
+      document.getElementById("modalTranslation").innerText = item.indo;
+      document.getElementById("wordDetailModal").classList.remove("hidden");
+    }
+
+    function closeDetailModal() {
+      document.getElementById("wordDetailModal").classList.add("hidden");
+    }
+
+    // Inisialisasi saat Halaman Dimuat
+    window.onload = function() {
+      renderAlphabetTabs();
+      renderDictionary(DICTIONARY_DATA);
+      renderLkpdSection();
+      switchView('menu');
+    };
+  </script>
+</body>
+</html>

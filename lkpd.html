@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lembar Kerja — Kamus Kolok Digital</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            book: ['"Playfair Display"', 'serif'],
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .print-break { page-break-before: always; }
+      .worksheet-card { box-shadow: none !important; border: 2px solid #334155 !important; }
+    }
+
+    .answer-line {
+      border-bottom: 2px dotted #94a3b8;
+      min-height: 28px;
+      display: block;
+    }
+    .answer-line-inline {
+      border-bottom: 2px dotted #94a3b8;
+      min-width: 160px;
+      display: inline-block;
+      margin: 0 4px;
+    }
+    .matching-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      border: 2px solid #1e293b;
+      display: inline-block;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen antialiased">
+
+  <!-- ======== TOP BAR (tidak tercetak) ======== -->
+  <div class="no-print sticky top-0 z-50 bg-slate-900 text-white shadow-lg">
+    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-2 text-amber-400 hover:text-amber-300 transition-colors">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span class="text-sm font-semibold">Kembali ke Kamus</span>
+      </a>
+      <button onclick="window.print()" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 rounded-xl text-sm font-bold flex items-center gap-2 transition-colors">
+        <i class="fa-solid fa-print"></i>
+        Cetak
+      </button>
+    </div>
+  </div>
+
+  <!-- ======== KONTEN LEMBAR KERJA ======== -->
+  <div class="max-w-3xl mx-auto px-4 py-6 sm:py-8" id="worksheetRoot">
+    <p class="text-center text-slate-500 py-20">Memuat lembar kerja…</p>
+  </div>
+
+  <script>
+    /* =================================================================
+       DATABASE KOSAKATA (sumber data sama dengan index.html)
+       ================================================================= */
+    const DICTIONARY_DATA = [
+      { id:1, letter:"A", word:"AMBULANCE", indo:"Ambulans", img:"ambulance.png" },
+      { id:2, letter:"A", word:"AIRPLANE (1)", indo:"Pesawat Terbang", img:"airplane1.png" },
+      { id:3, letter:"A", word:"AIRPLANE (2)", indo:"Pesawat Terbang", img:"airplane2.png" },
+      { id:4, letter:"B", word:"BALOON", indo:"Balon", img:"baloon.png" },
+      { id:5, letter:"B", word:"BENZINE", indo:"Bensin", img:"bensin.png" },
+      { id:6, letter:"B", word:"BIG MACHINE (BULDOSER)", indo:"Buldoser", img:"buldoser.png" },
+      { id:7, letter:"B", word:"BEER/COLA", indo:"Bir Cola", img:"cola.png" },
+      { id:8, letter:"B", word:"BALL", indo:"Bola", img:"ball.png" },
+      { id:9, letter:"B", word:"BOSS", indo:"Bos", img:"boss.png" },
+      { id:10, letter:"B", word:"BOOK", indo:"Buku", img:"book.png" },
+      { id:11, letter:"B", word:"BAD", indo:"Jelek", img:"bad.png" },
+      { id:12, letter:"B", word:"BIRD", indo:"Burung", img:"bird.png" },
+      { id:13, letter:"B", word:"BEAUTIFUL", indo:"Cantik", img:"beautifull.png" },
+      { id:14, letter:"B", word:"BITE (VERB)", indo:"Gigit", img:"bite.png" },
+      { id:15, letter:"B", word:"BANANA", indo:"Pisang", img:"banana.png" },
+      { id:16, letter:"B", word:"BICYCLE", indo:"Sepeda", img:"BICYCLE.png" },
+      { id:17, letter:"B", word:"BREAST", indo:"Dada", img:"breast.png" },
+      { id:18, letter:"C", word:"CHILD BORN (1)", indo:"Kelahiran Anak", img:"CHILDBORN.png" },
+      { id:19, letter:"C", word:"CHILD BORN (2)", indo:"Kelahiran Anak", img:"CHILDBORN2.png" },
+      { id:20, letter:"C", word:"CHICKEN", indo:"Ayam", img:"CHICKEN.png" },
+      { id:21, letter:"C", word:"CHILI", indo:"Cabai", img:"CHILI.png" },
+      { id:22, letter:"C", word:"CANDLE", indo:"Lilin", img:"CANDLE.png" },
+      { id:23, letter:"C", word:"CASSAVE", indo:"Singkong", img:"CASSAVE.png" },
+      { id:24, letter:"C", word:"COLD (1)", indo:"Dingin", img:"COLD.png" },
+      { id:25, letter:"C", word:"COLD (2)", indo:"Dingin", img:"COLD2.png" },
+      { id:26, letter:"C", word:"COW", indo:"Sapi", img:"COW.png" },
+      { id:27, letter:"C", word:"CAT", indo:"Kucing", img:"CAT.png" },
+      { id:28, letter:"C", word:"COFFEE", indo:"Kopi", img:"COFFEE.png" },
+      { id:29, letter:"C", word:"CAR", indo:"Mobil", img:"CAR.png" },
+      { id:30, letter:"C", word:"CARPENTER", indo:"Tukang Kayu", img:"CARPENTER.png" },
+      { id:31, letter:"C", word:"CAT FISH", indo:"Ikan Lele", img:"CF.png" },
+      { id:32, letter:"C", word:"CHEEK", indo:"Pipi", img:"CHEEK.png" },
+      { id:33, letter:"C", word:"CHIN", indo:"Dagu", img:"CHIN.png" },
+      { id:34, letter:"C", word:"CHOPPING MEAT", indo:"Memotong Daging", img:"CHOPPING.png" },
+      { id:35, letter:"C", word:"COLA", indo:"Cola", img:"cola.png" },
+      { id:36, letter:"C", word:"COUGH", indo:"Batuk", img:"COUGH.png" },
+      { id:37, letter:"C", word:"CRAZY LOVE", indo:"Cinta Gila", img:"CRAZY.png" },
+      { id:38, letter:"D", word:"DOG", indo:"Anjing", img:"dog.png" },
+      { id:39, letter:"D", word:"DEAD", indo:"Mati", img:"dead.png" },
+      { id:40, letter:"D", word:"DEAF", indo:"Tuli", img:"deaf.png" },
+      { id:41, letter:"D", word:"DREAM", indo:"Mimpi", img:"dream.png" },
+      { id:42, letter:"D", word:"DRINKING", indo:"Minum", img:"drinking.png" },
+      { id:43, letter:"D", word:"DRYING SHIRT", indo:"Mengeringkan Baju", img:"dryingshirt.png" },
+      { id:44, letter:"D", word:"DURIAN", indo:"Durian", img:"durian.png" },
+      { id:45, letter:"E", word:"EATING", indo:"Makan", img:"eating.png" },
+      { id:46, letter:"E", word:"EGG", indo:"Telur", img:"egg.png" },
+      { id:47, letter:"E", word:"EYEBROW", indo:"Alis", img:"eyebrow.png" },
+      { id:48, letter:"E", word:"EAR", indo:"Telinga", img:"ear.png" },
+      { id:49, letter:"E", word:"ELEPHANT", indo:"Gajah", img:"elephant.png" },
+      { id:50, letter:"E", word:"EIGHT (1)", indo:"Delapan", img:"81.png" },
+      { id:51, letter:"E", word:"EIGHT (2)", indo:"Delapan", img:"82.png" },
+      { id:52, letter:"E", word:"EASY", indo:"Mudah", img:"easy.png" },
+      { id:53, letter:"F", word:"FISH", indo:"Ikan", img:"fish.png" },
+      { id:54, letter:"F", word:"FRUIT (A)", indo:"Buah", img:"fa.png" },
+      { id:55, letter:"F", word:"FOUR", indo:"Empat", img:"4.png" },
+      { id:56, letter:"F", word:"FIVE", indo:"Lima", img:"five.png" },
+      { id:57, letter:"F", word:"FATHER", indo:"Ayah", img:"father.png" },
+      { id:58, letter:"F", word:"FRUIT (B)", indo:"Buah", img:"fb.png" },
+      { id:59, letter:"F", word:"FRUIT (C)", indo:"Buah", img:"fc.png" },
+      { id:60, letter:"F", word:"FOOTBALL", indo:"Sepak Bola", img:"fball.png" },
+      { id:61, letter:"F", word:"FIVE MILLION FIVE", indo:"Lima Juta Lima Ratus Ribu", img:"fivemf.png" },
+      { id:62, letter:"F", word:"FRIEND", indo:"Teman", img:"friend.png" },
+      { id:63, letter:"F", word:"FIVE MILLION", indo:"Lima Juta", img:"fivem.png" },
+      { id:64, letter:"F", word:"FINISHED", indo:"Selesai", img:"finished.png" },
+      { id:65, letter:"F", word:"FRY", indo:"Menggoreng", img:"fry.png" },
+      { id:66, letter:"F", word:"FERMENTED SHRIMP", indo:"Udang Fermentasi", img:"fermantedshrimp.png" },
+      { id:67, letter:"F", word:"FORK", indo:"Garpu", img:"fork.png" },
+      { id:68, letter:"F", word:"FEMALE", indo:"Perempuan", img:"female.png" },
+      { id:69, letter:"F", word:"FEVER", indo:"Demam", img:"fever.png" },
+      { id:70, letter:"G", word:"GARDEN", indo:"Taman", img:"garden.png" },
+      { id:71, letter:"G", word:"GARLIC", indo:"Bawang Putih", img:"garlic.png" },
+      { id:72, letter:"G", word:"GREEN COLOUR", indo:"Warna Hijau", img:"greenc.png" },
+      { id:73, letter:"G", word:"GECHO", indo:"Gecho", img:"gecho.png" },
+      { id:74, letter:"G", word:"GRAND PARENTS", indo:"Kakek Nenek", img:"grandp.png" },
+      { id:75, letter:"G", word:"GINGER", indo:"Jahe", img:"ginger.png" },
+      { id:76, letter:"G", word:"GROWING UP", indo:"Tumbuh", img:"growup.png" },
+      { id:77, letter:"G", word:"GRINDING MACHINE", indo:"Mesin Gerinda", img:"grinding.png" },
+      { id:78, letter:"H", word:"HOUSE", indo:"Rumah", img:"house.png" },
+      { id:79, letter:"H", word:"HAIR", indo:"Rambut", img:"hair.png" },
+      { id:80, letter:"H", word:"HAT (1)", indo:"Topi", img:"hat.png" },
+      { id:81, letter:"H", word:"HAT (2)", indo:"Topi", img:"hat2.png" },
+      { id:82, letter:"H", word:"HEART", indo:"Hati", img:"heart.png" },
+      { id:83, letter:"H", word:"HELMET", indo:"Helm", img:"helmet.png" },
+      { id:84, letter:"H", word:"HUNGRY", indo:"Lapar", img:"hungry.png" },
+      { id:85, letter:"I", word:"ICE", indo:"Es", img:"ice.png" },
+      { id:86, letter:"J", word:"JACKFRUIT", indo:"Nangka", img:"jack.png" },
+      { id:87, letter:"K", word:"KNIFE", indo:"Pisau", img:"knife.png" },
+      { id:88, letter:"K", word:"KNOWING", indo:"Tahu", img:"knowing.png" },
+      { id:89, letter:"L", word:"LAMP", indo:"Lampu", img:"lamp.png" },
+      { id:90, letter:"L", word:"LIE", indo:"Berbohong", img:"lie.png" },
+      { id:91, letter:"L", word:"LIPS", indo:"Bibir", img:"lips.png" },
+      { id:92, letter:"L", word:"LITTLE BROTHER/SISTER", indo:"Adik", img:"adik.png" },
+      { id:93, letter:"M", word:"MAN", indo:"Pria", img:"man.png" },
+      { id:94, letter:"M", word:"MOTHER", indo:"Ibu", img:"mother.png" },
+      { id:95, letter:"M", word:"MOUNT", indo:"Gunung", img:"mount.png" },
+      { id:96, letter:"M", word:"MONKEY", indo:"Monyet", img:"monkey.png" },
+      { id:97, letter:"M", word:"MONEY", indo:"Uang", img:"money.png" },
+      { id:98, letter:"M", word:"MANGO", indo:"Mangga", img:"mango.png" },
+      { id:99, letter:"M", word:"MUSHROOM", indo:"Jamur", img:"mushroom.png" },
+      { id:100, letter:"M", word:"MOTORCYCLE", indo:"Sepeda Motor", img:"motor.png" },
+      { id:101, letter:"M", word:"MUSTACHE", indo:"Kumis", img:"mustache.png" },
+      { id:102, letter:"M", word:"MILLION", indo:"Juta", img:"million.png" },
+      { id:103, letter:"M", word:"MARRIAGE", indo:"Menikah", img:"marriage.png" },
+      { id:104, letter:"N", word:"NOSE", indo:"Hidung", img:"nose.png" },
+      { id:105, letter:"N", word:"NURSE", indo:"Suster", img:"nurse.png" },
+      { id:106, letter:"N", word:"NINE", indo:"Sembilan", img:"nine.png" },
+      { id:107, letter:"N", word:"NAUGHTY", indo:"Nakal", img:"naughty.png" },
+      { id:108, letter:"O", word:"ONE", indo:"Satu", img:"one.png" },
+      { id:109, letter:"O", word:"ONION", indo:"Bawang Merah", img:"onion.png" },
+      { id:110, letter:"O", word:"OLDER BROTHER/SISTER", indo:"Kakak", img:"kakak.png" },
+      { id:111, letter:"O", word:"OIL", indo:"Minyak", img:"oil.png" },
+      { id:112, letter:"P", word:"PIG", indo:"Babi", img:"pig.png" },
+      { id:113, letter:"P", word:"PAN (1)", indo:"Wajan", img:"pan.png" },
+      { id:114, letter:"P", word:"PAN (2)", indo:"Wajan", img:"pan2.png" },
+      { id:115, letter:"P", word:"PIL/CAPSULE", indo:"Pil/Kapsul", img:"pil.png" },
+      { id:116, letter:"P", word:"PLANTING", indo:"Menanam", img:"planting.png" },
+      { id:117, letter:"P", word:"PLATE", indo:"Piring", img:"plate.png" },
+      { id:118, letter:"P", word:"PLOWING", indo:"Membajak", img:"plowing.png" },
+      { id:119, letter:"P", word:"PINEAPPLE", indo:"Nanas", img:"pineapple.png" },
+      { id:120, letter:"R", word:"RUNNING", indo:"Berlari", img:"running.png" },
+      { id:121, letter:"R", word:"RELAXING", indo:"Santai", img:"relaxing.png" },
+      { id:122, letter:"R", word:"RED", indo:"Merah", img:"red.png" },
+      { id:123, letter:"R", word:"RICE", indo:"Nasi", img:"rice.png" },
+      { id:124, letter:"R", word:"ROUNDED SHAPE", indo:"Bentuk Bulat", img:"roundeds.png" },
+      { id:125, letter:"S", word:"SOUR", indo:"Asam", img:"sour.png" },
+      { id:126, letter:"S", word:"SHIRT", indo:"Kemeja", img:"shirt.png" },
+      { id:127, letter:"S", word:"STUPID/IDIOT", indo:"Bodoh", img:"stupid.png" },
+      { id:128, letter:"S", word:"SIX", indo:"Enam", img:"six.png" },
+      { id:129, letter:"S", word:"SHY/EMBARRASSED", indo:"Malu", img:"shy.png" },
+      { id:130, letter:"S", word:"SWEET", indo:"Manis", img:"sweet.png" },
+      { id:131, letter:"S", word:"SKIRT", indo:"Rok", img:"skirt.png" },
+      { id:132, letter:"S", word:"SICK/DIZZY", indo:"Sakit", img:"sick.png" },
+      { id:133, letter:"S", word:"SAME", indo:"Sama", img:"same.png" },
+      { id:134, letter:"S", word:"SARONG", indo:"Sarung", img:"sarong.png" },
+      { id:135, letter:"S", word:"SATAY", indo:"Sate", img:"satay.png" },
+      { id:136, letter:"S", word:"SAW", indo:"Gergaji", img:"saw.png" },
+      { id:137, letter:"S", word:"SEAL", indo:"Anjing Laut", img:"seal.png" },
+      { id:138, letter:"S", word:"SPOON", indo:"Sendok", img:"spoon.png" },
+      { id:139, letter:"S", word:"SHOES", indo:"Sepatu", img:"shoes.png" },
+      { id:140, letter:"S", word:"SUKESTI (NAME)", indo:"Sukesti", img:"sukesti.png" },
+      { id:141, letter:"S", word:"SLEEP", indo:"Tidur", img:"sleep.png" },
+      { id:142, letter:"S", word:"SEVEN", indo:"Tujuh", img:"seven.png" },
+      { id:143, letter:"S", word:"SNAKE", indo:"Ular", img:"snake.png" },
+      { id:144, letter:"T", word:"TROUSERS/PANTS", indo:"Celana", img:"trousers.png" },
+      { id:145, letter:"T", word:"TIE", indo:"Dasi", img:"tie.png" },
+      { id:146, letter:"T", word:"TWO", indo:"Dua", img:"two.png" },
+      { id:147, letter:"T", word:"TEETH", indo:"Gigi", img:"teeth.png" },
+      { id:148, letter:"T", word:"TONGUE", indo:"Lidah", img:"tongue.png" },
+      { id:149, letter:"T", word:"TAKING BATH/SHOWER (1)", indo:"Mandi", img:"tbath.png" },
+      { id:150, letter:"T", word:"TAKING BATH/SHOWER (2)", indo:"Mandi", img:"tbath2.png" },
+      { id:151, letter:"T", word:"TABLE", indo:"Meja", img:"table.png" },
+      { id:152, letter:"T", word:"TEN", indo:"Sepuluh", img:"ten.png" },
+      { id:153, letter:"T", word:"TRIANGLE", indo:"Segitiga", img:"triangle.png" },
+      { id:154, letter:"T", word:"TOOTH BRUSH", indo:"Sikat Gigi", img:"toothb.png" },
+      { id:155, letter:"T", word:"TEA (1)", indo:"Teh", img:"tea1.png" },
+      { id:156, letter:"T", word:"TEA (2)", indo:"Teh", img:"tea2.png" },
+      { id:157, letter:"T", word:"TEA (3)", indo:"Teh", img:"tea3.png" },
+      { id:158, letter:"T", word:"TEA (4)", indo:"Teh", img:"tea4.png" },
+      { id:159, letter:"T", word:"THREE", indo:"Tiga", img:"three.png" },
+      { id:160, letter:"T", word:"TOURIST", indo:"Wisatawan", img:"tourist.png" },
+      { id:161, letter:"W", word:"WATER", indo:"Air", img:"water.png" },
+      { id:162, letter:"W", word:"WORK", indo:"Bekerja", img:"work.png" },
+      { id:163, letter:"W", word:"WIN", indo:"Menang", img:"win.png" },
+      { id:164, letter:"W", word:"WATERMELON", indo:"Semangka", img:"waterm.png" },
+      { id:165, letter:"W", word:"WASHING", indo:"Mencuci", img:"washing.png" },
+      { id:166, letter:"W", word:"WANT TO", indo:"Ingin", img:"want.png" },
+      { id:167, letter:"W", word:"WALK (2)", indo:"Berjalan", img:"walk.png" },
+      { id:168, letter:"W", word:"WALK (1)", indo:"Berjalan", img:"walk2.png" },
+      { id:169, letter:"W", word:"WAKE UP", indo:"Bangun", img:"wakeup.png" },
+      { id:170, letter:"W", word:"WAIT", indo:"Tunggu", img:"wait.png" },
+      { id:171, letter:"W", word:"WINE", indo:"Anggur", img:"wine.png" },
+      { id:172, letter:"Y", word:"YELLOW", indo:"Kuning", img:"yellow.png" }
+    ];
+
+    /* =================================================================
+       UTILITAS
+       ================================================================= */
+    // Acak array (Fisher-Yates) — seeded agar konsisten per huruf
+    function shuffle(arr, seed) {
+      const a = [...arr];
+      let s = seed || 1;
+      function rng() { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    // Ambil subset unik berdasarkan properti (menghindari duplikat terjemahan)
+    function uniqueBy(arr, key) {
+      const seen = new Set();
+      return arr.filter(item => {
+        const val = item[key];
+        if (seen.has(val)) return false;
+        seen.add(val);
+        return true;
+      });
+    }
+
+    /* =================================================================
+       BACA PARAMETER URL
+       ================================================================= */
+    const params = new URLSearchParams(window.location.search);
+    const letter = (params.get('huruf') || params.get('letter') || 'A').toUpperCase();
+    const lkpdNo = parseInt(params.get('no')) || 1;
+
+    const allWords = DICTIONARY_DATA.filter(w => w.letter === letter);
+    // Buat set unik untuk latihan mencocokkan (hindari duplikat indo)
+    const uniqueWords = uniqueBy(allWords, 'indo');
+
+    document.title = `LKPD ${String(lkpdNo).padStart(2,'0')} — Huruf ${letter} — Kamus Kolok Digital`;
+
+    /* =================================================================
+       GENERATOR LEMBAR KERJA
+       ================================================================= */
+    function build() {
+      const root = document.getElementById('worksheetRoot');
+
+      if (allWords.length === 0) {
+        root.innerHTML = `
+          <div class="text-center py-20">
+            <div class="w-20 h-20 mx-auto rounded-full bg-red-50 text-red-500 flex items-center justify-center text-3xl mb-4"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <h2 class="text-xl font-bold text-slate-800">Huruf "${letter}" tidak ditemukan</h2>
+            <p class="text-sm text-slate-500 mt-2">Silakan kembali dan pilih huruf yang tersedia.</p>
+            <a href="index.html" class="inline-block mt-6 px-6 py-3 bg-slate-900 text-white rounded-xl font-bold text-sm">Kembali ke Kamus</a>
+          </div>`;
+        return;
+      }
+
+      let html = '';
+
+      /* ---------- HEADER & INFO SISWA ---------- */
+      html += `
+      <div class="worksheet-card bg-white rounded-2xl border-2 border-slate-300 overflow-hidden shadow-md mb-8">
+        <!-- Judul Utama -->
+        <div class="bg-slate-900 text-white p-6 sm:p-8 text-center relative overflow-hidden">
+          <div class="absolute -right-10 -top-10 w-40 h-40 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+          <p class="text-xs uppercase tracking-[0.2em] text-slate-400 mb-1">Kamus Kolok Digital — Bahasa Isyarat Desa Bengkala</p>
+          <h1 class="font-book text-2xl sm:text-3xl font-bold tracking-wide">LEMBAR KERJA PESERTA DIDIK</h1>
+          <div class="mt-4 inline-flex items-center gap-2 px-5 py-2 bg-amber-600 rounded-full text-sm font-bold shadow-md">
+            <i class="fa-solid fa-bookmark"></i>
+            LKPD ${String(lkpdNo).padStart(2,'0')} — Kosakata Huruf ${letter}
+          </div>
+          <p class="mt-3 text-xs text-slate-400">${allWords.length} kosakata isyarat</p>
+        </div>
+
+        <!-- Data Siswa -->
+        <div class="p-5 sm:p-6 bg-slate-50 border-b-2 border-slate-200">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4">
+            <div>
+              <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Nama Lengkap</label>
+              <div class="mt-1.5 answer-line"></div>
+            </div>
+            <div>
+              <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Kelas / Kelompok</label>
+              <div class="mt-1.5 answer-line"></div>
+            </div>
+            <div>
+              <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Tanggal</label>
+              <div class="mt-1.5 answer-line"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Petunjuk -->
+        <div class="p-5 sm:p-6">
+          <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+            <h3 class="font-bold text-amber-800 text-sm flex items-center gap-2">
+              <i class="fa-solid fa-circle-info"></i> Petunjuk Pengerjaan
+            </h3>
+            <ul class="mt-2 text-[13px] text-slate-700 space-y-1 leading-relaxed">
+              <li>• Kerjakan semua latihan berikut dengan teliti dan jujur.</li>
+              <li>• Gunakan <strong>Kamus Kolok Digital</strong> sebagai bahan referensi belajar.</li>
+              <li>• Lembar kerja ini mencakup <strong>${allWords.length} kosakata</strong> isyarat Kolok berawalan huruf <strong>${letter}</strong>.</li>
+            </ul>
+          </div>
+        </div>
+      </div>`;
+
+      /* ---------- LATIHAN 1: IDENTIFIKASI GAMBAR ---------- */
+      const imgItems = shuffle(allWords, letter.charCodeAt(0) * 7);
+      const showCount = Math.min(imgItems.length, 8); // Maks 8 gambar agar tidak terlalu panjang
+      const selectedImgs = imgItems.slice(0, showCount);
+
+      html += `
+      <div class="worksheet-card bg-white rounded-2xl border-2 border-slate-300 overflow-hidden shadow-md mb-8">
+        <div class="bg-blue-600 text-white px-5 py-4 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center font-bold text-lg">1</div>
+          <div>
+            <h2 class="font-bold text-base">Identifikasi Gambar Isyarat</h2>
+            <p class="text-xs text-blue-100">Perhatikan gambar isyarat Kolok berikut, lalu tuliskan nama kata dalam <strong>Bahasa Inggris</strong> dan <strong>Bahasa Indonesia</strong>.</p>
+          </div>
+        </div>
+        <div class="p-5 sm:p-6">
+          <div class="grid grid-cols-2 ${showCount > 4 ? 'sm:grid-cols-4' : 'sm:grid-cols-' + Math.min(showCount, 4)} gap-4 sm:gap-5">`;
+
+      selectedImgs.forEach((item, i) => {
+        html += `
+            <div class="border border-slate-200 rounded-xl overflow-hidden">
+              <div class="bg-slate-100 aspect-square flex items-center justify-center p-1">
+                <img src="${item.img}" alt="Isyarat ${i+1}" class="w-full h-full object-contain rounded-lg"
+                     onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'text-center text-slate-400 text-xs p-4\\'><i class=\\'fa-solid fa-image text-2xl mb-1\\'></i><br>Gambar ${i+1}</div>';">
+              </div>
+              <div class="p-3 space-y-2">
+                <div>
+                  <span class="text-[10px] font-bold text-slate-400 uppercase">Inggris:</span>
+                  <div class="answer-line mt-0.5"></div>
+                </div>
+                <div>
+                  <span class="text-[10px] font-bold text-slate-400 uppercase">Indonesia:</span>
+                  <div class="answer-line mt-0.5"></div>
+                </div>
+              </div>
+            </div>`;
+      });
+
+      html += `
+          </div>
+        </div>
+      </div>`;
+
+      /* ---------- LATIHAN 2: JODOHKAN / MENCOCOKKAN ---------- */
+      if (uniqueWords.length >= 3) {
+        const matchCount = Math.min(uniqueWords.length, 10);
+        const matchItems = shuffle(uniqueWords, letter.charCodeAt(0) * 13).slice(0, matchCount);
+        const leftCol = [...matchItems]; // urutan asli
+        const rightCol = shuffle(matchItems, letter.charCodeAt(0) * 31); // diacak
+
+        html += `
+      <div class="worksheet-card bg-white rounded-2xl border-2 border-slate-300 overflow-hidden shadow-md mb-8 print-break">
+        <div class="bg-emerald-600 text-white px-5 py-4 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center font-bold text-lg">2</div>
+          <div>
+            <h2 class="font-bold text-base">Jodohkan Kata</h2>
+            <p class="text-xs text-emerald-100">Hubungkan kata <strong>Bahasa Inggris</strong> di kolom kiri dengan terjemahan <strong>Bahasa Indonesia</strong> di kolom kanan dengan menarik garis.</p>
+          </div>
+        </div>
+        <div class="p-5 sm:p-6">
+          <div class="max-w-xl mx-auto">
+            <div class="flex justify-between items-start">
+              <!-- Kolom Kiri: Bahasa Inggris -->
+              <div class="space-y-3 text-left w-[42%]">
+                <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">Bahasa Inggris</div>`;
+        leftCol.forEach((item, i) => {
+          html += `
+                <div class="flex items-center gap-2 py-2 px-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <span class="text-xs font-bold text-blue-400">${i+1}.</span>
+                  <span class="text-sm font-semibold text-slate-800 flex-grow">${item.word}</span>
+                  <span class="matching-dot"></span>
+                </div>`;
+        });
+        html += `
+              </div>
+              <!-- Garis Tengah -->
+              <div class="flex-shrink-0 w-[10%] flex items-center justify-center">
+                <div class="h-full border-l-2 border-dashed border-slate-200 min-h-[200px]"></div>
+              </div>
+              <!-- Kolom Kanan: Bahasa Indonesia -->
+              <div class="space-y-3 text-right w-[42%]">
+                <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">Bahasa Indonesia</div>`;
+        rightCol.forEach((item, i) => {
+          const abc = String.fromCharCode(97 + i); // a, b, c, ...
+          html += `
+                <div class="flex items-center gap-2 py-2 px-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <span class="matching-dot"></span>
+                  <span class="text-sm font-semibold text-slate-800 flex-grow text-left">${item.indo}</span>
+                  <span class="text-xs font-bold text-amber-400">${abc}.</span>
+                </div>`;
+        });
+        html += `
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+      }
+
+      /* ---------- LATIHAN 3: ISI TERJEMAHAN ---------- */
+      const transItems = shuffle(uniqueWords, letter.charCodeAt(0) * 19);
+      // Separuh: Inggris → Indonesia, separuh: Indonesia → Inggris
+      const half = Math.ceil(transItems.length / 2);
+      const engToInd = transItems.slice(0, half);
+      const indToEng = transItems.slice(half);
+
+      html += `
+      <div class="worksheet-card bg-white rounded-2xl border-2 border-slate-300 overflow-hidden shadow-md mb-8 ${uniqueWords.length >= 3 ? '' : 'print-break'}">
+        <div class="bg-violet-600 text-white px-5 py-4 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center font-bold text-lg">${uniqueWords.length >= 3 ? '3' : '2'}</div>
+          <div>
+            <h2 class="font-bold text-base">Terjemahkan Kosakata</h2>
+            <p class="text-xs text-violet-200">Tuliskan terjemahan yang tepat pada kolom yang tersedia.</p>
+          </div>
+        </div>
+        <div class="p-5 sm:p-6">`;
+
+      if (engToInd.length > 0) {
+        html += `
+          <h3 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-[11px] font-bold">A</span>
+            Terjemahkan ke Bahasa Indonesia
+          </h3>
+          <div class="space-y-3 mb-6">`;
+        engToInd.forEach((item, i) => {
+          html += `
+            <div class="flex items-center gap-3 py-2 border-b border-slate-100">
+              <span class="text-xs font-bold text-slate-400 w-6 text-right flex-shrink-0">${i+1}.</span>
+              <span class="text-sm font-semibold text-slate-800 w-44 flex-shrink-0">${item.word}</span>
+              <span class="text-slate-400">=</span>
+              <div class="answer-line flex-grow"></div>
+            </div>`;
+        });
+        html += `</div>`;
+      }
+
+      if (indToEng.length > 0) {
+        html += `
+          <h3 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+            <span class="px-2 py-0.5 bg-amber-100 text-amber-700 rounded text-[11px] font-bold">B</span>
+            Terjemahkan ke Bahasa Inggris
+          </h3>
+          <div class="space-y-3">`;
+        indToEng.forEach((item, i) => {
+          html += `
+            <div class="flex items-center gap-3 py-2 border-b border-slate-100">
+              <span class="text-xs font-bold text-slate-400 w-6 text-right flex-shrink-0">${i+1}.</span>
+              <span class="text-sm font-semibold text-slate-800 w-44 flex-shrink-0">${item.indo}</span>
+              <span class="text-slate-400">=</span>
+              <div class="answer-line flex-grow"></div>
+            </div>`;
+        });
+        html += `</div>`;
+      }
+
+      html += `
+        </div>
+      </div>`;
+
+      /* ---------- LATIHAN 4: PILIHAN GANDA (jika >= 5 kata unik) ---------- */
+      if (uniqueWords.length >= 5) {
+        const mcItems = shuffle(uniqueWords, letter.charCodeAt(0) * 37).slice(0, Math.min(5, uniqueWords.length));
+
+        html += `
+      <div class="worksheet-card bg-white rounded-2xl border-2 border-slate-300 overflow-hidden shadow-md mb-8 print-break">
+        <div class="bg-rose-600 text-white px-5 py-4 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center font-bold text-lg">4</div>
+          <div>
+            <h2 class="font-bold text-base">Pilihan Ganda</h2>
+            <p class="text-xs text-rose-200">Perhatikan gambar isyarat, kemudian pilih jawaban yang paling tepat.</p>
+          </div>
+        </div>
+        <div class="p-5 sm:p-6 space-y-6">`;
+
+        mcItems.forEach((item, qi) => {
+          // Buat opsi jawaban (1 benar + 3 salah dari kosakata lain)
+          let distractors = uniqueWords.filter(w => w.id !== item.id);
+          distractors = shuffle(distractors, item.id * 11).slice(0, 3);
+          let options = shuffle([item, ...distractors], item.id * 23);
+
+          html += `
+          <div class="border border-slate-200 rounded-xl p-4">
+            <div class="flex items-start gap-4">
+              <div class="w-24 h-24 sm:w-28 sm:h-28 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center">
+                <img src="${item.img}" alt="Soal ${qi+1}" class="w-full h-full object-contain"
+                     onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'text-center text-slate-400 text-xs p-2\\'><i class=\\'fa-solid fa-image text-xl\\'></i></div>';">
+              </div>
+              <div class="flex-grow">
+                <p class="text-sm font-bold text-slate-800 mb-3">${qi+1}. Gambar isyarat di samping memiliki arti…</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">`;
+          options.forEach((opt, oi) => {
+            const optLabel = String.fromCharCode(65 + oi); // A, B, C, D
+            html += `
+                  <label class="flex items-center gap-2 py-2 px-3 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer transition-colors">
+                    <span class="w-6 h-6 rounded-full border-2 border-slate-300 flex items-center justify-center text-[11px] font-bold text-slate-500 flex-shrink-0">${optLabel}</span>
+                    <span class="text-sm text-slate-700">${opt.word} <span class="text-slate-400">(${opt.indo})</span></span>
+                  </label>`;
+          });
+          html += `
+                </div>
+              </div>
+            </div>
+          </div>`;
+        });
+
+        html += `
+        </div>
+      </div>`;
+      }
+
+      /* ---------- LATIHAN 5: SUSUN HURUF / ACAK KATA (jika >= 4 kata unik) ---------- */
+      if (uniqueWords.length >= 4) {
+        const scrambleItems = shuffle(uniqueWords, letter.charCodeAt(0) * 43).slice(0, Math.min(6, uniqueWords.length));
+
+        html += `
+      <div class="worksheet-card bg-white rounded-2xl border-2 border-slate-300 overflow-hidden shadow-md mb-8">
+        <div class="bg-orange-500 text-white px-5 py-4 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center font-bold text-lg">${uniqueWords.length >= 5 ? '5' : '4'}</div>
+          <div>
+            <h2 class="font-bold text-base">Susun Huruf</h2>
+            <p class="text-xs text-orange-100">Huruf-huruf di bawah diacak. Susun kembali menjadi kata Bahasa Inggris yang benar! Petunjuk terjemahan Indonesia diberikan.</p>
+          </div>
+        </div>
+        <div class="p-5 sm:p-6 space-y-4">`;
+
+        scrambleItems.forEach((item, i) => {
+          // Acak huruf dari kata
+          const baseWord = item.word.replace(/\s*\(.*?\)\s*/g, '').replace(/\//g, ' / ');
+          const letters_arr = shuffle(baseWord.split(''), item.id * 53);
+          const scrambled = letters_arr.join(' ');
+
+          html += `
+          <div class="flex items-center gap-4 py-3 border-b border-slate-100">
+            <span class="text-xs font-bold text-slate-400 w-6 text-right flex-shrink-0">${i+1}.</span>
+            <div class="flex-shrink-0">
+              <span class="text-xs text-slate-500">Petunjuk:</span>
+              <span class="text-sm font-semibold text-amber-700 ml-1">${item.indo}</span>
+            </div>
+            <div class="flex-shrink-0 px-3 py-1.5 bg-slate-100 rounded-lg border border-slate-200">
+              <span class="font-mono text-sm font-bold text-slate-600 tracking-[0.3em] uppercase">${scrambled}</span>
+            </div>
+            <span class="text-slate-400">→</span>
+            <div class="answer-line flex-grow"></div>
+          </div>`;
+        });
+
+        html += `
+        </div>
+      </div>`;
+      }
+
+      /* ---------- FOOTER ---------- */
+      html += `
+      <div class="worksheet-card bg-white rounded-2xl border-2 border-slate-300 overflow-hidden shadow-md mb-8">
+        <div class="p-5 sm:p-6 text-center">
+          <div class="inline-flex items-center gap-2 text-slate-400 text-sm">
+            <i class="fa-solid fa-check-double text-emerald-500"></i>
+            <span>Akhir Lembar Kerja — LKPD ${String(lkpdNo).padStart(2,'0')} Huruf ${letter}</span>
+          </div>
+          <p class="text-[11px] text-slate-400 mt-2">Kamus Kolok Digital © Bahasa Isyarat Desa Bengkala, Buleleng, Bali</p>
+        </div>
+      </div>
+
+      <!-- Tombol Navigasi (tidak tercetak) -->
+      <div class="no-print flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
+        <a href="index.html" class="px-6 py-3 bg-slate-900 text-white rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-slate-800 transition-colors">
+          <i class="fa-solid fa-arrow-left"></i>
+          Kembali ke Kamus
+        </a>
+        <button onclick="window.print()" class="px-6 py-3 bg-amber-600 text-white rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-amber-700 transition-colors">
+          <i class="fa-solid fa-print"></i>
+          Cetak Lembar Kerja
+        </button>
+      </div>`;
+
+      root.innerHTML = html;
+    }
+
+    /* =================================================================
+       JALANKAN SAAT HALAMAN DIMUAT
+       ================================================================= */
+    window.onload = build;
+  </script>
+</body>
+</html>
