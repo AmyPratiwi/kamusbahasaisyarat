@@ -206,11 +206,18 @@
           <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0 text-xl font-bold">
             <i class="fa-solid fa-file-pen"></i>
           </div>
-          <div>
+          <div class="flex-grow">
             <h2 class="text-base sm:text-lg font-bold text-slate-900">Lembar Kerja Peserta Didik</h2>
             <p class="text-xs text-slate-600 mt-1 leading-relaxed">
               Pilih lembar kerja per huruf di bawah. Setiap lembar kerja berisi latihan identifikasi gambar, mencocokkan kata, terjemahan, pilihan ganda, dan susun huruf. Lembar kerja bisa dicetak (print) untuk dikerjakan secara offline.
             </p>
+            <div class="mt-4 pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <span class="text-xs text-slate-600 font-medium">Unggah hasil pengerjaan lembar kerja Anda ke Padlet:</span>
+              <a href="https://padlet.com/amypratiwi2813/padlet-pengumpulan-lkpd-s023jz8eaysb80eyfvtf" target="_blank" rel="noopener noreferrer" id="btnUploadPadlet" class="w-full sm:w-auto px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-2">
+                <span>Buka Padlet LKPD</span>
+                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -235,7 +242,7 @@
         </div>
         <div class="p-4 bg-amber-50/70 border border-amber-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3">
           <span class="text-xs text-slate-700 font-medium">Klik tombol di samping untuk membuka halaman Padlet latihan kelas.</span>
-          <a href="https://padlet.com/mhsantosa/my-fearless-padlet-s023cjj23524z2veea5m" target="_blank" id="btnDirectPadlet" class="w-full sm:w-auto px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-2">
+          <a href="https://padlet.com" target="_blank" id="btnDirectPadlet" class="w-full sm:w-auto px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-2">
             <span>Buka Padlet Latihan</span>
             <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
           </a>
@@ -293,8 +300,8 @@
     /* =========================================================================
        1. KONFIGURASI TAUTAN (PADLET & GOOGLE DRIVE)
        ========================================================================= */
-    let padletPracticeUrl = "https://padlet.com/mhsantosa/my-fearless-padlet-s023cjj23524z2veea5m";   
-    let padletLkpdUploadUrl = "https://padlet.com/mhsantosa/my-fearless-padlet-s023cjj23524z2veea5m"; 
+    let padletPracticeUrl = "https://padlet.com";   
+    let padletLkpdUploadUrl = "https://padlet.com/amypratiwi2813/padlet-pengumpulan-lkpd-s023jz8eaysb80eyfvtf"; 
 
     // Daftar Lembar Kerja per Huruf (link ke halaman lkpd.html lokal)
     const LKPD_DATA = [
@@ -802,6 +809,10 @@
 
     // Inisialisasi saat Halaman Dimuat
     window.onload = function() {
+      const uploadBtn = document.getElementById("btnUploadPadlet");
+      if (uploadBtn && typeof padletLkpdUploadUrl !== 'undefined') {
+        uploadBtn.href = padletLkpdUploadUrl;
+      }
       renderAlphabetTabs();
       renderDictionary(DICTIONARY_DATA);
       renderLkpdSection();
