@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Kamus Kolok Digital</title>
+  <title>Kata Kolok (Bahasa Isyarat)</title>
   
   <!-- Tailwind CSS & Font Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -86,19 +86,25 @@
       <div class="flex items-center justify-between gap-3">
         <div class="flex items-center gap-3">
           <!-- Tombol Kembali ke Menu Utama -->
-          <button onclick="switchView('menu')" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 flex items-center justify-center transition-all border border-slate-700" title="Kembali ke Menu Utama">
+          <button onclick="switchView('menu')" id="btnHeaderHome" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 flex items-center justify-center transition-all border border-slate-700 flex-shrink-0" title="Kembali ke Menu Utama">
             <i class="fa-solid fa-house text-sm"></i>
           </button>
-          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-md border border-amber-300/30">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-md border border-amber-300/30 flex-shrink-0">
             <i class="fa-solid fa-book-bookmark text-xl text-white"></i>
           </div>
           <div>
-            <h1 class="font-book text-lg sm:text-xl font-bold tracking-wide text-amber-50 flex items-center gap-2">
-              Kamus Kolok Digital
+            <h1 id="headerTitle" class="font-book text-base sm:text-xl font-bold tracking-wide text-amber-50 flex items-center gap-2">
+              Kata Kolok (Bahasa Isyarat)
             </h1>
-            <p class="text-xs text-slate-300">Bahasa Isyarat Asli Bengkala • Versi Digital</p>
+            <p id="headerSubtitle" class="text-xs text-slate-300">Bahasa Isyarat Asli Bengkala • Versi Digital</p>
           </div>
         </div>
+
+        <!-- Tombol Translate Pilihan Bahasa di Header -->
+        <button onclick="toggleLanguage()" id="btnHeaderLang" class="flex-shrink-0 px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-amber-300 font-bold text-xs flex items-center gap-1.5 border border-amber-500/40 shadow-sm transition-all" title="Ubah Bahasa / Switch Language">
+          <i class="fa-solid fa-language text-amber-400 text-sm"></i>
+          <span class="lang-btn-label" id="headerLangLabel">ID | EN</span>
+        </button>
       </div>
 
       <!-- Bilah Pencarian Kosakata Cepat (Hanya muncul di halaman Kamus) -->
@@ -124,70 +130,191 @@
   <main class="max-w-4xl mx-auto px-3 sm:px-4 pt-4">
 
     <!-- VIEW 0: HALAMAN MENU UTAMA (Tampil Pertama Kali) -->
-    <section id="viewMenu" class="py-6 sm:py-10">
+    <section id="viewMenu" class="py-4 sm:py-8">
+      <!-- Tombol Pilihan Bahasa di Halaman Beranda -->
+      <div class="flex justify-end items-center mb-3">
+        <button onclick="toggleLanguage()" id="btnMenuLang" class="px-3.5 py-1.5 rounded-full bg-white hover:bg-amber-50 text-slate-700 border border-slate-200 shadow-sm font-bold text-xs flex items-center gap-2 transition-all hover:border-amber-400">
+          <i class="fa-solid fa-language text-amber-600 text-sm"></i>
+          <span id="langMenuText">Bahasa: <strong>Indonesia</strong> (Switch to English)</span>
+        </button>
+      </div>
+
       <!-- Kartu Sambutan & Deskripsi Singkat Aplikasi -->
-      <div class="bg-gradient-to-br from-slate-900 to-[#1E293B] rounded-3xl p-6 sm:p-8 text-white shadow-xl border border-amber-600/30 mb-8 relative overflow-hidden">
+      <div class="bg-gradient-to-br from-slate-900 to-[#1E293B] rounded-3xl p-6 sm:p-8 text-white shadow-xl border border-amber-600/30 mb-6 relative overflow-hidden">
         <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
         <div class="flex items-center gap-3.5 mb-4">
           <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-lg border border-amber-300/30 flex-shrink-0">
             <i class="fa-solid fa-hands-asl-interpreting text-2xl text-white"></i>
           </div>
           <div>
-            <span class="text-xs font-bold uppercase tracking-wider text-amber-400 bg-amber-500/20 px-2.5 py-1 rounded-full border border-amber-500/30">Aplikasi Pembelajaran Isyarat</span>
-            <h2 class="font-book text-2xl sm:text-3xl font-bold text-white mt-1">Kamus Kolok Digital</h2>
+            <span id="txtBadgeApp" class="text-xs font-bold uppercase tracking-wider text-amber-400 bg-amber-500/20 px-2.5 py-1 rounded-full border border-amber-500/30">Aplikasi Pembelajaran Isyarat</span>
+            <h2 id="txtWelcomeTitle" class="font-book text-2xl sm:text-3xl font-bold text-white mt-1">Kata Kolok (Bahasa Isyarat)</h2>
           </div>
         </div>
-        <p class="text-sm sm:text-base text-slate-300 leading-relaxed font-sans">
-          Selamat datang di platform digital interaktif untuk mempelajari <strong class="text-amber-300">Bahasa Isyarat Kolok</strong>, bahasa isyarat tradisional unik yang lahir dan berkembang secara alami di Desa Bengkala, Buleleng, Bali.
+        <p id="txtWelcomeDesc" class="text-sm sm:text-base text-slate-300 leading-relaxed font-sans">
+          Selamat datang di platform digital interaktif untuk mempelajari <strong class="text-amber-300">Kata Kolok (Bahasa Isyarat)</strong>, bahasa isyarat tradisional unik yang lahir dan berkembang secara alami di Desa Bengkala, Buleleng, Bali.
         </p>
       </div>
 
-      <!-- Pilihan Menu Utama (Simpel, Tanpa Deskripsi Per Menu) -->
-      <div class="mb-4">
-        <h3 class="font-book text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+      <!-- KARTU TENTANG KAMUS (Penjelasan Kamus Kata Kolok) -->
+      <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-sm mb-6 relative overflow-hidden">
+        <div class="flex items-center gap-3 mb-3.5">
+          <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg flex-shrink-0">
+            <i class="fa-solid fa-book-open"></i>
+          </div>
+          <h3 id="txtAboutTitle" class="font-book text-lg sm:text-xl font-bold text-slate-900">Tentang Kata Kolok & Kamus Ini</h3>
+        </div>
+        <div class="text-xs sm:text-sm text-slate-600 leading-relaxed font-sans space-y-2.5" id="txtAboutDesc">
+          <p>
+            <strong>Kata Kolok</strong> adalah bahasa isyarat alami dan unik yang diwariskan secara turun-temurun oleh masyarakat di Desa Bengkala, Buleleng, Bali. Keistimewaan desa ini adalah tingginya keharmonisan dan rasa saling menghargai, di mana warga yang dapat mendengar dan warga tuli (kolok) sama-sama terbiasa menggunakan bahasa isyarat ini untuk saling berkomunikasi setiap hari.
+          </p>
+          <p>
+            Kamus digital bergambar ini hadir sebagai media pembelajaran visual yang ramah anak. Melalui foto peragaan tangan yang jelas dan terstruktur, siapa saja dapat mengenal, mempelajari, serta melestarikan kebudayaan luhur bahasa isyarat asli Indonesia ini secara mudah, mandiri, dan gembira.
+          </p>
+        </div>
+      </div>
+
+      <!-- Pilihan Menu Utama -->
+      <div class="mb-3">
+        <h3 id="txtChooseMenuTitle" class="font-book text-lg font-bold text-slate-800 flex items-center gap-2">
           <i class="fa-solid fa-compass text-amber-600"></i>
           Pilih Menu Utama
         </h3>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <!-- Tombol Menu 1: Kamus -->
-        <button onclick="switchView('kamus'); window.scrollTo({top: 0, behavior: 'smooth'});" class="bg-white hover:bg-amber-50/50 p-6 rounded-3xl border border-slate-200 shadow-sm hover:border-amber-400 transition-all text-left flex items-center justify-between group">
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <!-- Tombol Menu 1: Kamus Kata Kolok -->
+        <button onclick="switchView('kamus'); window.scrollTo({top: 0, behavior: 'smooth'});" class="bg-white hover:bg-amber-50/50 p-5 sm:p-6 rounded-3xl border border-slate-200 shadow-sm hover:border-amber-400 transition-all text-left flex items-center justify-between group">
+          <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl group-hover:scale-110 transition-transform flex-shrink-0">
               <i class="fa-solid fa-book-atlas"></i>
             </div>
-            <h4 class="font-book text-lg font-bold text-slate-900 group-hover:text-amber-700 transition-colors">Kamus</h4>
+            <div>
+              <h4 id="txtMenu1Title" class="font-book text-base sm:text-lg font-bold text-slate-900 group-hover:text-amber-700 transition-colors">Kata Kolok (Bahasa Isyarat)</h4>
+              <p id="txtMenu1Sub" class="text-[11px] text-slate-400">Kamus visual & kosakata</p>
+            </div>
           </div>
           <i class="fa-solid fa-arrow-right text-slate-400 group-hover:text-amber-600 transition-colors"></i>
         </button>
 
         <!-- Tombol Menu 2: Lembar kerja -->
-        <button onclick="switchView('lkpd'); window.scrollTo({top: 0, behavior: 'smooth'});" class="bg-white hover:bg-blue-50/50 p-6 rounded-3xl border border-slate-200 shadow-sm hover:border-blue-400 transition-all text-left flex items-center justify-between group">
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+        <button onclick="switchView('lkpd'); window.scrollTo({top: 0, behavior: 'smooth'});" class="bg-white hover:bg-blue-50/50 p-5 sm:p-6 rounded-3xl border border-slate-200 shadow-sm hover:border-blue-400 transition-all text-left flex items-center justify-between group">
+          <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center text-xl group-hover:scale-110 transition-transform flex-shrink-0">
               <i class="fa-solid fa-file-pen"></i>
             </div>
-            <h4 class="font-book text-lg font-bold text-slate-900 group-hover:text-blue-700 transition-colors">Lembar kerja</h4>
+            <div>
+              <h4 id="txtMenu2Title" class="font-book text-base sm:text-lg font-bold text-slate-900 group-hover:text-blue-700 transition-colors">Lembar Kerja</h4>
+              <p id="txtMenu2Sub" class="text-[11px] text-slate-400">Latihan mandiri & cetak</p>
+            </div>
           </div>
           <i class="fa-solid fa-arrow-right text-slate-400 group-hover:text-blue-600 transition-colors"></i>
         </button>
 
-        <!-- Tombol Menu 3: Latihan -->
-        <button onclick="switchView('padlet'); window.scrollTo({top: 0, behavior: 'smooth'});" class="bg-white hover:bg-rose-50/50 p-6 rounded-3xl border border-slate-200 shadow-sm hover:border-rose-400 transition-all text-left flex items-center justify-between group">
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
-              <i class="fa-solid fa-cloud-arrow-up"></i>
+        <!-- Tombol Menu 3: Latihan Video -->
+        <button onclick="switchView('padlet'); window.scrollTo({top: 0, behavior: 'smooth'});" class="bg-white hover:bg-rose-50/50 p-5 sm:p-6 rounded-3xl border border-slate-200 shadow-sm hover:border-rose-400 transition-all text-left flex items-center justify-between group">
+          <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center text-xl group-hover:scale-110 transition-transform flex-shrink-0">
+              <i class="fa-solid fa-video"></i>
             </div>
-            <h4 class="font-book text-lg font-bold text-slate-900 group-hover:text-rose-700 transition-colors">Latihan</h4>
+            <div>
+              <h4 id="txtMenu3Title" class="font-book text-base sm:text-lg font-bold text-slate-900 group-hover:text-rose-700 transition-colors">Latihan Video (Padlet)</h4>
+              <p id="txtMenu3Sub" class="text-[11px] text-slate-400">Praktik gerakan & unggah</p>
+            </div>
           </div>
           <i class="fa-solid fa-arrow-right text-slate-400 group-hover:text-rose-600 transition-colors"></i>
         </button>
       </div>
+
+      <!-- INSTRUKSI PENGGUNAAN APLIKASI DI BAGIAN BAWAH BERANDA (1, 2, 3) -->
+      <div class="bg-gradient-to-br from-amber-500/10 via-white to-amber-500/5 rounded-3xl p-6 sm:p-7 border border-amber-200/90 shadow-sm mb-8">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center text-lg flex-shrink-0 shadow-sm">
+            <i class="fa-solid fa-list-check"></i>
+          </div>
+          <div>
+            <h3 id="txtHomeGuideTitle" class="font-book text-lg sm:text-xl font-bold text-slate-900">Petunjuk Penggunaan Aplikasi</h3>
+            <p id="txtHomeGuideSub" class="text-xs text-slate-500">Ikuti 3 langkah mudah berikut untuk mulai belajar dengan ceria:</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-slate-700">
+          <!-- Langkah 1 -->
+          <div class="bg-white p-5 rounded-2xl border border-amber-100 shadow-xs">
+            <div class="flex items-center gap-2.5 mb-2.5">
+              <span class="w-8 h-8 rounded-full bg-amber-600 text-white font-bold flex items-center justify-center text-sm shadow-sm flex-shrink-0">1</span>
+              <h4 id="txtHomeStep1Title" class="font-bold text-slate-900 text-sm">Baca Kamus</h4>
+            </div>
+            <p id="txtHomeStep1Desc" class="text-xs text-slate-600 leading-relaxed">
+              Buka menu kamus untuk mempelajari beragam kosakata Kata Kolok lengkap dengan foto peraga gerakan tangan dan artinya dalam Bahasa Indonesia serta Bahasa Inggris.
+            </p>
+          </div>
+
+          <!-- Langkah 2 -->
+          <div class="bg-white p-5 rounded-2xl border border-blue-100 shadow-xs">
+            <div class="flex items-center gap-2.5 mb-2.5">
+              <span class="w-8 h-8 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-sm shadow-sm flex-shrink-0">2</span>
+              <h4 id="txtHomeStep2Title" class="font-bold text-slate-900 text-sm">Lanjut ke Lembar Kerja</h4>
+            </div>
+            <p id="txtHomeStep2Desc" class="text-xs text-slate-600 leading-relaxed">
+              Pilih lembar kerja huruf sesuai materi yang ingin kamu kuasai, lalu kerjakan aktivitas latihan seru seperti mencocokkan kata dan tebak gambar.
+            </p>
+          </div>
+
+          <!-- Langkah 3 -->
+          <div class="bg-white p-5 rounded-2xl border border-rose-100 shadow-xs">
+            <div class="flex items-center gap-2.5 mb-2.5">
+              <span class="w-8 h-8 rounded-full bg-rose-600 text-white font-bold flex items-center justify-center text-sm shadow-sm flex-shrink-0">3</span>
+              <h4 id="txtHomeStep3Title" class="font-bold text-slate-900 text-sm">Lanjut ke Latihan Video</h4>
+            </div>
+            <p id="txtHomeStep3Desc" class="text-xs text-slate-600 leading-relaxed">
+              Peragakan gerakan isyarat yang telah dipelajari, rekam videomu, dan unggah ke Padlet kelas agar dapat dinilai dan diapresiasi oleh guru dan teman-teman!
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- COPYRIGHT DI BAGIAN PALING BAWAH BERANDA -->
+      <footer class="pt-6 pb-4 border-t border-slate-200/80 text-center text-slate-500 font-sans space-y-1">
+        <p id="txtCopyrightMain" class="text-xs font-semibold text-slate-700">
+          Hak Cipta © Made Hery Santosa, Ni Komang Amy Pratiwi
+        </p>
+        <p id="txtCopyrightDict" class="text-[11px] text-slate-400">
+          Picture Dictionary © Anonim
+        </p>
+      </footer>
     </section>
 
     <!-- VIEW 1: BUKU KAMUS -->
     <section id="viewKamus" class="hidden">
+      <!-- PETUNJUK PENGGUNAAN KAMUS (1, 2, 3, 4) -->
+      <div class="bg-white rounded-3xl p-5 sm:p-6 border border-amber-200/90 shadow-sm mb-6 bg-gradient-to-br from-amber-50/90 via-white to-amber-50/40">
+        <div class="flex items-center gap-2.5 mb-4 text-amber-900 font-bold text-sm sm:text-base">
+          <div class="w-8 h-8 rounded-xl bg-amber-600 text-white flex items-center justify-center text-sm shadow-xs">
+            <i class="fa-solid fa-lightbulb"></i>
+          </div>
+          <span id="kamusGuideTitle">Petunjuk Penggunaan Kamus:</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs text-slate-700">
+          <div class="flex items-start gap-3 bg-white/95 p-3.5 rounded-2xl border border-amber-100 shadow-xs">
+            <span class="w-6 h-6 rounded-full bg-amber-600 text-white font-bold flex items-center justify-center flex-shrink-0 text-xs shadow-xs">1</span>
+            <span id="kamusStep1" class="leading-relaxed">Pilih huruf pada bilah tab di atas atau ketik nama kata di kotak pencarian untuk menemukan kosakata isyarat.</span>
+          </div>
+          <div class="flex items-start gap-3 bg-white/95 p-3.5 rounded-2xl border border-amber-100 shadow-xs">
+            <span class="w-6 h-6 rounded-full bg-amber-600 text-white font-bold flex items-center justify-center flex-shrink-0 text-xs shadow-xs">2</span>
+            <span id="kamusStep2" class="leading-relaxed">Klik kartu kata untuk memperbesar foto gerakan isyarat dan mempelajari maknanya secara mandiri.</span>
+          </div>
+          <div class="flex items-start gap-3 bg-white/95 p-3.5 rounded-2xl border border-blue-100 shadow-xs">
+            <span class="w-6 h-6 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center flex-shrink-0 text-xs shadow-xs">3</span>
+            <span id="kamusStep3" class="leading-relaxed">Setelah membaca kamus, uji kemampuanmu dengan mengerjakan latihan soal di menu <strong>Lembar Kerja (LKPD)</strong>.</span>
+          </div>
+          <div class="flex items-start gap-3 bg-white/95 p-3.5 rounded-2xl border border-rose-100 shadow-xs">
+            <span class="w-6 h-6 rounded-full bg-rose-600 text-white font-bold flex items-center justify-center flex-shrink-0 text-xs shadow-xs">4</span>
+            <span id="kamusStep4" class="leading-relaxed">Peragakan gerakan isyarat tanganmu, lalu rekam dan unggah videomu pada menu <strong>Latihan Video</strong>!</span>
+          </div>
+        </div>
+      </div>
+
       <div class="flex items-center justify-between mb-3 text-xs text-slate-500 px-1">
         <span id="wordCountLabel" class="font-medium">Kosakata digital</span>
       </div>
@@ -198,25 +325,44 @@
       </div>
     </section>
 
-    <!-- VIEW 2: TEMPAT UNDUH LEMBAR KERJA & UPLOAD PADLET -->
+    <!-- VIEW 2: TEMPAT UNDUH LEMBAR KERJA -->
     <section id="viewLkpd" class="hidden">
-      <!-- SATU PUSAT TEMPAT UPLOAD TUGAS LKPD -->
+      <!-- KOTAK INSTRUKSI PENGERJAAN LEMBAR KERJA (1, 2, 3, 4) - TANPA HYPERLINK PADLET DI ATAS -->
       <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm mb-5">
         <div class="flex items-start gap-4">
           <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0 text-xl font-bold">
             <i class="fa-solid fa-file-pen"></i>
           </div>
           <div class="flex-grow">
-            <h2 class="text-base sm:text-lg font-bold text-slate-900">Lembar Kerja Peserta Didik</h2>
-            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
-              Pilih lembar kerja per huruf di bawah. Setiap lembar kerja berisi latihan identifikasi gambar, mencocokkan kata, terjemahan, pilihan ganda, dan susun huruf. Lembar kerja bisa dicetak (print) untuk dikerjakan secara offline.
+            <h2 id="lkpdMainTitle" class="text-base sm:text-lg font-bold text-slate-900">Lembar Kerja Peserta Didik</h2>
+            <p id="lkpdGuideTitle" class="text-xs font-bold text-blue-800 mt-2 mb-2 flex items-center gap-1.5">
+              <i class="fa-solid fa-circle-info text-blue-600"></i>
+              Petunjuk Pengerjaan Lembar Kerja:
             </p>
-            <div class="mt-4 pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <span class="text-xs text-slate-600 font-medium">Unggah hasil pengerjaan lembar kerja Anda ke Padlet:</span>
-              <a href="https://padlet.com/amypratiwi2813/padlet-pengumpulan-lkpd-s023jz8eaysb80eyfvtf" target="_blank" rel="noopener noreferrer" id="btnUploadPadlet" class="w-full sm:w-auto px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-2">
-                <span>Buka Padlet LKPD</span>
-                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-              </a>
+            <div class="space-y-2 text-xs text-slate-700 leading-relaxed">
+              <div class="flex items-start gap-2.5 p-2 bg-blue-50/60 rounded-xl border border-blue-100">
+                <span class="w-5 h-5 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-[11px] flex-shrink-0">1</span>
+                <span id="lkpdStep1">Pilih Lembar Kerja Peserta Didik (LKPD) huruf yang ingin kamu kerjakan pada daftar di bawah ini.</span>
+              </div>
+              <div class="flex items-start gap-2.5 p-2 bg-blue-50/60 rounded-xl border border-blue-100">
+                <span class="w-5 h-5 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-[11px] flex-shrink-0">2</span>
+                <span id="lkpdStep2">Buka lembar kerja untuk dikerjakan secara langsung pada layar atau dicetak (print) di atas kertas.</span>
+              </div>
+              <div class="flex items-start gap-2.5 p-2 bg-blue-50/60 rounded-xl border border-blue-100">
+                <span class="w-5 h-5 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-[11px] flex-shrink-0">3</span>
+                <div id="lkpdStep3Container">
+                  <span id="lkpdStep3Prefix">Jika kamu memerlukan bantuan melihat kembali gerakan isyarat saat mengerjakan, gunakan kamus </span>
+                  <button onclick="switchView('kamus'); window.scrollTo({top: 0, behavior: 'smooth'});" class="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-[11px] font-bold shadow-xs mx-1 transition-all">
+                    <i class="fa-solid fa-book-atlas"></i>
+                    <span id="lkpdStep3Btn">Buka Kata Kolok (Bahasa Isyarat)</span>
+                  </button>
+                  <span id="lkpdStep3Suffix">sebagai panduan belajar.</span>
+                </div>
+              </div>
+              <div class="flex items-start gap-2.5 p-2 bg-blue-50/60 rounded-xl border border-blue-100">
+                <span class="w-5 h-5 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-[11px] flex-shrink-0">4</span>
+                <span id="lkpdStep4">Setelah selesai mengerjakan semua soal, foto lembar jawabanmu lalu unggah melalui tombol <strong>"Lanjutkan ke Padlet"</strong> yang tersedia di dalam lembar kerja tersebut.</span>
+              </div>
             </div>
           </div>
         </div>
@@ -228,23 +374,49 @@
       </div>
     </section>
 
-    <!-- VIEW 3: PADLET LATIHAN GERAKAN -->
+    <!-- VIEW 3: PADLET LATIHAN GERAKAN VIDEO -->
     <section id="viewPadlet" class="hidden">
       <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm mb-4">
         <div class="flex items-center gap-3.5 mb-4">
-          <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl font-bold flex-shrink-0">
+          <div class="w-12 h-12 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center text-xl font-bold flex-shrink-0">
             <i class="fa-solid fa-video"></i>
           </div>
           <div>
-            <h2 class="text-base sm:text-lg font-bold text-slate-900">Padlet Latihan Gerakan Isyarat</h2>
-            <p class="text-xs text-slate-600">Unggah foto atau video latihan gerakan isyarat mandiri Anda di sini.</p>
+            <h2 id="padletTitle" class="text-base sm:text-lg font-bold text-slate-900">Latihan Video Gerakan Isyarat</h2>
+            <p id="padletSub" class="text-xs text-slate-600">Unggah rekaman video atau foto latihan gerakan isyarat mandiri Anda di sini.</p>
           </div>
         </div>
+
+        <div class="mb-5 bg-rose-50/50 border border-rose-100 rounded-2xl p-4">
+          <h4 id="padletGuideTitle" class="text-xs font-bold text-rose-800 mb-2 flex items-center gap-1.5">
+            <i class="fa-solid fa-circle-play text-rose-600"></i>
+            Petunjuk Latihan Video:
+          </h4>
+          <div class="space-y-2 text-xs text-slate-700">
+            <div class="flex items-start gap-2.5 p-2 bg-white rounded-xl border border-rose-100/80 shadow-xs">
+              <span class="w-5 h-5 rounded-full bg-rose-600 text-white font-bold flex items-center justify-center text-[11px] flex-shrink-0">1</span>
+              <span id="padletStep1">Pilih kosakata isyarat dari kamus Kata Kolok yang ingin kamu latih dan peragakan.</span>
+            </div>
+            <div class="flex items-start gap-2.5 p-2 bg-white rounded-xl border border-rose-100/80 shadow-xs">
+              <span class="w-5 h-5 rounded-full bg-rose-600 text-white font-bold flex items-center justify-center text-[11px] flex-shrink-0">2</span>
+              <span id="padletStep2">Siapkan kamera HP atau komputer, lalu rekam videomu saat mempraktikkan gerakan tangan tersebut secara jelas.</span>
+            </div>
+            <div class="flex items-start gap-2.5 p-2 bg-white rounded-xl border border-rose-100/80 shadow-xs">
+              <span class="w-5 h-5 rounded-full bg-rose-600 text-white font-bold flex items-center justify-center text-[11px] flex-shrink-0">3</span>
+              <span id="padletStep3">Klik tombol <strong>"Lanjutkan ke Padlet"</strong> di bawah untuk membuka papan tugas kelas.</span>
+            </div>
+            <div class="flex items-start gap-2.5 p-2 bg-white rounded-xl border border-rose-100/80 shadow-xs">
+              <span class="w-5 h-5 rounded-full bg-rose-600 text-white font-bold flex items-center justify-center text-[11px] flex-shrink-0">4</span>
+              <span id="padletStep4">Unggah video atau fotomu agar bisa dilihat dan diapresiasi oleh bapak/ibu guru serta teman-teman!</span>
+            </div>
+          </div>
+        </div>
+
         <div class="p-4 bg-amber-50/70 border border-amber-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3">
-          <span class="text-xs text-slate-700 font-medium">Klik tombol di samping untuk membuka halaman Padlet latihan kelas.</span>
-          <a href="https://padlet.com/mhsantosa/my-fearless-padlet-s023cjj23524z2veea5m" target="_blank" id="btnDirectPadlet" class="w-full sm:w-auto px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-2">
-            <span>Buka Padlet Latihan</span>
-            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+          <span id="padletBtnPrompt" class="text-xs text-slate-700 font-medium">Klik tombol untuk langsung membuka halaman Padlet latihan kelas:</span>
+          <a href="https://padlet.com/amypratiwi2813/padlet-pengumpulan-lkpd-s023jz8eaysb80eyfvtf" target="_blank" rel="noopener noreferrer" id="btnDirectPadlet" class="w-full sm:w-auto px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-2">
+            <span id="padletBtnText">Lanjutkan ke Padlet</span>
+            <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
           </a>
         </div>
       </div>
@@ -271,7 +443,7 @@
         </div>
 
         <div class="mt-4 pt-3 border-t border-slate-100">
-          <button onclick="closeDetailModal()" class="w-full py-2.5 bg-slate-100 text-slate-600 rounded-xl text-xs font-semibold hover:bg-slate-200 transition-all">
+          <button id="modalCloseBtn" onclick="closeDetailModal()" class="w-full py-2.5 bg-slate-100 text-slate-600 rounded-xl text-xs font-semibold hover:bg-slate-200 transition-all">
             Tutup
           </button>
         </div>
@@ -283,15 +455,15 @@
   <div id="bottomNav" class="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200 py-2.5 px-6 z-40 flex items-center justify-around shadow-2xl max-w-4xl mx-auto hidden">
     <button onclick="switchView('kamus'); window.scrollTo({top: 0, behavior: 'smooth'});" id="botNavKamus" class="flex flex-col items-center text-amber-700 font-bold text-[11px] gap-1 transition-all">
       <i class="fa-solid fa-book-atlas text-lg"></i>
-      <span>Kamus</span>
+      <span id="navKamusLabel">Kata Kolok</span>
     </button>
     <button onclick="switchView('lkpd'); window.scrollTo({top: 0, behavior: 'smooth'});" id="botNavLkpd" class="flex flex-col items-center text-slate-400 hover:text-slate-800 font-medium text-[11px] gap-1 transition-all">
       <i class="fa-solid fa-file-pen text-lg"></i>
-      <span>Lembar Kerja</span>
+      <span id="navLkpdLabel">Lembar Kerja</span>
     </button>
     <button onclick="switchView('padlet'); window.scrollTo({top: 0, behavior: 'smooth'});" id="botNavPadlet" class="flex flex-col items-center text-slate-400 hover:text-slate-800 font-medium text-[11px] gap-1 transition-all">
       <i class="fa-solid fa-cloud-arrow-up text-lg"></i>
-      <span>Latihan (Padlet)</span>
+      <span id="navPadletLabel">Latihan Video</span>
     </button>
   </div>
 
@@ -300,7 +472,7 @@
     /* =========================================================================
        1. KONFIGURASI TAUTAN (PADLET & GOOGLE DRIVE)
        ========================================================================= */
-    let padletPracticeUrl = "https://padlet.com/mhsantosa/my-fearless-padlet-s023cjj23524z2veea5m";   
+    let padletPracticeUrl = "https://padlet.com";   
     let padletLkpdUploadUrl = "https://padlet.com/amypratiwi2813/padlet-pengumpulan-lkpd-s023jz8eaysb80eyfvtf"; 
 
     // Daftar Lembar Kerja per Huruf (link ke halaman lkpd.html lokal)
@@ -676,14 +848,306 @@
       });
     }
 
+    /* =========================================================================
+       SISTEM MULTI BAHASA (INDONESIA / ENGLISH)
+       ========================================================================= */
+    const I18N_DATA = {
+      id: {
+        docTitle: "Kata Kolok (Bahasa Isyarat)",
+        headerTitle: "Kata Kolok (Bahasa Isyarat)",
+        headerSubtitle: "Bahasa Isyarat Asli Bengkala • Versi Digital",
+        headerHomeTitle: "Kembali ke Menu Utama",
+        headerLangTooltip: "Ubah ke Bahasa Inggris",
+        headerLangLabel: "ID | EN",
+        langMenuText: "Bahasa: <strong>Indonesia</strong> (Switch to English)",
+        badgeApp: "Aplikasi Pembelajaran Isyarat",
+        welcomeTitle: "Kata Kolok (Bahasa Isyarat)",
+        welcomeDesc: "Selamat datang di platform digital interaktif untuk mempelajari <strong class=\"text-amber-300\">Kata Kolok (Bahasa Isyarat)</strong>, bahasa isyarat tradisional unik yang lahir dan berkembang secara alami di Desa Bengkala, Buleleng, Bali.",
+        aboutTitle: "Tentang Kata Kolok & Kamus Ini",
+        aboutDesc: `<p><strong>Kata Kolok</strong> adalah bahasa isyarat alami dan unik yang diwariskan secara turun-temurun oleh masyarakat di Desa Bengkala, Buleleng, Bali. Keistimewaan desa ini adalah tingginya keharmonisan dan rasa saling menghargai, di mana warga yang dapat mendengar dan warga tuli (kolok) sama-sama terbiasa menggunakan bahasa isyarat ini untuk saling berkomunikasi setiap hari.</p><p>Kamus digital bergambar ini hadir sebagai media pembelajaran visual yang ramah anak. Melalui foto peragaan tangan yang jelas dan terstruktur, siapa saja dapat mengenal, mempelajari, serta melestarikan kebudayaan luhur bahasa isyarat asli Indonesia ini secara mudah, mandiri, dan gembira.</p>`,
+        chooseMenuTitle: `<i class="fa-solid fa-compass text-amber-600"></i> Pilih Menu Utama`,
+        menu1Title: "Kata Kolok (Bahasa Isyarat)",
+        menu1Sub: "Kamus visual & kosakata",
+        menu2Title: "Lembar Kerja",
+        menu2Sub: "Latihan mandiri & cetak",
+        menu3Title: "Latihan Video (Padlet)",
+        menu3Sub: "Praktik gerakan & unggah",
+        homeGuideTitle: "Petunjuk Penggunaan Aplikasi",
+        homeGuideSub: "Ikuti 3 langkah mudah berikut untuk mulai belajar dengan ceria:",
+        homeStep1Title: "Baca Kamus",
+        homeStep1Desc: "Buka menu kamus untuk mempelajari beragam kosakata Kata Kolok lengkap dengan foto peraga gerakan tangan dan artinya dalam Bahasa Indonesia serta Bahasa Inggris.",
+        btnStep1: "Buka Kamus Sekarang",
+        homeStep2Title: "Lanjut ke Lembar Kerja",
+        homeStep2Desc: "Pilih lembar kerja huruf sesuai materi yang ingin kamu kuasai, lalu kerjakan aktivitas latihan seru seperti mencocokkan kata dan tebak gambar.",
+        btnStep2: "Buka Lembar Kerja",
+        homeStep3Title: "Lanjut ke Latihan Video",
+        homeStep3Desc: "Peragakan gerakan isyarat yang telah dipelajari, rekam videomu, dan unggah ke Padlet kelas agar dapat dinilai dan diapresiasi oleh guru dan teman-teman!",
+        btnStep3: "Buka Latihan Video",
+        copyrightMain: "Hak Cipta © Made Hery Santosa, Ni Komang Amy Pratiwi",
+        copyrightDict: "Picture Dictionary © Anonim",
+
+        lkpdMainTitle: "Lembar Kerja Peserta Didik",
+        lkpdGuideTitle: `<i class="fa-solid fa-circle-info text-blue-600"></i> Petunjuk Pengerjaan Lembar Kerja:`,
+        lkpdStep1: "Pilih Lembar Kerja Peserta Didik (LKPD) huruf yang ingin kamu kerjakan pada daftar di bawah ini.",
+        lkpdStep2: "Buka lembar kerja untuk dikerjakan secara langsung pada layar atau dicetak (print) di atas kertas.",
+        lkpdStep3Prefix: "Jika kamu memerlukan bantuan melihat kembali gerakan isyarat saat mengerjakan, gunakan kamus ",
+        lkpdStep3Btn: "Buka Kata Kolok (Bahasa Isyarat)",
+        lkpdStep3Suffix: "sebagai panduan belajar.",
+        lkpdStep4: `Setelah selesai mengerjakan semua soal, foto lembar jawabanmu lalu unggah melalui tombol <strong>"Lanjutkan ke Padlet"</strong> yang tersedia di dalam lembar kerja tersebut.`,
+
+        padletTitle: "Latihan Video Gerakan Isyarat",
+        padletSub: "Unggah rekaman video atau foto latihan gerakan isyarat mandiri Anda di sini.",
+        padletGuideTitle: `<i class="fa-solid fa-circle-play text-rose-600"></i> Petunjuk Latihan Video:`,
+        padletStep1: "Pilih kosakata isyarat dari kamus Kata Kolok yang ingin kamu latih dan peragakan.",
+        padletStep2: "Siapkan kamera HP atau komputer, lalu rekam videomu saat mempraktikkan gerakan tangan tersebut secara jelas.",
+        padletStep3: `Klik tombol <strong>"Lanjutkan ke Padlet"</strong> di bawah untuk membuka papan tugas kelas.`,
+        padletStep4: "Unggah video atau fotomu agar bisa dilihat dan diapresiasi oleh bapak/ibu guru serta teman-teman!",
+        padletBtnPrompt: "Klik tombol untuk langsung membuka halaman Padlet latihan kelas:",
+        padletBtnText: "Lanjutkan ke Padlet",
+
+        navKamusLabel: "Kata Kolok",
+        navLkpdLabel: "Lembar Kerja",
+        navPadletLabel: "Latihan Video",
+
+        kamusGuideTitle: "Petunjuk Penggunaan Kamus:",
+        kamusStep1: "Pilih huruf pada bilah tab di atas atau ketik nama kata di kotak pencarian untuk menemukan kosakata isyarat.",
+        kamusStep2: "Klik kartu kata untuk memperbesar foto gerakan isyarat dan mempelajari maknanya secara mandiri.",
+        kamusStep3: `Setelah membaca kamus, uji kemampuanmu dengan mengerjakan latihan soal di menu <strong>Lembar Kerja (LKPD)</strong>.`,
+        kamusStep4: `Peragakan gerakan isyarat tanganmu, lalu rekam dan unggah videomu pada menu <strong>Latihan Video</strong>!`
+      },
+      en: {
+        docTitle: "Kata Kolok (Sign Language)",
+        headerTitle: "Kata Kolok (Sign Language)",
+        headerSubtitle: "Indigenous Bengkala Sign Language • Digital Version",
+        headerHomeTitle: "Back to Main Menu",
+        headerLangTooltip: "Switch Language to Indonesian",
+        headerLangLabel: "EN | ID",
+        langMenuText: "Language: <strong>English</strong> (Ganti ke Indonesia)",
+        badgeApp: "Sign Language Learning App",
+        welcomeTitle: "Kata Kolok (Sign Language)",
+        welcomeDesc: "Welcome to the interactive digital platform for learning <strong class=\"text-amber-300\">Kata Kolok (Sign Language)</strong>, a unique traditional sign language born and developed naturally in Bengkala Village, Buleleng, Bali.",
+        aboutTitle: "About Kata Kolok & This Dictionary",
+        aboutDesc: `<p><strong>Kata Kolok</strong> is a natural and unique sign language passed down through generations by the community in Bengkala Village, Buleleng, Bali. The distinction of this village lies in its high harmony and mutual respect, where hearing and deaf (kolok) villagers alike regularly use this sign language to communicate with each other every day.</p><p>This illustrated digital dictionary is designed as a child-friendly visual learning medium. Through clear and structured hand gesture demonstration photos, anyone can discover, learn, and preserve this noble indigenous Indonesian sign language culture easily, independently, and joyfully.</p>`,
+        chooseMenuTitle: `<i class="fa-solid fa-compass text-amber-600"></i> Select Main Menu`,
+        menu1Title: "Kata Kolok (Sign Language)",
+        menu1Sub: "Visual dictionary & vocabulary",
+        menu2Title: "Worksheets",
+        menu2Sub: "Independent practice & print",
+        menu3Title: "Video Practice (Padlet)",
+        menu3Sub: "Gesture practice & upload",
+        homeGuideTitle: "Application User Guide",
+        homeGuideSub: "Follow these 3 easy steps to start learning cheerfully:",
+        homeStep1Title: "Read the Dictionary",
+        homeStep1Desc: "Open the dictionary menu to learn various Kata Kolok vocabulary complete with hand sign gesture photos and their meanings in Indonesian and English.",
+        btnStep1: "Open Dictionary Now",
+        homeStep2Title: "Continue to Worksheets",
+        homeStep2Desc: "Choose a letter worksheet matching the material you want to master, then complete fun practice activities like word matching and picture guessing.",
+        btnStep2: "Open Worksheets",
+        homeStep3Title: "Continue to Video Practice",
+        homeStep3Desc: "Demonstrate the learned sign gestures, record your video, and upload it to the class Padlet to be reviewed and appreciated by teachers and classmates!",
+        btnStep3: "Open Video Practice",
+        copyrightMain: "Copyright © Made Hery Santosa, Ni Komang Amy Pratiwi",
+        copyrightDict: "Picture Dictionary © Anonymous",
+
+        lkpdMainTitle: "Student Worksheets",
+        lkpdGuideTitle: `<i class="fa-solid fa-circle-info text-blue-600"></i> Worksheet Instructions:`,
+        lkpdStep1: "Select the letter Student Worksheet (LKPD) you want to work on from the list below.",
+        lkpdStep2: "Open the worksheet to work directly on screen or print onto paper.",
+        lkpdStep3Prefix: "If you need help reviewing sign gestures while working, use the dictionary ",
+        lkpdStep3Btn: "Open Kata Kolok (Sign Language)",
+        lkpdStep3Suffix: "as a study guide.",
+        lkpdStep4: `After completing all exercises, take a photo of your answers and upload it via the <strong>"Proceed to Padlet"</strong> button inside the worksheet.`,
+
+        padletTitle: "Sign Gesture Video Practice",
+        padletSub: "Upload your independent sign gesture practice videos or photos here.",
+        padletGuideTitle: `<i class="fa-solid fa-circle-play text-rose-600"></i> Video Practice Instructions:`,
+        padletStep1: "Select Kata Kolok sign vocabulary from the dictionary that you want to practice and demonstrate.",
+        padletStep2: "Prepare your phone camera or computer, then record yourself clearly practicing the hand gestures.",
+        padletStep3: `Click the <strong>"Proceed to Padlet"</strong> button below to open the class assignment board.`,
+        padletStep4: "Upload your video or photo so it can be viewed and appreciated by teachers and classmates!",
+        padletBtnPrompt: "Click the button to directly open the class practice Padlet page:",
+        padletBtnText: "Proceed to Padlet",
+
+        navKamusLabel: "Kata Kolok",
+        navLkpdLabel: "Worksheets",
+        navPadletLabel: "Video Practice",
+
+        kamusGuideTitle: "Dictionary Usage Guide:",
+        kamusStep1: "Select a letter from the tabs above or type in the search bar to find sign vocabulary.",
+        kamusStep2: "Click a word card to view the enlarged gesture photo and study its meaning independently.",
+        kamusStep3: `After studying the dictionary, test your skills by completing exercises in the <strong>Worksheets (LKPD)</strong> menu.`,
+        kamusStep4: `Demonstrate your hand sign gestures, then record and upload your video in the <strong>Video Practice</strong> menu!`
+      }
+    };
+
+    let currentLang = localStorage.getItem('kolok_app_lang') || 'id';
+
+    function toggleLanguage() {
+      currentLang = (currentLang === 'id') ? 'en' : 'id';
+      try {
+        localStorage.setItem('kolok_app_lang', currentLang);
+      } catch (e) {}
+      applyLanguage(currentLang);
+    }
+
+    function applyLanguage(lang) {
+      const t = I18N_DATA[lang] || I18N_DATA.id;
+      document.documentElement.lang = lang;
+      document.title = t.docTitle;
+
+      // Header
+      const headerTitle = document.getElementById("headerTitle");
+      if (headerTitle) headerTitle.innerText = t.headerTitle;
+      const headerSubtitle = document.getElementById("headerSubtitle");
+      if (headerSubtitle) headerSubtitle.innerText = t.headerSubtitle;
+      const btnHeaderHome = document.getElementById("btnHeaderHome");
+      if (btnHeaderHome) btnHeaderHome.title = t.headerHomeTitle;
+      const btnHeaderLang = document.getElementById("btnHeaderLang");
+      if (btnHeaderLang) btnHeaderLang.title = t.headerLangTooltip;
+      const headerLangLabel = document.getElementById("headerLangLabel");
+      if (headerLangLabel) headerLangLabel.innerText = t.headerLangLabel;
+
+      // Menu View (Beranda)
+      const langMenuText = document.getElementById("langMenuText");
+      if (langMenuText) langMenuText.innerHTML = t.langMenuText;
+      const txtBadgeApp = document.getElementById("txtBadgeApp");
+      if (txtBadgeApp) txtBadgeApp.innerText = t.badgeApp;
+      const txtWelcomeTitle = document.getElementById("txtWelcomeTitle");
+      if (txtWelcomeTitle) txtWelcomeTitle.innerText = t.welcomeTitle;
+      const txtWelcomeDesc = document.getElementById("txtWelcomeDesc");
+      if (txtWelcomeDesc) txtWelcomeDesc.innerHTML = t.welcomeDesc;
+      const txtAboutTitle = document.getElementById("txtAboutTitle");
+      if (txtAboutTitle) txtAboutTitle.innerText = t.aboutTitle;
+      const txtAboutDesc = document.getElementById("txtAboutDesc");
+      if (txtAboutDesc) txtAboutDesc.innerHTML = t.aboutDesc;
+      const txtChooseMenuTitle = document.getElementById("txtChooseMenuTitle");
+      if (txtChooseMenuTitle) txtChooseMenuTitle.innerHTML = t.chooseMenuTitle;
+
+      const txtMenu1Title = document.getElementById("txtMenu1Title");
+      if (txtMenu1Title) txtMenu1Title.innerText = t.menu1Title;
+      const txtMenu1Sub = document.getElementById("txtMenu1Sub");
+      if (txtMenu1Sub) txtMenu1Sub.innerText = t.menu1Sub;
+      const txtMenu2Title = document.getElementById("txtMenu2Title");
+      if (txtMenu2Title) txtMenu2Title.innerText = t.menu2Title;
+      const txtMenu2Sub = document.getElementById("txtMenu2Sub");
+      if (txtMenu2Sub) txtMenu2Sub.innerText = t.menu2Sub;
+      const txtMenu3Title = document.getElementById("txtMenu3Title");
+      if (txtMenu3Title) txtMenu3Title.innerText = t.menu3Title;
+      const txtMenu3Sub = document.getElementById("txtMenu3Sub");
+      if (txtMenu3Sub) txtMenu3Sub.innerText = t.menu3Sub;
+
+      const txtHomeGuideTitle = document.getElementById("txtHomeGuideTitle");
+      if (txtHomeGuideTitle) txtHomeGuideTitle.innerText = t.homeGuideTitle;
+      const txtHomeGuideSub = document.getElementById("txtHomeGuideSub");
+      if (txtHomeGuideSub) txtHomeGuideSub.innerText = t.homeGuideSub;
+      const txtHomeStep1Title = document.getElementById("txtHomeStep1Title");
+      if (txtHomeStep1Title) txtHomeStep1Title.innerText = t.homeStep1Title;
+      const txtHomeStep1Desc = document.getElementById("txtHomeStep1Desc");
+      if (txtHomeStep1Desc) txtHomeStep1Desc.innerText = t.homeStep1Desc;
+      const txtBtnStep1 = document.getElementById("txtBtnStep1");
+      if (txtBtnStep1) txtBtnStep1.innerText = t.btnStep1;
+
+      const txtHomeStep2Title = document.getElementById("txtHomeStep2Title");
+      if (txtHomeStep2Title) txtHomeStep2Title.innerText = t.homeStep2Title;
+      const txtHomeStep2Desc = document.getElementById("txtHomeStep2Desc");
+      if (txtHomeStep2Desc) txtHomeStep2Desc.innerText = t.homeStep2Desc;
+      const txtBtnStep2 = document.getElementById("txtBtnStep2");
+      if (txtBtnStep2) txtBtnStep2.innerText = t.btnStep2;
+
+      const txtHomeStep3Title = document.getElementById("txtHomeStep3Title");
+      if (txtHomeStep3Title) txtHomeStep3Title.innerText = t.homeStep3Title;
+      const txtHomeStep3Desc = document.getElementById("txtHomeStep3Desc");
+      if (txtHomeStep3Desc) txtHomeStep3Desc.innerText = t.homeStep3Desc;
+      const txtBtnStep3 = document.getElementById("txtBtnStep3");
+      if (txtBtnStep3) txtBtnStep3.innerText = t.btnStep3;
+
+      const txtCopyrightMain = document.getElementById("txtCopyrightMain");
+      if (txtCopyrightMain) txtCopyrightMain.innerText = t.copyrightMain;
+      const txtCopyrightDict = document.getElementById("txtCopyrightDict");
+      if (txtCopyrightDict) txtCopyrightDict.innerText = t.copyrightDict;
+
+      // Lembar Kerja (LKPD)
+      const lkpdMainTitle = document.getElementById("lkpdMainTitle");
+      if (lkpdMainTitle) lkpdMainTitle.innerText = t.lkpdMainTitle;
+      const lkpdGuideTitle = document.getElementById("lkpdGuideTitle");
+      if (lkpdGuideTitle) lkpdGuideTitle.innerHTML = t.lkpdGuideTitle;
+      const lkpdStep1 = document.getElementById("lkpdStep1");
+      if (lkpdStep1) lkpdStep1.innerText = t.lkpdStep1;
+      const lkpdStep2 = document.getElementById("lkpdStep2");
+      if (lkpdStep2) lkpdStep2.innerText = t.lkpdStep2;
+      const lkpdStep3Prefix = document.getElementById("lkpdStep3Prefix");
+      if (lkpdStep3Prefix) lkpdStep3Prefix.innerText = t.lkpdStep3Prefix;
+      const lkpdStep3Btn = document.getElementById("lkpdStep3Btn");
+      if (lkpdStep3Btn) lkpdStep3Btn.innerText = t.lkpdStep3Btn;
+      const lkpdStep3Suffix = document.getElementById("lkpdStep3Suffix");
+      if (lkpdStep3Suffix) lkpdStep3Suffix.innerText = t.lkpdStep3Suffix;
+      const lkpdStep4 = document.getElementById("lkpdStep4");
+      if (lkpdStep4) lkpdStep4.innerHTML = t.lkpdStep4;
+
+      renderLkpdSection();
+
+      // Padlet
+      const padletTitle = document.getElementById("padletTitle");
+      if (padletTitle) padletTitle.innerText = t.padletTitle;
+      const padletSub = document.getElementById("padletSub");
+      if (padletSub) padletSub.innerText = t.padletSub;
+      const padletGuideTitle = document.getElementById("padletGuideTitle");
+      if (padletGuideTitle) padletGuideTitle.innerHTML = t.padletGuideTitle;
+      const padletStep1 = document.getElementById("padletStep1");
+      if (padletStep1) padletStep1.innerText = t.padletStep1;
+      const padletStep2 = document.getElementById("padletStep2");
+      if (padletStep2) padletStep2.innerText = t.padletStep2;
+      const padletStep3 = document.getElementById("padletStep3");
+      if (padletStep3) padletStep3.innerHTML = t.padletStep3;
+      const padletStep4 = document.getElementById("padletStep4");
+      if (padletStep4) padletStep4.innerText = t.padletStep4;
+      const padletBtnPrompt = document.getElementById("padletBtnPrompt");
+      if (padletBtnPrompt) padletBtnPrompt.innerText = t.padletBtnPrompt;
+      const padletBtnText = document.getElementById("padletBtnText");
+      if (padletBtnText) padletBtnText.innerText = t.padletBtnText;
+
+      // Petunjuk Kamus
+      const kamusGuideTitle = document.getElementById("kamusGuideTitle");
+      if (kamusGuideTitle) kamusGuideTitle.innerText = t.kamusGuideTitle;
+      const kamusStep1 = document.getElementById("kamusStep1");
+      if (kamusStep1) kamusStep1.innerText = t.kamusStep1;
+      const kamusStep2 = document.getElementById("kamusStep2");
+      if (kamusStep2) kamusStep2.innerText = t.kamusStep2;
+      const kamusStep3 = document.getElementById("kamusStep3");
+      if (kamusStep3) kamusStep3.innerHTML = t.kamusStep3;
+      const kamusStep4 = document.getElementById("kamusStep4");
+      if (kamusStep4) kamusStep4.innerHTML = t.kamusStep4;
+
+      // Bottom Nav
+      const navKamusLabel = document.getElementById("navKamusLabel");
+      if (navKamusLabel) navKamusLabel.innerText = t.navKamusLabel;
+      const navLkpdLabel = document.getElementById("navLkpdLabel");
+      if (navLkpdLabel) navLkpdLabel.innerText = t.navLkpdLabel;
+      const navPadletLabel = document.getElementById("navPadletLabel");
+      if (navPadletLabel) navPadletLabel.innerText = t.navPadletLabel;
+    }
+
     // Render Lembar Kerja
     function renderLkpdSection() {
       const grid = document.getElementById("lkpdListGrid");
+      if (!grid) return;
       grid.innerHTML = "";
+
+      const isEn = (typeof currentLang !== 'undefined' && currentLang === 'en');
 
       LKPD_DATA.forEach(lk => {
         const item = document.createElement("div");
         item.className = "bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between";
+        
+        const wordCount = DICTIONARY_DATA.filter(w => w.letter === lk.huruf).length;
+        const countText = wordCount > 0 ? wordCount : 0;
+        const titleText = isEn ? `Letter ${lk.huruf} Worksheet` : lk.title;
+        const rangeText = isEn 
+          ? `Letter ${lk.huruf} Vocabulary (${countText} words)` 
+          : lk.range;
+        const btnText = isEn ? 'Open Worksheet' : 'Buka Lembar Kerja';
+        const lkpdUrl = `${lk.drive}&lang=${currentLang}`;
+
         item.innerHTML = `
           <div>
             <div class="flex items-center justify-between gap-2 mb-1.5">
@@ -692,14 +1156,14 @@
               </span>
               <span class="text-[10px] text-slate-400 font-mono"> </span>
             </div>
-            <h4 class="font-bold text-slate-800 text-sm">${lk.title}</h4>
-            <p class="text-xs text-slate-500 mt-0.5 mb-3">${lk.range}</p>
+            <h4 class="font-bold text-slate-800 text-sm">${titleText}</h4>
+            <p class="text-xs text-slate-500 mt-0.5 mb-3">${rangeText}</p>
           </div>
 
           <div class="pt-3 border-t border-slate-100">
-            <a href="${lk.drive}" class="w-full py-2 px-3 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm transition-all">
+            <a href="${lkpdUrl}" class="w-full py-2 px-3 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm transition-all">
               <i class="fa-solid fa-file-pen text-amber-400"></i>
-              <span>Buka Lembar Kerja</span>
+              <span>${btnText}</span>
             </a>
           </div>
         `;
@@ -815,8 +1279,10 @@
       }
       renderAlphabetTabs();
       renderDictionary(DICTIONARY_DATA);
-      renderLkpdSection();
-      switchView('menu');
+      applyLanguage(currentLang);
+      const urlParams = new URLSearchParams(window.location.search);
+      const initialView = urlParams.get('view') || 'menu';
+      switchView(initialView);
     };
   </script>
 </body>
