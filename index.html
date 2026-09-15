@@ -414,7 +414,7 @@
 
         <div class="p-4 bg-amber-50/70 border border-amber-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3">
           <span id="padletBtnPrompt" class="text-xs text-slate-700 font-medium">Klik tombol untuk langsung membuka halaman Padlet latihan kelas:</span>
-          <a href="https://padlet.com/amypratiwi2813/padlet-pengumpulan-lkpd-s023jz8eaysb80eyfvtf" target="_blank" rel="noopener noreferrer" id="btnDirectPadlet" class="w-full sm:w-auto px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-2">
+          <a href="https://padlet.com/mhsantosa/lkpd-s023k6ix9dydhxkbnhn4" target="_blank" rel="noopener noreferrer" id="btnDirectPadlet" class="w-full sm:w-auto px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-2">
             <span id="padletBtnText">Lanjutkan ke Padlet</span>
             <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
           </a>
@@ -473,7 +473,7 @@
        1. KONFIGURASI TAUTAN (PADLET & GOOGLE DRIVE)
        ========================================================================= */
     let padletPracticeUrl = "https://padlet.com";   
-    let padletLkpdUploadUrl = "https://padlet.com/amypratiwi2813/padlet-pengumpulan-lkpd-s023jz8eaysb80eyfvtf"; 
+    let padletLkpdUploadUrl = "https://padlet.com/mhsantosa/lkpd-s023k6ix9dydhxkbnhn4"; 
 
     // Daftar Lembar Kerja per Huruf (link ke halaman lkpd.html lokal)
     const LKPD_DATA = [
@@ -1276,6 +1276,10 @@
       const uploadBtn = document.getElementById("btnUploadPadlet");
       if (uploadBtn && typeof padletLkpdUploadUrl !== 'undefined') {
         uploadBtn.href = padletLkpdUploadUrl;
+      }
+      const directPadlet = document.getElementById("btnDirectPadlet");
+      if (directPadlet && typeof padletLkpdUploadUrl !== 'undefined') {
+        directPadlet.href = padletLkpdUploadUrl;
       }
       renderAlphabetTabs();
       renderDictionary(DICTIONARY_DATA);
