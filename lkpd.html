@@ -57,20 +57,23 @@
 <body class="bg-gray-100 min-h-screen antialiased">
 
   <!-- ======== TOP BAR (tidak tercetak) ======== -->
-  <div class="no-print sticky top-0 z-50 bg-slate-900 text-white shadow-lg">
-    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
-      <a href="index.html" class="flex items-center gap-2 text-amber-400 hover:text-amber-300 transition-colors">
-        <i class="fa-solid fa-arrow-left"></i>
-        <span class="text-sm font-semibold">Kembali ke Kamus</span>
-      </a>
-      <div class="flex items-center gap-2">
-        <a href="https://padlet.com/amypratiwi2813/padlet-pengumpulan-lkpd-s023jz8eaysb80eyfvtf" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 rounded-xl text-sm font-bold flex items-center gap-2 transition-colors">
-          <i class="fa-solid fa-arrow-up-right-from-square"></i>
-          Padlet
+  <div class="no-print sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-md border-b border-slate-800">
+    <div class="max-w-3xl mx-auto px-4 py-2.5 sm:py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2 sm:gap-3">
+        <a id="topNavHome" href="index.html?view=menu" class="flex items-center gap-1.5 text-xs text-slate-300 hover:text-white transition-all px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700" title="Ke Menu Utama / Beranda">
+          <i class="fa-solid fa-house text-amber-400"></i>
+          <span class="hidden sm:inline" id="topNavHomeText">Beranda</span>
         </a>
-        <button onclick="window.print()" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 rounded-xl text-sm font-bold flex items-center gap-2 transition-colors">
-          <i class="fa-solid fa-print"></i>
-          Cetak
+        <a id="topNavBack" href="index.html?view=kamus" class="flex items-center gap-2 text-amber-400 hover:text-amber-300 transition-all font-semibold text-xs sm:text-sm group">
+          <i class="fa-solid fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
+          <span id="topNavBackText">Kembali ke Kamus</span>
+        </a>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <span id="topNavBrand" class="text-xs text-slate-400 font-medium hidden sm:inline">Kamus Kolok Digital</span>
+        <button onclick="toggleLkpdLanguage()" id="btnLangToggle" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 hover:text-white text-xs font-bold border border-slate-700 shadow-xs flex items-center gap-1.5 transition-all cursor-pointer">
+          <i class="fa-solid fa-globe text-amber-400"></i>
+          <span id="langToggleLabel">ID | EN</span>
         </button>
       </div>
     </div>
@@ -287,81 +290,353 @@
     }
 
     /* =================================================================
-       BACA PARAMETER URL
+       BACA PARAMETER URL & BAHASA
        ================================================================= */
     const params = new URLSearchParams(window.location.search);
     const letter = (params.get('huruf') || params.get('letter') || 'A').toUpperCase();
     const lkpdNo = parseInt(params.get('no')) || 1;
+    let currentLang = params.get('lang') || localStorage.getItem('kolok_app_lang') || 'id';
+    if (currentLang !== 'id' && currentLang !== 'en') currentLang = 'id';
 
     const allWords = DICTIONARY_DATA.filter(w => w.letter === letter);
     // Buat set unik untuk latihan mencocokkan (hindari duplikat indo)
     const uniqueWords = uniqueBy(allWords, 'indo');
 
-    document.title = `LKPD ${String(lkpdNo).padStart(2,'0')} — Huruf ${letter} — Kamus Kolok Digital`;
+    function toggleLkpdLanguage() {
+      currentLang = (currentLang === 'id') ? 'en' : 'id';
+      try {
+        localStorage.setItem('kolok_app_lang', currentLang);
+      } catch (e) {}
+      const url = new URL(window.location.href);
+      url.searchParams.set('lang', currentLang);
+      window.history.replaceState({}, '', url);
+      build();
+    }
+
+    /* =================================================================
+       KAMUS MULTI-BAHASA LEMBAR KERJA
+       ================================================================= */
+    const I18N_LKPD = {
+      id: {
+        docTitle: `LKPD ${String(lkpdNo).padStart(2,'0')} — Huruf ${letter} — Kamus Kolok Digital`,
+        notFoundTitle: `Huruf "${letter}" tidak ditemukan`,
+        notFoundDesc: "Silakan kembali dan pilih huruf yang tersedia.",
+        notFoundBtn: "Kembali ke Kamus",
+        backToDict: "Kembali ke Kamus",
+        brandTitle: "Kamus Kolok Digital",
+        langToggle: "ID | EN",
+        
+        guideTitle: "Panduan Pengerjaan Lembar Kerja",
+        guideSub: `Ikuti langkah-langkah di bawah ini untuk belajar dan mengerjakan LKPD Huruf ${letter}:`,
+        badgeVocab: `${allWords.length} Kosakata Isyarat`,
+        
+        step1Title: "Isi Data Identitas:",
+        step1Desc: "Tuliskan Nama Lengkap, Kelas/Kelompok, dan Tanggal pengerjaan pada kolom data siswa di lembar kerja bawah.",
+        
+        step2Title: "Cetak Lembar Kerja:",
+        step2Desc: "Kamu dapat mencetak lembar kerja ini ke kertas agar dapat dikerjakan secara langsung dengan pensil atau bolpoin.",
+        step2Btn: "Cetak Lembar Kerja",
+        
+        step3Title: "Buka Kamus Digital jika Perlu:",
+        step3Desc: "Jika kamu ragu atau ingin memastikan arti isyarat, gunakan Kamus Kolok Digital sebagai bahan rujukan belajar.",
+        step3Btn: "Buka Kamus Kolok",
+        
+        step4Title: "Kerjakan Soal Latihan:",
+        step4Desc: `Selesaikan seluruh latihan Identifikasi Gambar, Jodohkan Kata, Terjemahan${uniqueWords.length >= 5 ? ', Pilihan Ganda' : ''}${uniqueWords.length >= 4 ? ', dan Susun Huruf' : ''} secara cermat dan jujur.`,
+        
+        step5Title: "Unggah ke Padlet:",
+        step5Desc: 'Setelah selesai, foto hasil lembar kerjamu, klik tombol "Lanjutkan ke Padlet", lalu kirimkan tugasmu.',
+        step5Btn: "Lanjutkan ke Padlet",
+        
+        sheetBadge: "Kamus Kolok Digital — Bahasa Isyarat Desa Bengkala",
+        sheetTitle: "LEMBAR KERJA PESERTA DIDIK",
+        sheetSubBadge: `LKPD ${String(lkpdNo).padStart(2,'0')} — Kosakata Huruf ${letter}`,
+        sheetWordCount: `${allWords.length} kosakata isyarat`,
+        lblFullName: "Nama Lengkap",
+        lblClass: "Kelas / Kelompok",
+        lblDate: "Tanggal",
+        
+        ex1Title: "Identifikasi Gambar Isyarat",
+        ex1Desc: "Amati foto peragaan gerakan tangan Kata Kolok di bawah ini, lalu tuliskan nama kosakata dalam <strong>Bahasa Inggris</strong> pada baris pertama dan artinya dalam <strong>Bahasa Indonesia</strong> pada baris kedua.",
+        ex1LblEng: "Inggris:",
+        ex1LblIndo: "Indonesia:",
+        
+        ex2Title: "Jodohkan Kata",
+        ex2Desc: "Pasangkan kata <strong>Bahasa Inggris</strong> di kolom kiri dengan arti <strong>Bahasa Indonesia</strong> yang sesuai di kolom kanan dengan menarik garis lurus antar titik.",
+        ex2ColEng: "Bahasa Inggris",
+        ex2ColIndo: "Bahasa Indonesia",
+        
+        ex3Title: "Terjemahkan Kosakata",
+        ex3Desc: "Tuliskan kata terjemahan yang tepat pada garis titik-titik (Bagian A: terjemahkan ke Bahasa Indonesia, Bagian B: terjemahkan ke Bahasa Inggris).",
+        ex3PartA: "Terjemahkan ke Bahasa Indonesia",
+        ex3PartB: "Terjemahkan ke Bahasa Inggris",
+        
+        ex4Title: "Pilihan Ganda",
+        ex4Desc: "Perhatikan foto gerakan isyarat pada masing-masing nomor soal, kemudian pilih satu jawaban yang paling tepat dengan memberi tanda silang (X) atau lingkaran pada opsi A, B, C, atau D.",
+        ex4Question: (num) => `${num}. Gambar isyarat di samping memiliki arti…`,
+        
+        ex5Title: "Susun Huruf (Word Scramble)",
+        ex5Desc: "Huruf-huruf di bawah ini tersusun secara acak. Gunakan petunjuk terjemahan Bahasa Indonesia untuk menyusun kembali huruf-huruf tersebut menjadi kata Bahasa Inggris yang benar pada garis yang disediakan.",
+        ex5Clue: "Petunjuk:",
+        
+        padletGuideTitle: "Panduan Pengumpulan Lembar Kerja ke Padlet",
+        padletGuideSub: "Ikuti 5 langkah berikut untuk mengumpulkan hasil LKPD kamu agar dapat dinilai guru:",
+        padletStep1Title: "Periksa Kelengkapan Jawaban:",
+        padletStep1Desc: "Pastikan Nama Lengkap, Kelas/Kelompok, Tanggal, dan seluruh nomor latihan pada lembar kerja ini sudah kamu kerjakan.",
+        padletStep2Title: "Foto Lembar Kerja:",
+        padletStep2Desc: "Ambil foto lembar kerja yang sudah kamu kerjakan dengan kamera HP. Pastikan foto tidak goyang/buram, pencahayaan cukup terang, dan seluruh tulisan jawaban terbaca dengan jelas.",
+        padletStep3Title: "Buka Halaman Padlet:",
+        padletStep3Desc: 'Klik tombol <strong class="text-rose-700">"Lanjutkan ke Padlet"</strong> di bawah ini untuk langsung menuju papan pengumpulan tugas kelas.',
+        padletStep4Title: "Unggah Foto & Cantumkan Identitas:",
+        padletStep4Desc: `Di halaman Padlet, klik tombol tanda tambah (<strong class="text-rose-600 font-bold">+</strong>) atau kolom pengumpulan kelas. Tuliskan <strong>Nama Lengkap - Kelas - LKPD Huruf ${letter}</strong> pada bagian judul, lalu lampirkan file foto lembar kerjamu.`,
+        padletStep5Title: "Submit Tugas:",
+        padletStep5Desc: 'Tekan tombol <strong>"Submit"</strong>. Lembar kerjamu kini tersimpan dan siap diperiksa serta dinilai oleh bapak/ibu guru!',
+        padletBtn: "Lanjutkan ke Padlet",
+        
+        footerEnd: `Akhir Lembar Kerja — LKPD ${String(lkpdNo).padStart(2,'0')} Huruf ${letter}`,
+        footerCopy: "Kamus Kolok Digital © Bahasa Isyarat Desa Bengkala, Buleleng, Bali",
+        btnBottomHome: "Beranda Utama",
+        btnBottomBack: "Kembali ke Kamus",
+        btnBottomPrint: "Cetak Lembar Kerja",
+        btnBottomPadlet: "Lanjutkan ke Padlet"
+      },
+      en: {
+        docTitle: `Worksheet ${String(lkpdNo).padStart(2,'0')} — Letter ${letter} — Digital Kolok Dictionary`,
+        notFoundTitle: `Letter "${letter}" not found`,
+        notFoundDesc: "Please go back and select an available letter.",
+        notFoundBtn: "Back to Dictionary",
+        backToDict: "Back to Dictionary",
+        brandTitle: "Digital Kolok Dictionary",
+        langToggle: "EN | ID",
+        
+        guideTitle: "Worksheet Guidelines",
+        guideSub: `Follow the steps below to study and complete the Letter ${letter} Worksheet:`,
+        badgeVocab: `${allWords.length} Sign Vocabulary`,
+        
+        step1Title: "Fill in Student Identity:",
+        step1Desc: "Write your Full Name, Class/Group, and Date in the student data section on the worksheet below.",
+        
+        step2Title: "Print Worksheet:",
+        step2Desc: "You can print this worksheet onto paper so you can write your answers directly with a pencil or pen.",
+        step2Btn: "Print Worksheet",
+        
+        step3Title: "Open Digital Dictionary if Needed:",
+        step3Desc: "If you are unsure or wish to verify the sign gestures, use the Digital Kolok Dictionary as a learning reference.",
+        step3Btn: "Open Dictionary",
+        
+        step4Title: "Complete Practice Exercises:",
+        step4Desc: `Carefully complete all exercises: Picture Identification, Word Matching, Translation${uniqueWords.length >= 5 ? ', Multiple Choice' : ''}${uniqueWords.length >= 4 ? ', and Word Scramble' : ''}.`,
+        
+        step5Title: "Upload to Padlet:",
+        step5Desc: 'After finishing, take a photo of your completed worksheet, click "Proceed to Padlet", and submit your assignment.',
+        step5Btn: "Proceed to Padlet",
+        
+        sheetBadge: "Digital Kolok Dictionary — Indigenous Bengkala Village Sign Language",
+        sheetTitle: "STUDENT WORKSHEET",
+        sheetSubBadge: `Worksheet ${String(lkpdNo).padStart(2,'0')} — Letter ${letter} Vocabulary`,
+        sheetWordCount: `${allWords.length} sign vocabulary`,
+        lblFullName: "Full Name",
+        lblClass: "Class / Group",
+        lblDate: "Date",
+        
+        ex1Title: "Sign Gesture Identification",
+        ex1Desc: "Observe the Kata Kolok hand gesture demonstration photos below, then write the vocabulary word in <strong>English</strong> on the first line and its meaning in <strong>Indonesian</strong> on the second line.",
+        ex1LblEng: "English:",
+        ex1LblIndo: "Indonesian:",
+        
+        ex2Title: "Match the Words",
+        ex2Desc: "Match the <strong>English</strong> words on the left with their corresponding <strong>Indonesian</strong> meanings on the right by drawing straight lines between the dots.",
+        ex2ColEng: "English",
+        ex2ColIndo: "Indonesian",
+        
+        ex3Title: "Translate Vocabulary",
+        ex3Desc: "Write the correct translation on the dotted lines provided (Part A: translate to Indonesian, Part B: translate to English).",
+        ex3PartA: "Translate to Indonesian",
+        ex3PartB: "Translate to English",
+        
+        ex4Title: "Multiple Choice",
+        ex4Desc: "Observe the sign gesture photos for each question, then choose the most correct answer by marking option A, B, C, or D.",
+        ex4Question: (num) => `${num}. The sign gesture shown on the left means…`,
+        
+        ex5Title: "Word Scramble",
+        ex5Desc: "The English letters below are scrambled. Use the Indonesian meaning clue to rearrange the letters into the correct English word on the provided line.",
+        ex5Clue: "Clue:",
+        
+        padletGuideTitle: "Worksheet Submission Guide to Padlet",
+        padletGuideSub: "Follow these 5 steps to submit your worksheet results so your teacher can review and grade them:",
+        padletStep1Title: "Check Answer Completeness:",
+        padletStep1Desc: "Ensure your Full Name, Class/Group, Date, and all exercise questions on this worksheet are completed.",
+        padletStep2Title: "Take a Photo of the Worksheet:",
+        padletStep2Desc: "Take a photo of your completed worksheet with your phone camera. Ensure the photo is clear, bright, not blurry, and all written answers are clearly legible.",
+        padletStep3Title: "Open Padlet Page:",
+        padletStep3Desc: 'Click the <strong class="text-rose-700">"Proceed to Padlet"</strong> button below to directly open the class assignment board.',
+        padletStep4Title: "Upload Photo & Add Identity:",
+        padletStep4Desc: `On the Padlet page, click the plus sign (<strong class="text-rose-600 font-bold">+</strong>) or the class column. Write <strong>Full Name - Class - Worksheet Letter ${letter}</strong> in the title field, then attach your worksheet photo.`,
+        padletStep5Title: "Submit Assignment:",
+        padletStep5Desc: 'Click the <strong>"Submit"</strong> button. Your worksheet is now submitted and ready to be reviewed and appreciated by your teacher!',
+        padletBtn: "Proceed to Padlet",
+        
+        footerEnd: `End of Worksheet — Worksheet ${String(lkpdNo).padStart(2,'0')} Letter ${letter}`,
+        footerCopy: "Digital Kolok Dictionary © Indigenous Bengkala Village Sign Language, Buleleng, Bali",
+        btnBottomHome: "Main Menu",
+        btnBottomBack: "Back to Dictionary",
+        btnBottomPrint: "Print Worksheet",
+        btnBottomPadlet: "Proceed to Padlet"
+      }
+    };
 
     /* =================================================================
        GENERATOR LEMBAR KERJA
        ================================================================= */
     function build() {
       const root = document.getElementById('worksheetRoot');
+      const t = I18N_LKPD[currentLang] || I18N_LKPD.id;
+
+      // Update Top Bar & Head
+      document.title = t.docTitle;
+      document.documentElement.lang = currentLang;
+      const backText = document.getElementById('topNavBackText');
+      if (backText) backText.innerText = t.backToDict;
+      const homeText = document.getElementById('topNavHomeText');
+      if (homeText) homeText.innerText = t.btnBottomHome || 'Beranda';
+      const brandText = document.getElementById('topNavBrand');
+      if (brandText) brandText.innerText = t.brandTitle;
+      const langToggleLabel = document.getElementById('langToggleLabel');
+      if (langToggleLabel) langToggleLabel.innerText = t.langToggle;
+      const topNavBack = document.getElementById('topNavBack');
+      if (topNavBack) topNavBack.href = `index.html?view=kamus`;
 
       if (allWords.length === 0) {
         root.innerHTML = `
           <div class="text-center py-20">
             <div class="w-20 h-20 mx-auto rounded-full bg-red-50 text-red-500 flex items-center justify-center text-3xl mb-4"><i class="fa-solid fa-triangle-exclamation"></i></div>
-            <h2 class="text-xl font-bold text-slate-800">Huruf "${letter}" tidak ditemukan</h2>
-            <p class="text-sm text-slate-500 mt-2">Silakan kembali dan pilih huruf yang tersedia.</p>
-            <a href="index.html" class="inline-block mt-6 px-6 py-3 bg-slate-900 text-white rounded-xl font-bold text-sm">Kembali ke Kamus</a>
+            <h2 class="text-xl font-bold text-slate-800">${t.notFoundTitle}</h2>
+            <p class="text-sm text-slate-500 mt-2">${t.notFoundDesc}</p>
+            <a href="index.html?view=kamus" class="inline-block mt-6 px-6 py-3 bg-slate-900 text-white rounded-xl font-bold text-sm shadow-md">${t.notFoundBtn}</a>
           </div>`;
         return;
       }
 
       let html = '';
 
-      /* ---------- HEADER & INFO SISWA ---------- */
+      /* ---------- PANDUAN PENGERJAAN LEMBAR KERJA (DI PALING ATAS, TIDAK TERCETAK) ---------- */
       html += `
-      <div class="worksheet-card bg-white rounded-2xl border-2 border-slate-300 overflow-hidden shadow-md mb-8">
+      <div class="no-print bg-white rounded-3xl border-2 border-amber-300 overflow-hidden shadow-md mb-8">
+        <div class="bg-gradient-to-r from-amber-600 to-amber-700 text-white px-5 sm:px-6 py-4 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center font-bold text-xl flex-shrink-0">
+              <i class="fa-solid fa-clipboard-list"></i>
+            </div>
+            <div>
+              <h2 class="font-bold text-base sm:text-lg">${t.guideTitle}</h2>
+              <p class="text-xs text-amber-100">${t.guideSub}</p>
+            </div>
+          </div>
+          <span class="hidden sm:inline-flex px-3 py-1 bg-amber-800/60 rounded-full text-[11px] font-bold text-amber-200 border border-amber-400/40">
+            ${t.badgeVocab}
+          </span>
+        </div>
+
+        <div class="p-5 sm:p-6 space-y-3.5 text-xs sm:text-sm text-slate-700 leading-relaxed bg-amber-50/40">
+          <!-- Langkah 1: Identitas -->
+          <div class="p-3.5 bg-white rounded-2xl border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+            <div class="flex items-start gap-3">
+              <span class="w-6 h-6 rounded-full bg-amber-600 text-white font-bold flex items-center justify-center text-xs flex-shrink-0 mt-0.5">1</span>
+              <div>
+                <strong class="text-slate-900 block font-semibold mb-0.5">${t.step1Title}</strong>
+                <span>${t.step1Desc}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Langkah 2: Cetak Lembar Kerja -->
+          <div class="p-3.5 bg-white rounded-2xl border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+            <div class="flex items-start gap-3">
+              <span class="w-6 h-6 rounded-full bg-amber-600 text-white font-bold flex items-center justify-center text-xs flex-shrink-0 mt-0.5">2</span>
+              <div>
+                <strong class="text-slate-900 block font-semibold mb-0.5">${t.step2Title}</strong>
+                <span>${t.step2Desc}</span>
+              </div>
+            </div>
+            <button onclick="window.print()" class="sm:flex-shrink-0 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer">
+              <i class="fa-solid fa-print"></i>
+              <span>${t.step2Btn}</span>
+            </button>
+          </div>
+
+          <!-- Langkah 3: Buka Kamus Digital jika Perlu -->
+          <div class="p-3.5 bg-white rounded-2xl border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+            <div class="flex items-start gap-3">
+              <span class="w-6 h-6 rounded-full bg-amber-600 text-white font-bold flex items-center justify-center text-xs flex-shrink-0 mt-0.5">3</span>
+              <div>
+                <strong class="text-slate-900 block font-semibold mb-0.5">${t.step3Title}</strong>
+                <span>${t.step3Desc}</span>
+              </div>
+            </div>
+            <a href="index.html?view=kamus" class="sm:flex-shrink-0 px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition-all">
+              <i class="fa-solid fa-book-atlas text-amber-400"></i>
+              <span>${t.step3Btn}</span>
+            </a>
+          </div>
+
+          <!-- Langkah 4: Kerjakan Latihan -->
+          <div class="p-3.5 bg-white rounded-2xl border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+            <div class="flex items-start gap-3">
+              <span class="w-6 h-6 rounded-full bg-amber-600 text-white font-bold flex items-center justify-center text-xs flex-shrink-0 mt-0.5">4</span>
+              <div>
+                <strong class="text-slate-900 block font-semibold mb-0.5">${t.step4Title}</strong>
+                <span>${t.step4Desc}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Langkah 5: Unggah ke Padlet -->
+          <div class="p-3.5 bg-white rounded-2xl border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+            <div class="flex items-start gap-3">
+              <span class="w-6 h-6 rounded-full bg-rose-600 text-white font-bold flex items-center justify-center text-xs flex-shrink-0 mt-0.5">5</span>
+              <div>
+                <strong class="text-rose-900 block font-semibold mb-0.5">${t.step5Title}</strong>
+                <span>${t.step5Desc}</span>
+              </div>
+            </div>
+            <a href="https://padlet.com/amypratiwi2813/padlet-pengumpulan-lkpd-s023jz8eaysb80eyfvtf" target="_blank" rel="noopener noreferrer" class="sm:flex-shrink-0 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition-all">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              <span>${t.step5Btn}</span>
+            </a>
+          </div>
+        </div>
+      </div>`;
+
+      /* ---------- HEADER & INFO SISWA (LEMBAR KERJA YANG DICETAK) ---------- */
+      html += `
+      <div class="worksheet-card bg-white rounded-3xl border-2 border-slate-300 overflow-hidden shadow-md mb-8">
         <!-- Judul Utama -->
         <div class="bg-slate-900 text-white p-6 sm:p-8 text-center relative overflow-hidden">
           <div class="absolute -right-10 -top-10 w-40 h-40 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
-          <p class="text-xs uppercase tracking-[0.2em] text-slate-400 mb-1">Kamus Kolok Digital — Bahasa Isyarat Desa Bengkala</p>
-          <h1 class="font-book text-2xl sm:text-3xl font-bold tracking-wide">LEMBAR KERJA PESERTA DIDIK</h1>
+          <p class="text-xs uppercase tracking-[0.2em] text-slate-400 mb-1.5">${t.sheetBadge}</p>
+          <h1 class="font-book text-2xl sm:text-3xl font-bold tracking-wide">${t.sheetTitle}</h1>
           <div class="mt-4 inline-flex items-center gap-2 px-5 py-2 bg-amber-600 rounded-full text-sm font-bold shadow-md">
             <i class="fa-solid fa-bookmark"></i>
-            LKPD ${String(lkpdNo).padStart(2,'0')} — Kosakata Huruf ${letter}
+            ${t.sheetSubBadge}
           </div>
-          <p class="mt-3 text-xs text-slate-400">${allWords.length} kosakata isyarat</p>
+          <p class="mt-3 text-xs text-slate-400">${t.sheetWordCount}</p>
         </div>
 
         <!-- Data Siswa -->
-        <div class="p-5 sm:p-6 bg-slate-50 border-b-2 border-slate-200">
+        <div class="p-5 sm:p-6 bg-slate-50/80 border-t border-slate-200">
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4">
             <div>
-              <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Nama Lengkap</label>
+              <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">${t.lblFullName}</label>
               <div class="mt-1.5 answer-line"></div>
             </div>
             <div>
-              <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Kelas / Kelompok</label>
+              <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">${t.lblClass}</label>
               <div class="mt-1.5 answer-line"></div>
             </div>
             <div>
-              <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Tanggal</label>
+              <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">${t.lblDate}</label>
               <div class="mt-1.5 answer-line"></div>
             </div>
-          </div>
-        </div>
-
-        <!-- Petunjuk -->
-        <div class="p-5 sm:p-6">
-          <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
-            <h3 class="font-bold text-amber-800 text-sm flex items-center gap-2">
-              <i class="fa-solid fa-circle-info"></i> Petunjuk Pengerjaan
-            </h3>
-            <ul class="mt-2 text-[13px] text-slate-700 space-y-1 leading-relaxed">
-              <li>• Kerjakan semua latihan berikut dengan teliti dan jujur.</li>
-              <li>• Gunakan <strong>Kamus Kolok Digital</strong> sebagai bahan referensi belajar.</li>
-              <li>• Lembar kerja ini mencakup <strong>${allWords.length} kosakata</strong> isyarat Kolok berawalan huruf <strong>${letter}</strong>.</li>
-            </ul>
           </div>
         </div>
       </div>`;
@@ -372,12 +647,12 @@
       const selectedImgs = imgItems.slice(0, showCount);
 
       html += `
-      <div class="worksheet-card bg-white rounded-2xl border-2 border-slate-300 overflow-hidden shadow-md mb-8">
-        <div class="bg-blue-600 text-white px-5 py-4 flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center font-bold text-lg">1</div>
+      <div class="worksheet-card bg-white rounded-3xl border-2 border-slate-300 overflow-hidden shadow-md mb-8">
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 sm:px-6 py-4 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center font-bold text-lg flex-shrink-0">1</div>
           <div>
-            <h2 class="font-bold text-base">Identifikasi Gambar Isyarat</h2>
-            <p class="text-xs text-blue-100">Perhatikan gambar isyarat Kolok berikut, lalu tuliskan nama kata dalam <strong>Bahasa Inggris</strong> dan <strong>Bahasa Indonesia</strong>.</p>
+            <h2 class="font-bold text-base sm:text-lg">${t.ex1Title}</h2>
+            <p class="text-xs text-blue-100 mt-0.5 leading-relaxed">${t.ex1Desc}</p>
           </div>
         </div>
         <div class="p-5 sm:p-6">
@@ -385,18 +660,18 @@
 
       selectedImgs.forEach((item, i) => {
         html += `
-            <div class="border border-slate-200 rounded-xl overflow-hidden">
-              <div class="bg-slate-100 aspect-square flex items-center justify-center p-1">
+            <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-xs hover:border-blue-300 transition-all bg-white">
+              <div class="bg-slate-100 aspect-square flex items-center justify-center p-2">
                 <img src="${item.img}" alt="Isyarat ${i+1}" class="w-full h-full object-contain rounded-lg"
                      onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'text-center text-slate-400 text-xs p-4\\'><i class=\\'fa-solid fa-image text-2xl mb-1\\'></i><br>Gambar ${i+1}</div>';">
               </div>
-              <div class="p-3 space-y-2">
+              <div class="p-3.5 space-y-2.5 bg-slate-50/50">
                 <div>
-                  <span class="text-[10px] font-bold text-slate-400 uppercase">Inggris:</span>
+                  <span class="text-[10px] font-bold text-slate-500 uppercase">${t.ex1LblEng}</span>
                   <div class="answer-line mt-0.5"></div>
                 </div>
                 <div>
-                  <span class="text-[10px] font-bold text-slate-400 uppercase">Indonesia:</span>
+                  <span class="text-[10px] font-bold text-slate-500 uppercase">${t.ex1LblIndo}</span>
                   <div class="answer-line mt-0.5"></div>
                 </div>
               </div>
@@ -416,44 +691,44 @@
         const rightCol = shuffle(matchItems, letter.charCodeAt(0) * 31); // diacak
 
         html += `
-      <div class="worksheet-card bg-white rounded-2xl border-2 border-slate-300 overflow-hidden shadow-md mb-8 print-break">
-        <div class="bg-emerald-600 text-white px-5 py-4 flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center font-bold text-lg">2</div>
+      <div class="worksheet-card bg-white rounded-3xl border-2 border-slate-300 overflow-hidden shadow-md mb-8 print-break">
+        <div class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-5 sm:px-6 py-4 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center font-bold text-lg flex-shrink-0">2</div>
           <div>
-            <h2 class="font-bold text-base">Jodohkan Kata</h2>
-            <p class="text-xs text-emerald-100">Hubungkan kata <strong>Bahasa Inggris</strong> di kolom kiri dengan terjemahan <strong>Bahasa Indonesia</strong> di kolom kanan dengan menarik garis.</p>
+            <h2 class="font-bold text-base sm:text-lg">${t.ex2Title}</h2>
+            <p class="text-xs text-emerald-100 mt-0.5 leading-relaxed">${t.ex2Desc}</p>
           </div>
         </div>
         <div class="p-5 sm:p-6">
           <div class="max-w-xl mx-auto">
-            <div class="flex justify-between items-start">
+            <div class="flex justify-between items-start gap-2">
               <!-- Kolom Kiri: Bahasa Inggris -->
-              <div class="space-y-3 text-left w-[42%]">
-                <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">Bahasa Inggris</div>`;
+              <div class="space-y-3 text-left w-[44%]">
+                <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">${t.ex2ColEng}</div>`;
         leftCol.forEach((item, i) => {
           html += `
-                <div class="flex items-center gap-2 py-2 px-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <span class="text-xs font-bold text-blue-400">${i+1}.</span>
-                  <span class="text-sm font-semibold text-slate-800 flex-grow">${item.word}</span>
-                  <span class="matching-dot"></span>
+                <div class="flex items-center gap-2 py-2.5 px-3 bg-blue-50/80 border border-blue-200 rounded-xl shadow-xs">
+                  <span class="text-xs font-bold text-blue-500">${i+1}.</span>
+                  <span class="text-xs sm:text-sm font-semibold text-slate-800 flex-grow">${item.word}</span>
+                  <span class="matching-dot flex-shrink-0"></span>
                 </div>`;
         });
         html += `
               </div>
               <!-- Garis Tengah -->
-              <div class="flex-shrink-0 w-[10%] flex items-center justify-center">
-                <div class="h-full border-l-2 border-dashed border-slate-200 min-h-[200px]"></div>
+              <div class="flex-shrink-0 w-[10%] flex items-center justify-center self-stretch">
+                <div class="h-full border-l-2 border-dashed border-slate-200 min-h-[220px]"></div>
               </div>
               <!-- Kolom Kanan: Bahasa Indonesia -->
-              <div class="space-y-3 text-right w-[42%]">
-                <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">Bahasa Indonesia</div>`;
+              <div class="space-y-3 text-right w-[44%]">
+                <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">${t.ex2ColIndo}</div>`;
         rightCol.forEach((item, i) => {
           const abc = String.fromCharCode(97 + i); // a, b, c, ...
           html += `
-                <div class="flex items-center gap-2 py-2 px-3 bg-amber-50 border border-amber-200 rounded-lg">
-                  <span class="matching-dot"></span>
-                  <span class="text-sm font-semibold text-slate-800 flex-grow text-left">${item.indo}</span>
-                  <span class="text-xs font-bold text-amber-400">${abc}.</span>
+                <div class="flex items-center gap-2 py-2.5 px-3 bg-amber-50/80 border border-amber-200 rounded-xl shadow-xs">
+                  <span class="matching-dot flex-shrink-0"></span>
+                  <span class="text-xs sm:text-sm font-semibold text-slate-800 flex-grow text-left">${item.indo}</span>
+                  <span class="text-xs font-bold text-amber-500">${abc}.</span>
                 </div>`;
         });
         html += `
@@ -472,21 +747,21 @@
       const indToEng = transItems.slice(half);
 
       html += `
-      <div class="worksheet-card bg-white rounded-2xl border-2 border-slate-300 overflow-hidden shadow-md mb-8 ${uniqueWords.length >= 3 ? '' : 'print-break'}">
-        <div class="bg-violet-600 text-white px-5 py-4 flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center font-bold text-lg">${uniqueWords.length >= 3 ? '3' : '2'}</div>
+      <div class="worksheet-card bg-white rounded-3xl border-2 border-slate-300 overflow-hidden shadow-md mb-8 ${uniqueWords.length >= 3 ? '' : 'print-break'}">
+        <div class="bg-gradient-to-r from-violet-600 to-purple-600 text-white px-5 sm:px-6 py-4 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center font-bold text-lg flex-shrink-0">${uniqueWords.length >= 3 ? '3' : '2'}</div>
           <div>
-            <h2 class="font-bold text-base">Terjemahkan Kosakata</h2>
-            <p class="text-xs text-violet-200">Tuliskan terjemahan yang tepat pada kolom yang tersedia.</p>
+            <h2 class="font-bold text-base sm:text-lg">${t.ex3Title}</h2>
+            <p class="text-xs text-violet-200 mt-0.5 leading-relaxed">${t.ex3Desc}</p>
           </div>
         </div>
         <div class="p-5 sm:p-6">`;
 
       if (engToInd.length > 0) {
         html += `
-          <h3 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
-            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-[11px] font-bold">A</span>
-            Terjemahkan ke Bahasa Indonesia
+          <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-md text-[11px] font-bold">A</span>
+            ${t.ex3PartA}
           </h3>
           <div class="space-y-3 mb-6">`;
         engToInd.forEach((item, i) => {
@@ -503,9 +778,9 @@
 
       if (indToEng.length > 0) {
         html += `
-          <h3 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
-            <span class="px-2 py-0.5 bg-amber-100 text-amber-700 rounded text-[11px] font-bold">B</span>
-            Terjemahkan ke Bahasa Inggris
+          <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+            <span class="px-2 py-0.5 bg-amber-100 text-amber-700 rounded-md text-[11px] font-bold">B</span>
+            ${t.ex3PartB}
           </h3>
           <div class="space-y-3">`;
         indToEng.forEach((item, i) => {
@@ -529,12 +804,12 @@
         const mcItems = shuffle(uniqueWords, letter.charCodeAt(0) * 37).slice(0, Math.min(5, uniqueWords.length));
 
         html += `
-      <div class="worksheet-card bg-white rounded-2xl border-2 border-slate-300 overflow-hidden shadow-md mb-8 print-break">
-        <div class="bg-rose-600 text-white px-5 py-4 flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center font-bold text-lg">4</div>
+      <div class="worksheet-card bg-white rounded-3xl border-2 border-slate-300 overflow-hidden shadow-md mb-8 print-break">
+        <div class="bg-gradient-to-r from-rose-600 to-pink-600 text-white px-5 sm:px-6 py-4 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center font-bold text-lg flex-shrink-0">4</div>
           <div>
-            <h2 class="font-bold text-base">Pilihan Ganda</h2>
-            <p class="text-xs text-rose-200">Perhatikan gambar isyarat, kemudian pilih jawaban yang paling tepat.</p>
+            <h2 class="font-bold text-base sm:text-lg">${t.ex4Title}</h2>
+            <p class="text-xs text-rose-200 mt-0.5 leading-relaxed">${t.ex4Desc}</p>
           </div>
         </div>
         <div class="p-5 sm:p-6 space-y-6">`;
@@ -546,21 +821,21 @@
           let options = shuffle([item, ...distractors], item.id * 23);
 
           html += `
-          <div class="border border-slate-200 rounded-xl p-4">
-            <div class="flex items-start gap-4">
-              <div class="w-24 h-24 sm:w-28 sm:h-28 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center">
+          <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 bg-white shadow-xs">
+            <div class="flex flex-col sm:flex-row items-start gap-4">
+              <div class="w-24 h-24 sm:w-28 sm:h-28 bg-slate-100 rounded-2xl overflow-hidden flex-shrink-0 flex items-center justify-center border border-slate-200">
                 <img src="${item.img}" alt="Soal ${qi+1}" class="w-full h-full object-contain"
                      onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'text-center text-slate-400 text-xs p-2\\'><i class=\\'fa-solid fa-image text-xl\\'></i></div>';">
               </div>
-              <div class="flex-grow">
-                <p class="text-sm font-bold text-slate-800 mb-3">${qi+1}. Gambar isyarat di samping memiliki arti…</p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">`;
+              <div class="flex-grow w-full">
+                <p class="text-sm font-bold text-slate-800 mb-3">${t.ex4Question(qi+1)}</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">`;
           options.forEach((opt, oi) => {
             const optLabel = String.fromCharCode(65 + oi); // A, B, C, D
             html += `
-                  <label class="flex items-center gap-2 py-2 px-3 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer transition-colors">
-                    <span class="w-6 h-6 rounded-full border-2 border-slate-300 flex items-center justify-center text-[11px] font-bold text-slate-500 flex-shrink-0">${optLabel}</span>
-                    <span class="text-sm text-slate-700">${opt.word} <span class="text-slate-400">(${opt.indo})</span></span>
+                  <label class="flex items-center gap-2.5 py-2.5 px-3.5 border border-slate-200 rounded-xl hover:bg-slate-50/80 hover:border-slate-300 cursor-pointer transition-all">
+                    <span class="w-6 h-6 rounded-full border-2 border-slate-300 flex items-center justify-center text-[11px] font-bold text-slate-600 flex-shrink-0">${optLabel}</span>
+                    <span class="text-xs sm:text-sm text-slate-700 font-medium">${opt.word} <span class="text-slate-400">(${opt.indo})</span></span>
                   </label>`;
           });
           html += `
@@ -580,12 +855,12 @@
         const scrambleItems = shuffle(uniqueWords, letter.charCodeAt(0) * 43).slice(0, Math.min(6, uniqueWords.length));
 
         html += `
-      <div class="worksheet-card bg-white rounded-2xl border-2 border-slate-300 overflow-hidden shadow-md mb-8">
-        <div class="bg-orange-500 text-white px-5 py-4 flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center font-bold text-lg">${uniqueWords.length >= 5 ? '5' : '4'}</div>
+      <div class="worksheet-card bg-white rounded-3xl border-2 border-slate-300 overflow-hidden shadow-md mb-8">
+        <div class="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-5 sm:px-6 py-4 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center font-bold text-lg flex-shrink-0">${uniqueWords.length >= 5 ? '5' : '4'}</div>
           <div>
-            <h2 class="font-bold text-base">Susun Huruf</h2>
-            <p class="text-xs text-orange-100">Huruf-huruf di bawah diacak. Susun kembali menjadi kata Bahasa Inggris yang benar! Petunjuk terjemahan Indonesia diberikan.</p>
+            <h2 class="font-bold text-base sm:text-lg">${t.ex5Title}</h2>
+            <p class="text-xs text-orange-100 mt-0.5 leading-relaxed">${t.ex5Desc}</p>
           </div>
         </div>
         <div class="p-5 sm:p-6 space-y-4">`;
@@ -597,17 +872,21 @@
           const scrambled = letters_arr.join(' ');
 
           html += `
-          <div class="flex items-center gap-4 py-3 border-b border-slate-100">
-            <span class="text-xs font-bold text-slate-400 w-6 text-right flex-shrink-0">${i+1}.</span>
-            <div class="flex-shrink-0">
-              <span class="text-xs text-slate-500">Petunjuk:</span>
-              <span class="text-sm font-semibold text-amber-700 ml-1">${item.indo}</span>
+          <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 py-3 border-b border-slate-100">
+            <div class="flex items-center gap-3">
+              <span class="text-xs font-bold text-slate-400 w-5 text-right flex-shrink-0">${i+1}.</span>
+              <div class="flex-shrink-0">
+                <span class="text-xs text-slate-500">${t.ex5Clue}</span>
+                <span class="text-sm font-semibold text-amber-700 ml-1">${item.indo}</span>
+              </div>
             </div>
-            <div class="flex-shrink-0 px-3 py-1.5 bg-slate-100 rounded-lg border border-slate-200">
-              <span class="font-mono text-sm font-bold text-slate-600 tracking-[0.3em] uppercase">${scrambled}</span>
+            <div class="flex items-center gap-3 flex-grow ml-8 sm:ml-0">
+              <div class="flex-shrink-0 px-3 py-1.5 bg-slate-100 rounded-xl border border-slate-200 shadow-2xs">
+                <span class="font-mono text-sm font-bold text-slate-700 tracking-[0.3em] uppercase">${scrambled}</span>
+              </div>
+              <span class="text-slate-400">→</span>
+              <div class="answer-line flex-grow"></div>
             </div>
-            <span class="text-slate-400">→</span>
-            <div class="answer-line flex-grow"></div>
           </div>`;
         });
 
@@ -616,31 +895,94 @@
       </div>`;
       }
 
+      /* ---------- PANDUAN PENGUMPULAN KE PADLET ---------- */
+      html += `
+      <div class="worksheet-card bg-white rounded-3xl border-2 border-rose-300 overflow-hidden shadow-md mb-8">
+        <div class="bg-gradient-to-r from-rose-600 to-rose-700 text-white px-5 sm:px-6 py-4 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center font-bold text-xl flex-shrink-0">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+          </div>
+          <div>
+            <h2 class="font-bold text-base sm:text-lg">${t.padletGuideTitle}</h2>
+            <p class="text-xs text-rose-100 mt-0.5 leading-relaxed">${t.padletGuideSub}</p>
+          </div>
+        </div>
+        <div class="p-5 sm:p-6 space-y-3 text-xs sm:text-sm text-slate-700 leading-relaxed bg-rose-50/30">
+          <div class="p-3.5 bg-white rounded-2xl border border-rose-100 flex items-start gap-3 shadow-xs">
+            <span class="w-6 h-6 rounded-full bg-rose-600 text-white font-bold flex items-center justify-center text-xs flex-shrink-0 mt-0.5">1</span>
+            <div>
+              <strong class="text-slate-900">${t.padletStep1Title}</strong>
+              <span class="ml-1">${t.padletStep1Desc}</span>
+            </div>
+          </div>
+          <div class="p-3.5 bg-white rounded-2xl border border-rose-100 flex items-start gap-3 shadow-xs">
+            <span class="w-6 h-6 rounded-full bg-rose-600 text-white font-bold flex items-center justify-center text-xs flex-shrink-0 mt-0.5">2</span>
+            <div>
+              <strong class="text-slate-900">${t.padletStep2Title}</strong>
+              <span class="ml-1">${t.padletStep2Desc}</span>
+            </div>
+          </div>
+          <div class="p-3.5 bg-white rounded-2xl border border-rose-100 flex items-start gap-3 shadow-xs">
+            <span class="w-6 h-6 rounded-full bg-rose-600 text-white font-bold flex items-center justify-center text-xs flex-shrink-0 mt-0.5">3</span>
+            <div>
+              <strong class="text-slate-900">${t.padletStep3Title}</strong>
+              <span class="ml-1">${t.padletStep3Desc}</span>
+            </div>
+          </div>
+          <div class="p-3.5 bg-white rounded-2xl border border-rose-100 flex items-start gap-3 shadow-xs">
+            <span class="w-6 h-6 rounded-full bg-rose-600 text-white font-bold flex items-center justify-center text-xs flex-shrink-0 mt-0.5">4</span>
+            <div>
+              <strong class="text-slate-900">${t.padletStep4Title}</strong>
+              <span class="ml-1">${t.padletStep4Desc}</span>
+            </div>
+          </div>
+          <div class="p-3.5 bg-white rounded-2xl border border-rose-100 flex items-start gap-3 shadow-xs">
+            <span class="w-6 h-6 rounded-full bg-rose-600 text-white font-bold flex items-center justify-center text-xs flex-shrink-0 mt-0.5">5</span>
+            <div>
+              <strong class="text-slate-900">${t.padletStep5Title}</strong>
+              <span class="ml-1">${t.padletStep5Desc}</span>
+            </div>
+          </div>
+
+          <!-- Tombol Padlet di dalam Box Panduan -->
+          <div class="no-print pt-3 text-center">
+            <a href="https://padlet.com/amypratiwi2813/padlet-pengumpulan-lkpd-s023jz8eaysb80eyfvtf" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl font-bold text-sm shadow-md hover:shadow-lg transition-all cursor-pointer">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              <span>${t.padletBtn}</span>
+            </a>
+          </div>
+        </div>
+      </div>`;
+
       /* ---------- FOOTER ---------- */
       html += `
-      <div class="worksheet-card bg-white rounded-2xl border-2 border-slate-300 overflow-hidden shadow-md mb-8">
+      <div class="worksheet-card bg-white rounded-3xl border-2 border-slate-300 overflow-hidden shadow-md mb-8">
         <div class="p-5 sm:p-6 text-center">
-          <div class="inline-flex items-center gap-2 text-slate-400 text-sm">
+          <div class="inline-flex items-center gap-2 text-slate-500 font-semibold text-sm">
             <i class="fa-solid fa-check-double text-emerald-500"></i>
-            <span>Akhir Lembar Kerja — LKPD ${String(lkpdNo).padStart(2,'0')} Huruf ${letter}</span>
+            <span>${t.footerEnd}</span>
           </div>
-          <p class="text-[11px] text-slate-400 mt-2">Kamus Kolok Digital © Bahasa Isyarat Desa Bengkala, Buleleng, Bali</p>
+          <p class="text-[11px] text-slate-400 mt-2">${t.footerCopy}</p>
         </div>
       </div>
 
       <!-- Tombol Navigasi (tidak tercetak) -->
       <div class="no-print flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
-        <a href="index.html" class="px-6 py-3 bg-slate-900 text-white rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-slate-800 transition-colors">
-          <i class="fa-solid fa-arrow-left"></i>
-          Kembali ke Kamus
+        <a href="index.html?view=menu" class="px-5 py-3 bg-slate-800 text-slate-200 hover:text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-slate-700 shadow-md transition-all">
+          <i class="fa-solid fa-house text-amber-400"></i>
+          <span>${t.btnBottomHome}</span>
         </a>
-        <button onclick="window.print()" class="px-6 py-3 bg-amber-600 text-white rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-amber-700 transition-colors">
+        <a href="index.html?view=kamus" class="px-6 py-3 bg-slate-900 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-slate-800 shadow-md transition-all">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>${t.btnBottomBack}</span>
+        </a>
+        <button onclick="window.print()" class="px-6 py-3 bg-amber-600 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-amber-700 shadow-md transition-all cursor-pointer">
           <i class="fa-solid fa-print"></i>
-          Cetak Lembar Kerja
+          <span>${t.btnBottomPrint}</span>
         </button>
-        <a href="https://padlet.com/amypratiwi2813/padlet-pengumpulan-lkpd-s023jz8eaysb80eyfvtf" target="_blank" rel="noopener noreferrer" class="px-6 py-3 bg-rose-600 text-white rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-rose-700 transition-colors">
+        <a href="https://padlet.com/amypratiwi2813/padlet-pengumpulan-lkpd-s023jz8eaysb80eyfvtf" target="_blank" rel="noopener noreferrer" class="px-6 py-3 bg-rose-600 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-rose-700 shadow-md transition-all">
           <i class="fa-solid fa-arrow-up-right-from-square"></i>
-          Buka Padlet
+          <span>${t.btnBottomPadlet}</span>
         </a>
       </div>`;
 
