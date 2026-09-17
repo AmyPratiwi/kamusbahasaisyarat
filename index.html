@@ -2,17 +2,14 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Kata Kolok (Bahasa Isyarat)</title>
-  
-  <!-- Tailwind CSS & Font Icons -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lembar Kerja — Kamus Kolok Digital</title>
+
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <!-- Google Fonts: Playfair Display & Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <script>
     tailwind.config = {
@@ -21,13 +18,6 @@
           fontFamily: {
             book: ['"Playfair Display"', 'serif'],
             sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-          },
-          colors: {
-            parchment: '#FAF7F2',
-            bookpage: '#FFFFFF',
-            leather: '#1E293B',
-            goldaccent: '#D97706',
-            bookred: '#991B1B',
           }
         }
       }
@@ -35,1259 +25,477 @@
   </script>
 
   <style>
-    /* Desain Tekstur & Gaya Buku Kamus */
-    body {
-      background-color: #FAF7F2;
-      background-image: radial-gradient(#E2D9CC 0.75px, transparent 0.75px);
-      background-size: 16px 16px;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .print-break { page-break-before: always; }
+      .worksheet-card { box-shadow: none !important; border: 2px solid #334155 !important; }
     }
 
-    /* Scrollbar Halus untuk Tab Alfabet */
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
+    .answer-line {
+      border-bottom: 2px dotted #94a3b8;
+      min-height: 28px;
+      display: block;
     }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
+    .answer-line-inline {
+      border-bottom: 2px dotted #94a3b8;
+      min-width: 160px;
+      display: inline-block;
+      margin: 0 4px;
     }
-
-    /* Efek Lembaran Buku */
-    .book-card {
-      box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04), inset 0 0 0 1px rgba(0,0,0,0.06);
-      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
-    }
-    .book-card:active {
-      transform: scale(0.98);
-    }
-
-    /* Efek Pembatas Buku (Bookmark Ribbon) */
-    .ribbon {
-      position: absolute;
-      top: -6px;
-      right: 18px;
-      width: 22px;
-      height: 38px;
-      background: #B91C1C;
-      clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 50% 80%, 0% 100%);
-      box-shadow: 0 4px 6px rgba(0,0,0,0.25);
+    .matching-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      border: 2px solid #1e293b;
+      display: inline-block;
+      vertical-align: middle;
     }
   </style>
 </head>
-<body class="font-sans text-slate-800 antialiased min-h-screen pb-32">
+<body class="bg-gray-100 min-h-screen antialiased">
 
-  <!-- ==================== HEADER APLIKASI BUKU DIGITAL ==================== -->
-  <header id="mainHeader" class="sticky top-0 z-40 bg-[#1E293B] text-white shadow-lg border-b-2 border-amber-600/40 hidden">
-    <div class="max-w-4xl mx-auto px-4 py-3 relative">
-      <!-- Ribbon Pembatas Buku -->
-      <div class="ribbon hidden sm:block"></div>
-
-      <div class="flex items-center justify-between gap-3">
-        <div class="flex items-center gap-3">
-          <!-- Tombol Kembali ke Menu Utama -->
-          <button onclick="switchView('menu')" id="btnHeaderHome" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 flex items-center justify-center transition-all border border-slate-700 flex-shrink-0" title="Kembali ke Menu Utama">
-            <i class="fa-solid fa-house text-sm"></i>
-          </button>
-          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-md border border-amber-300/30 flex-shrink-0">
-            <i class="fa-solid fa-book-bookmark text-xl text-white"></i>
-          </div>
-          <div>
-            <h1 id="headerTitle" class="font-book text-base sm:text-xl font-bold tracking-wide text-amber-50 flex items-center gap-2">
-              Kata Kolok (Bahasa Isyarat)
-            </h1>
-            <p id="headerSubtitle" class="text-xs text-slate-300">Bahasa Isyarat Asli Bengkala • Versi Digital</p>
-          </div>
-        </div>
-
-        <!-- Tombol Translate Pilihan Bahasa di Header -->
-        <button onclick="toggleLanguage()" id="btnHeaderLang" class="flex-shrink-0 px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-amber-300 font-bold text-xs flex items-center gap-1.5 border border-amber-500/40 shadow-sm transition-all" title="Ubah Bahasa / Switch Language">
-          <i class="fa-solid fa-language text-amber-400 text-sm"></i>
-          <span class="lang-btn-label" id="headerLangLabel">ID | EN</span>
+  <!-- ======== TOP BAR (tidak tercetak) ======== -->
+  <div class="no-print sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-md border-b border-slate-800">
+    <div class="max-w-3xl mx-auto px-4 py-2.5 sm:py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2 sm:gap-3">
+        <a id="topNavHome" href="index.html?view=menu" class="flex items-center gap-1.5 text-xs text-slate-300 hover:text-white transition-all px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700" title="Ke Menu Utama / Beranda">
+          <i class="fa-solid fa-house text-amber-400"></i>
+          <span class="hidden sm:inline" id="topNavHomeText">Beranda</span>
+        </a>
+        <a id="topNavBack" href="index.html?view=lkpd" class="flex items-center gap-2 text-amber-400 hover:text-amber-300 transition-all font-semibold text-xs sm:text-sm group">
+          <i class="fa-solid fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
+          <span id="topNavBackText">Kembali ke Lembar Kerja</span>
+        </a>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <span id="topNavBrand" class="text-xs text-slate-400 font-medium hidden sm:inline">Kamus Kolok Digital</span>
+        <button onclick="toggleLkpdLanguage()" id="btnLangToggle" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 hover:text-white text-xs font-bold border border-slate-700 shadow-xs flex items-center gap-1.5 transition-all cursor-pointer">
+          <i class="fa-solid fa-globe text-amber-400"></i>
+          <span id="langToggleLabel">ID | EN</span>
         </button>
-      </div>
-
-      <!-- Bilah Pencarian Kosakata Cepat (Hanya muncul di halaman Kamus) -->
-      <div id="searchBarContainer" class="mt-3 relative hidden">
-        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-        <input type="text" id="searchInput" oninput="filterWords()" placeholder="Cari kata (contoh: Banana, Airplane, Sleep)..." 
-          class="w-full pl-10 pr-10 py-2.5 bg-slate-900/90 text-white placeholder-slate-400 text-sm rounded-xl border border-slate-700 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all">
-        <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1">
-          <i class="fa-solid fa-circle-xmark text-sm"></i>
-        </button>
-      </div>
-    </div>
-
-    <!-- ==================== THUMB INDEX TABS ==================== -->
-    <div id="alphabetIndexBar" class="bg-[#15202B] border-t border-slate-800 py-1.5 px-2 shadow-inner hidden">
-      <div class="max-w-4xl mx-auto flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5" id="alphabetList">
-        <!-- Generasi Tombol via JavaScript -->
-      </div>
-    </div>
-  </header>
-
-  <!-- ==================== KONTEN UTAMA ==================== -->
-  <main class="max-w-4xl mx-auto px-3 sm:px-4 pt-4">
-
-    <!-- VIEW 0: HALAMAN MENU UTAMA (Tampil Pertama Kali) -->
-    <section id="viewMenu" class="py-4 sm:py-8">
-      <!-- Tombol Pilihan Bahasa di Halaman Beranda -->
-      <div class="flex justify-end items-center mb-3">
-        <button onclick="toggleLanguage()" id="btnMenuLang" class="px-3.5 py-1.5 rounded-full bg-white hover:bg-amber-50 text-slate-700 border border-slate-200 shadow-sm font-bold text-xs flex items-center gap-2 transition-all hover:border-amber-400">
-          <i class="fa-solid fa-language text-amber-600 text-sm"></i>
-          <span id="langMenuText">Bahasa: <strong>Indonesia</strong> (Switch to English)</span>
-        </button>
-      </div>
-
-      <!-- Kartu Sambutan & Deskripsi Singkat Aplikasi -->
-      <div class="bg-gradient-to-br from-slate-900 to-[#1E293B] rounded-3xl p-6 sm:p-8 text-white shadow-xl border border-amber-600/30 mb-6 relative overflow-hidden">
-        <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
-        <div class="flex items-center gap-3.5 mb-4">
-          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-lg border border-amber-300/30 flex-shrink-0">
-            <i class="fa-solid fa-hands-asl-interpreting text-2xl text-white"></i>
-          </div>
-          <div>
-            <span id="txtBadgeApp" class="text-xs font-bold uppercase tracking-wider text-amber-400 bg-amber-500/20 px-2.5 py-1 rounded-full border border-amber-500/30">Aplikasi Pembelajaran Isyarat</span>
-            <h2 id="txtWelcomeTitle" class="font-book text-2xl sm:text-3xl font-bold text-white mt-1">Kata Kolok (Bahasa Isyarat)</h2>
-          </div>
-        </div>
-        <p id="txtWelcomeDesc" class="text-sm sm:text-base text-slate-300 leading-relaxed font-sans">
-          Selamat datang di platform digital interaktif untuk mempelajari <strong class="text-amber-300">Kata Kolok (Bahasa Isyarat)</strong>, bahasa isyarat tradisional unik yang lahir dan berkembang secara alami di Desa Bengkala, Buleleng, Bali.
-        </p>
-      </div>
-
-      <!-- KARTU TENTANG KAMUS (Penjelasan Kamus Kata Kolok) -->
-      <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-sm mb-6 relative overflow-hidden">
-        <div class="flex items-center gap-3 mb-3.5">
-          <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg flex-shrink-0">
-            <i class="fa-solid fa-book-open"></i>
-          </div>
-          <h3 id="txtAboutTitle" class="font-book text-lg sm:text-xl font-bold text-slate-900">Tentang Kata Kolok & Kamus Ini</h3>
-        </div>
-        <div class="text-xs sm:text-sm text-slate-600 leading-relaxed font-sans space-y-2.5" id="txtAboutDesc">
-          <p>
-            <strong>Kata Kolok</strong> adalah bahasa isyarat alami dan unik yang diwariskan secara turun-temurun oleh masyarakat di Desa Bengkala, Buleleng, Bali. Keistimewaan desa ini adalah tingginya keharmonisan dan rasa saling menghargai, di mana warga yang dapat mendengar dan warga tuli (kolok) sama-sama terbiasa menggunakan bahasa isyarat ini untuk saling berkomunikasi setiap hari.
-          </p>
-          <p>
-            Kamus digital bergambar ini hadir sebagai media pembelajaran visual yang ramah anak. Melalui foto peragaan tangan yang jelas dan terstruktur, siapa saja dapat mengenal, mempelajari, serta melestarikan kebudayaan luhur bahasa isyarat asli Indonesia ini secara mudah, mandiri, dan gembira.
-          </p>
-        </div>
-      </div>
-
-      <!-- Pilihan Menu Utama -->
-      <div class="mb-3">
-        <h3 id="txtChooseMenuTitle" class="font-book text-lg font-bold text-slate-800 flex items-center gap-2">
-          <i class="fa-solid fa-compass text-amber-600"></i>
-          Pilih Menu Utama
-        </h3>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <!-- Tombol Menu 1: Kamus Kata Kolok -->
-        <button onclick="switchView('kamus'); window.scrollTo({top: 0, behavior: 'smooth'});" class="bg-white hover:bg-amber-50/50 p-5 sm:p-6 rounded-3xl border border-slate-200 shadow-sm hover:border-amber-400 transition-all text-left flex items-center justify-between group">
-          <div class="flex items-center gap-3.5">
-            <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl group-hover:scale-110 transition-transform flex-shrink-0">
-              <i class="fa-solid fa-book-atlas"></i>
-            </div>
-            <div>
-              <h4 id="txtMenu1Title" class="font-book text-base sm:text-lg font-bold text-slate-900 group-hover:text-amber-700 transition-colors">Kata Kolok (Bahasa Isyarat)</h4>
-              <p id="txtMenu1Sub" class="text-[11px] text-slate-400">Kamus visual & kosakata</p>
-            </div>
-          </div>
-          <i class="fa-solid fa-arrow-right text-slate-400 group-hover:text-amber-600 transition-colors"></i>
-        </button>
-
-        <!-- Tombol Menu 2: Lembar kerja -->
-        <button onclick="switchView('lkpd'); window.scrollTo({top: 0, behavior: 'smooth'});" class="bg-white hover:bg-blue-50/50 p-5 sm:p-6 rounded-3xl border border-slate-200 shadow-sm hover:border-blue-400 transition-all text-left flex items-center justify-between group">
-          <div class="flex items-center gap-3.5">
-            <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center text-xl group-hover:scale-110 transition-transform flex-shrink-0">
-              <i class="fa-solid fa-file-pen"></i>
-            </div>
-            <div>
-              <h4 id="txtMenu2Title" class="font-book text-base sm:text-lg font-bold text-slate-900 group-hover:text-blue-700 transition-colors">Lembar Kerja</h4>
-              <p id="txtMenu2Sub" class="text-[11px] text-slate-400">Latihan mandiri & cetak</p>
-            </div>
-          </div>
-          <i class="fa-solid fa-arrow-right text-slate-400 group-hover:text-blue-600 transition-colors"></i>
-        </button>
-
-        <!-- Tombol Menu 3: Latihan Video -->
-        <button onclick="switchView('padlet'); window.scrollTo({top: 0, behavior: 'smooth'});" class="bg-white hover:bg-rose-50/50 p-5 sm:p-6 rounded-3xl border border-slate-200 shadow-sm hover:border-rose-400 transition-all text-left flex items-center justify-between group">
-          <div class="flex items-center gap-3.5">
-            <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center text-xl group-hover:scale-110 transition-transform flex-shrink-0">
-              <i class="fa-solid fa-video"></i>
-            </div>
-            <div>
-              <h4 id="txtMenu3Title" class="font-book text-base sm:text-lg font-bold text-slate-900 group-hover:text-rose-700 transition-colors">Latihan Video (Padlet)</h4>
-              <p id="txtMenu3Sub" class="text-[11px] text-slate-400">Praktik gerakan & unggah</p>
-            </div>
-          </div>
-          <i class="fa-solid fa-arrow-right text-slate-400 group-hover:text-rose-600 transition-colors"></i>
-        </button>
-      </div>
-
-      <!-- INSTRUKSI PENGGUNAAN APLIKASI DI BAGIAN BAWAH BERANDA (1, 2, 3) -->
-      <div class="bg-gradient-to-br from-amber-500/10 via-white to-amber-500/5 rounded-3xl p-6 sm:p-7 border border-amber-200/90 shadow-sm mb-8">
-        <div class="flex items-center gap-3 mb-4">
-          <div class="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center text-lg flex-shrink-0 shadow-sm">
-            <i class="fa-solid fa-list-check"></i>
-          </div>
-          <div>
-            <h3 id="txtHomeGuideTitle" class="font-book text-lg sm:text-xl font-bold text-slate-900">Petunjuk Penggunaan Aplikasi</h3>
-            <p id="txtHomeGuideSub" class="text-xs text-slate-500">Ikuti 3 langkah mudah berikut untuk mulai belajar dengan ceria:</p>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-slate-700">
-          <!-- Langkah 1 -->
-          <div class="bg-white p-5 rounded-2xl border border-amber-100 shadow-xs">
-            <div class="flex items-center gap-2.5 mb-2.5">
-              <span class="w-8 h-8 rounded-full bg-amber-600 text-white font-bold flex items-center justify-center text-sm shadow-sm flex-shrink-0">1</span>
-              <h4 id="txtHomeStep1Title" class="font-bold text-slate-900 text-sm">Baca Kamus</h4>
-            </div>
-            <p id="txtHomeStep1Desc" class="text-xs text-slate-600 leading-relaxed">
-              Buka menu kamus untuk mempelajari beragam kosakata Kata Kolok lengkap dengan foto peraga gerakan tangan dan artinya dalam Bahasa Indonesia serta Bahasa Inggris.
-            </p>
-          </div>
-
-          <!-- Langkah 2 -->
-          <div class="bg-white p-5 rounded-2xl border border-blue-100 shadow-xs">
-            <div class="flex items-center gap-2.5 mb-2.5">
-              <span class="w-8 h-8 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-sm shadow-sm flex-shrink-0">2</span>
-              <h4 id="txtHomeStep2Title" class="font-bold text-slate-900 text-sm">Lanjut ke Lembar Kerja</h4>
-            </div>
-            <p id="txtHomeStep2Desc" class="text-xs text-slate-600 leading-relaxed">
-              Pilih lembar kerja huruf sesuai materi yang ingin kamu kuasai, lalu kerjakan aktivitas latihan seru seperti mencocokkan kata dan tebak gambar.
-            </p>
-          </div>
-
-          <!-- Langkah 3 -->
-          <div class="bg-white p-5 rounded-2xl border border-rose-100 shadow-xs">
-            <div class="flex items-center gap-2.5 mb-2.5">
-              <span class="w-8 h-8 rounded-full bg-rose-600 text-white font-bold flex items-center justify-center text-sm shadow-sm flex-shrink-0">3</span>
-              <h4 id="txtHomeStep3Title" class="font-bold text-slate-900 text-sm">Lanjut ke Latihan Video</h4>
-            </div>
-            <p id="txtHomeStep3Desc" class="text-xs text-slate-600 leading-relaxed">
-              Peragakan gerakan isyarat yang telah dipelajari, rekam videomu, dan unggah ke Padlet kelas agar dapat dinilai dan diapresiasi oleh guru dan teman-teman!
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- COPYRIGHT DI BAGIAN PALING BAWAH BERANDA -->
-      <footer class="pt-6 pb-4 border-t border-slate-200/80 text-center text-slate-500 font-sans space-y-1">
-        <p id="txtCopyrightMain" class="text-xs font-semibold text-slate-700">
-          Hak Cipta © Made Hery Santosa, Ni Komang Amy Pratiwi
-        </p>
-        <p id="txtCopyrightDict" class="text-[11px] text-slate-400">
-          Picture Dictionary © Anonim
-        </p>
-      </footer>
-    </section>
-
-    <!-- VIEW 1: BUKU KAMUS -->
-    <section id="viewKamus" class="hidden">
-      <!-- PETUNJUK PENGGUNAAN KAMUS (1, 2, 3, 4) -->
-      <div class="bg-white rounded-3xl p-5 sm:p-6 border border-amber-200/90 shadow-sm mb-6 bg-gradient-to-br from-amber-50/90 via-white to-amber-50/40">
-        <div class="flex items-center gap-2.5 mb-4 text-amber-900 font-bold text-sm sm:text-base">
-          <div class="w-8 h-8 rounded-xl bg-amber-600 text-white flex items-center justify-center text-sm shadow-xs">
-            <i class="fa-solid fa-lightbulb"></i>
-          </div>
-          <span id="kamusGuideTitle">Petunjuk Penggunaan Kamus:</span>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs text-slate-700">
-          <div class="flex items-start gap-3 bg-white/95 p-3.5 rounded-2xl border border-amber-100 shadow-xs">
-            <span class="w-6 h-6 rounded-full bg-amber-600 text-white font-bold flex items-center justify-center flex-shrink-0 text-xs shadow-xs">1</span>
-            <span id="kamusStep1" class="leading-relaxed">Pilih huruf pada bilah tab di atas atau ketik nama kata di kotak pencarian untuk menemukan kosakata isyarat.</span>
-          </div>
-          <div class="flex items-start gap-3 bg-white/95 p-3.5 rounded-2xl border border-amber-100 shadow-xs">
-            <span class="w-6 h-6 rounded-full bg-amber-600 text-white font-bold flex items-center justify-center flex-shrink-0 text-xs shadow-xs">2</span>
-            <span id="kamusStep2" class="leading-relaxed">Klik kartu kata untuk memperbesar foto gerakan isyarat dan mempelajari maknanya secara mandiri.</span>
-          </div>
-          <div class="flex items-start gap-3 bg-white/95 p-3.5 rounded-2xl border border-blue-100 shadow-xs">
-            <span class="w-6 h-6 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center flex-shrink-0 text-xs shadow-xs">3</span>
-            <span id="kamusStep3" class="leading-relaxed">Setelah membaca kamus, uji kemampuanmu dengan mengerjakan latihan soal di menu <strong>Lembar Kerja (LKPD)</strong>.</span>
-          </div>
-          <div class="flex items-start gap-3 bg-white/95 p-3.5 rounded-2xl border border-rose-100 shadow-xs">
-            <span class="w-6 h-6 rounded-full bg-rose-600 text-white font-bold flex items-center justify-center flex-shrink-0 text-xs shadow-xs">4</span>
-            <span id="kamusStep4" class="leading-relaxed">Peragakan gerakan isyarat tanganmu, lalu rekam dan unggah videomu pada menu <strong>Latihan Video</strong>!</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="flex items-center justify-between mb-3 text-xs text-slate-500 px-1">
-        <span id="wordCountLabel" class="font-medium">Kosakata digital</span>
-      </div>
-
-      <!-- Container Kosakata Berdasarkan Section Huruf -->
-      <div id="dictionaryContainer" class="space-y-6">
-        <!-- Kosakata di-render otomatis melalui JavaScript -->
-      </div>
-    </section>
-
-    <!-- VIEW 2: TEMPAT UNDUH LEMBAR KERJA -->
-    <section id="viewLkpd" class="hidden">
-      <!-- KOTAK INSTRUKSI PENGERJAAN LEMBAR KERJA (1, 2, 3, 4) - TANPA HYPERLINK PADLET DI ATAS -->
-      <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm mb-5">
-        <div class="flex items-start gap-4">
-          <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0 text-xl font-bold">
-            <i class="fa-solid fa-file-pen"></i>
-          </div>
-          <div class="flex-grow">
-            <h2 id="lkpdMainTitle" class="text-base sm:text-lg font-bold text-slate-900">Lembar Kerja Peserta Didik</h2>
-            <p id="lkpdGuideTitle" class="text-xs font-bold text-blue-800 mt-2 mb-2 flex items-center gap-1.5">
-              <i class="fa-solid fa-circle-info text-blue-600"></i>
-              Petunjuk Pengerjaan Lembar Kerja:
-            </p>
-            <div class="space-y-2 text-xs text-slate-700 leading-relaxed">
-              <div class="flex items-start gap-2.5 p-2 bg-blue-50/60 rounded-xl border border-blue-100">
-                <span class="w-5 h-5 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-[11px] flex-shrink-0">1</span>
-                <span id="lkpdStep1">Pilih Lembar Kerja Peserta Didik (LKPD) huruf yang ingin kamu kerjakan pada daftar di bawah ini.</span>
-              </div>
-              <div class="flex items-start gap-2.5 p-2 bg-blue-50/60 rounded-xl border border-blue-100">
-                <span class="w-5 h-5 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-[11px] flex-shrink-0">2</span>
-                <span id="lkpdStep2">Buka lembar kerja untuk dikerjakan secara langsung pada layar atau dicetak (print) di atas kertas.</span>
-              </div>
-              <div class="flex items-start gap-2.5 p-2 bg-blue-50/60 rounded-xl border border-blue-100">
-                <span class="w-5 h-5 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-[11px] flex-shrink-0">3</span>
-                <div id="lkpdStep3Container">
-                  <span id="lkpdStep3Prefix">Jika kamu memerlukan bantuan melihat kembali gerakan isyarat saat mengerjakan, gunakan kamus </span>
-                  <button onclick="switchView('kamus'); window.scrollTo({top: 0, behavior: 'smooth'});" class="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-[11px] font-bold shadow-xs mx-1 transition-all">
-                    <i class="fa-solid fa-book-atlas"></i>
-                    <span id="lkpdStep3Btn">Buka Kata Kolok (Bahasa Isyarat)</span>
-                  </button>
-                  <span id="lkpdStep3Suffix">sebagai panduan belajar.</span>
-                </div>
-              </div>
-              <div class="flex items-start gap-2.5 p-2 bg-blue-50/60 rounded-xl border border-blue-100">
-                <span class="w-5 h-5 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-[11px] flex-shrink-0">4</span>
-                <span id="lkpdStep4">Setelah selesai mengerjakan semua soal, foto lembar jawabanmu lalu unggah melalui tombol <strong>"Lanjutkan ke Padlet"</strong> yang tersedia di dalam lembar kerja tersebut.</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Grid Lembar Kerja -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5" id="lkpdListGrid">
-        <!-- Lembar Kerja di-generate via JavaScript -->
-      </div>
-    </section>
-
-    <!-- VIEW 3: PADLET LATIHAN GERAKAN VIDEO -->
-    <section id="viewPadlet" class="hidden">
-      <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm mb-4">
-        <div class="flex items-center gap-3.5 mb-4">
-          <div class="w-12 h-12 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center text-xl font-bold flex-shrink-0">
-            <i class="fa-solid fa-video"></i>
-          </div>
-          <div>
-            <h2 id="padletTitle" class="text-base sm:text-lg font-bold text-slate-900">Latihan Video Gerakan Isyarat</h2>
-            <p id="padletSub" class="text-xs text-slate-600">Unggah rekaman video atau foto latihan gerakan isyarat mandiri Anda di sini.</p>
-          </div>
-        </div>
-
-        <div class="mb-5 bg-rose-50/50 border border-rose-100 rounded-2xl p-4">
-          <h4 id="padletGuideTitle" class="text-xs font-bold text-rose-800 mb-2 flex items-center gap-1.5">
-            <i class="fa-solid fa-circle-play text-rose-600"></i>
-            Petunjuk Latihan Video:
-          </h4>
-          <div class="space-y-2 text-xs text-slate-700">
-            <div class="flex items-start gap-2.5 p-2 bg-white rounded-xl border border-rose-100/80 shadow-xs">
-              <span class="w-5 h-5 rounded-full bg-rose-600 text-white font-bold flex items-center justify-center text-[11px] flex-shrink-0">1</span>
-              <span id="padletStep1">Pilih kosakata isyarat dari kamus Kata Kolok yang ingin kamu latih dan peragakan.</span>
-            </div>
-            <div class="flex items-start gap-2.5 p-2 bg-white rounded-xl border border-rose-100/80 shadow-xs">
-              <span class="w-5 h-5 rounded-full bg-rose-600 text-white font-bold flex items-center justify-center text-[11px] flex-shrink-0">2</span>
-              <span id="padletStep2">Siapkan kamera HP atau komputer, lalu rekam videomu saat mempraktikkan gerakan tangan tersebut secara jelas.</span>
-            </div>
-            <div class="flex items-start gap-2.5 p-2 bg-white rounded-xl border border-rose-100/80 shadow-xs">
-              <span class="w-5 h-5 rounded-full bg-rose-600 text-white font-bold flex items-center justify-center text-[11px] flex-shrink-0">3</span>
-              <span id="padletStep3">Klik tombol <strong>"Lanjutkan ke Padlet"</strong> di bawah untuk membuka papan tugas kelas.</span>
-            </div>
-            <div class="flex items-start gap-2.5 p-2 bg-white rounded-xl border border-rose-100/80 shadow-xs">
-              <span class="w-5 h-5 rounded-full bg-rose-600 text-white font-bold flex items-center justify-center text-[11px] flex-shrink-0">4</span>
-              <span id="padletStep4">Unggah video atau fotomu agar bisa dilihat dan diapresiasi oleh bapak/ibu guru serta teman-teman!</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="p-4 bg-amber-50/70 border border-amber-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3">
-          <span id="padletBtnPrompt" class="text-xs text-slate-700 font-medium">Klik tombol untuk langsung membuka halaman Padlet latihan kelas:</span>
-          <a href="https://padlet.com/mhsantosa/lkpd-s023k6ix9dydhxkbnhn4" target="_blank" rel="noopener noreferrer" id="btnDirectPadlet" class="w-full sm:w-auto px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-2">
-            <span id="padletBtnText">Lanjutkan ke Padlet</span>
-            <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
-          </a>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- ==================== MODAL DETAIL KATA ==================== -->
-  <div id="wordDetailModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl border border-slate-100 transform transition-all">
-      <div class="relative bg-slate-100 p-2">
-        <button onclick="closeDetailModal()" class="absolute top-3 right-3 z-10 w-9 h-9 bg-black/60 hover:bg-black text-white rounded-full flex items-center justify-center text-sm transition-all">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-        <div class="w-full h-56 bg-slate-200 rounded-2xl overflow-hidden flex items-center justify-center relative">
-          <img id="modalImage" src="" alt="Detail Kata Kolok" class="w-full h-full object-contain">
-        </div>
-      </div>
-      <div class="p-5 text-center">
-        <h3 id="modalWord" class="font-book text-xl sm:text-2xl font-bold text-slate-900 tracking-wide uppercase">AMBULANCE</h3>
-        
-        <!-- Terjemahan Bahasa Indonesia -->
-        <div class="mt-3 p-3 bg-amber-50/80 rounded-2xl border border-amber-200/60">
-          <p id="modalTranslation" class="font-bold text-slate-800 text-base">Ambulans</p>
-        </div>
-
-        <div class="mt-4 pt-3 border-t border-slate-100">
-          <button id="modalCloseBtn" onclick="closeDetailModal()" class="w-full py-2.5 bg-slate-100 text-slate-600 rounded-xl text-xs font-semibold hover:bg-slate-200 transition-all">
-            Tutup
-          </button>
-        </div>
       </div>
     </div>
   </div>
 
-  <!-- ==================== BOTTOM NAV ==================== -->
-  <div id="bottomNav" class="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200 py-2.5 px-6 z-40 flex items-center justify-around shadow-2xl max-w-4xl mx-auto hidden">
-    <button onclick="switchView('kamus'); window.scrollTo({top: 0, behavior: 'smooth'});" id="botNavKamus" class="flex flex-col items-center text-amber-700 font-bold text-[11px] gap-1 transition-all">
-      <i class="fa-solid fa-book-atlas text-lg"></i>
-      <span id="navKamusLabel">Kata Kolok</span>
-    </button>
-    <button onclick="switchView('lkpd'); window.scrollTo({top: 0, behavior: 'smooth'});" id="botNavLkpd" class="flex flex-col items-center text-slate-400 hover:text-slate-800 font-medium text-[11px] gap-1 transition-all">
-      <i class="fa-solid fa-file-pen text-lg"></i>
-      <span id="navLkpdLabel">Lembar Kerja</span>
-    </button>
-    <button onclick="switchView('padlet'); window.scrollTo({top: 0, behavior: 'smooth'});" id="botNavPadlet" class="flex flex-col items-center text-slate-400 hover:text-slate-800 font-medium text-[11px] gap-1 transition-all">
-      <i class="fa-solid fa-cloud-arrow-up text-lg"></i>
-      <span id="navPadletLabel">Latihan Video</span>
-    </button>
+  <!-- ======== KONTEN LEMBAR KERJA ======== -->
+  <div class="max-w-3xl mx-auto px-4 py-6 sm:py-8" id="worksheetRoot">
+    <p class="text-center text-slate-500 py-20">Memuat lembar kerja…</p>
   </div>
 
-  <!-- ==================== LOGIKA DATA & JAVASCRIPT LENGKAP ==================== -->
   <script>
-    /* =========================================================================
-       1. KONFIGURASI TAUTAN (PADLET & GOOGLE DRIVE)
-       ========================================================================= */
-    let padletPracticeUrl = "https://padlet.com";   
-    let padletLkpdUploadUrl = "https://padlet.com/mhsantosa/lkpd-s023k6ix9dydhxkbnhn4"; 
-
-    // Daftar Lembar Kerja per Huruf (link ke halaman lkpd.html lokal)
-    const LKPD_DATA = [
-      { no: 1, title: "Lembar Kerja Huruf A", range: "Kosakata Huruf A (3 kata)", huruf: "A", drive: "lkpd.html?huruf=A&no=1" },
-      { no: 2, title: "Lembar Kerja Huruf B", range: "Kosakata Huruf B (14 kata)", huruf: "B", drive: "lkpd.html?huruf=B&no=2" },
-      { no: 3, title: "Lembar Kerja Huruf C", range: "Kosakata Huruf C (20 kata)", huruf: "C", drive: "lkpd.html?huruf=C&no=3" },
-      { no: 4, title: "Lembar Kerja Huruf D", range: "Kosakata Huruf D (7 kata)", huruf: "D", drive: "lkpd.html?huruf=D&no=4" },
-      { no: 5, title: "Lembar Kerja Huruf E", range: "Kosakata Huruf E (8 kata)", huruf: "E", drive: "lkpd.html?huruf=E&no=5" },
-      { no: 6, title: "Lembar Kerja Huruf F", range: "Kosakata Huruf F (17 kata)", huruf: "F", drive: "lkpd.html?huruf=F&no=6" },
-      { no: 7, title: "Lembar Kerja Huruf G", range: "Kosakata Huruf G (8 kata)", huruf: "G", drive: "lkpd.html?huruf=G&no=7" },
-      { no: 8, title: "Lembar Kerja Huruf H", range: "Kosakata Huruf H (7 kata)", huruf: "H", drive: "lkpd.html?huruf=H&no=8" },
-      { no: 9, title: "Lembar Kerja Huruf I", range: "Kosakata Huruf I (1 kata)", huruf: "I", drive: "lkpd.html?huruf=I&no=9" },
-      { no: 10, title: "Lembar Kerja Huruf J", range: "Kosakata Huruf J (1 kata)", huruf: "J", drive: "lkpd.html?huruf=J&no=10" },
-      { no: 11, title: "Lembar Kerja Huruf K", range: "Kosakata Huruf K (2 kata)", huruf: "K", drive: "lkpd.html?huruf=K&no=11" },
-      { no: 12, title: "Lembar Kerja Huruf L", range: "Kosakata Huruf L (4 kata)", huruf: "L", drive: "lkpd.html?huruf=L&no=12" },
-      { no: 13, title: "Lembar Kerja Huruf M", range: "Kosakata Huruf M (11 kata)", huruf: "M", drive: "lkpd.html?huruf=M&no=13" },
-      { no: 14, title: "Lembar Kerja Huruf N", range: "Kosakata Huruf N (4 kata)", huruf: "N", drive: "lkpd.html?huruf=N&no=14" },
-      { no: 15, title: "Lembar Kerja Huruf O", range: "Kosakata Huruf O (4 kata)", huruf: "O", drive: "lkpd.html?huruf=O&no=15" },
-      { no: 16, title: "Lembar Kerja Huruf P", range: "Kosakata Huruf P (8 kata)", huruf: "P", drive: "lkpd.html?huruf=P&no=16" },
-      { no: 17, title: "Lembar Kerja Huruf R", range: "Kosakata Huruf R (5 kata)", huruf: "R", drive: "lkpd.html?huruf=R&no=17" },
-      { no: 18, title: "Lembar Kerja Huruf S", range: "Kosakata Huruf S (19 kata)", huruf: "S", drive: "lkpd.html?huruf=S&no=18" },
-      { no: 19, title: "Lembar Kerja Huruf T", range: "Kosakata Huruf T (17 kata)", huruf: "T", drive: "lkpd.html?huruf=T&no=19" },
-      { no: 20, title: "Lembar Kerja Huruf W", range: "Kosakata Huruf W (11 kata)", huruf: "W", drive: "lkpd.html?huruf=W&no=20" },
-      { no: 21, title: "Lembar Kerja Huruf Y", range: "Kosakata Huruf Y (1 kata)", huruf: "Y", drive: "lkpd.html?huruf=Y&no=21" }
-    ];
-
-    /* =========================================================================
-       2. DATABASE KATA KAMUS KOLOK
-       ========================================================================= */
+    /* =================================================================
+       DATABASE KOSAKATA (sumber data sama dengan index.html)
+       ================================================================= */
     const DICTIONARY_DATA = [
-      // --- SECTION A (3 kata) ---
-      { id: 1, letter: "A", word: "AMBULANCE", indo: "Ambulans", img: "ambulance.png" },
-      { id: 2, letter: "A", word: "AIRPLANE (1)", indo: "Pesawat Terbang", img: "airplane1.png" },
-      { id: 3, letter: "A", word: "AIRPLANE (2)", indo: "Pesawat Terbang", img: "airplane2.png" },
-
-      // --- SECTION B (14 kata) ---
-      { id: 4, letter: "B", word: "BALOON", indo: "Balon", img: "baloon.png" },
-      { id: 5, letter: "B", word: "BENZINE", indo: "Bensin", img: "bensin.png" },
-      { id: 6, letter: "B", word: "BIG MACHINE (BULDOSER)", indo: "Buldoser", img: "buldoser.png" },
-      { id: 7, letter: "B", word: "BEER/COLA", indo: "Bir Cola", img: "cola.png" },
-      { id: 8, letter: "B", word: "BALL", indo: "Bola", img: "ball.png" },
-      { id: 9, letter: "B", word: "BOSS", indo: "Bos", img: "boss.png" },
-      { id: 10, letter: "B", word: "BOOK", indo: "Buku", img: "book.png" },
-      { id: 11, letter: "B", word: "BAD", indo: "Jelek", img: "bad.png" },
-      { id: 12, letter: "B", word: "BIRD", indo: "Burung", img: "bird.png" },
-      { id: 13, letter: "B", word: "BEAUTIFUL", indo: "Cantik", img: "beautifull.png" },
-      { id: 14, letter: "B", word: "BITE (VERB)", indo: "Gigit", img: "bite.png" },
-      { id: 15, letter: "B", word: "BANANA", indo: "Pisang", img: "banana.png" },
-      { id: 16, letter: "B", word: "BICYCLE", indo: "Sepeda", img: "BICYCLE.png" },
-      { id: 17, letter: "B", word: "BREAST", indo: "Dada", img: "breast.png" },
-
-      // --- SECTION C (20 kata) ---
-      { id: 18, letter: "C", word: "CHILD BORN (1)", indo: "Kelahiran Anak", img: "CHILDBORN.png" },
-      { id: 19, letter: "C", word: "CHILD BORN (2)", indo: "Kelahiran Anak", img: "CHILDBORN2.png" },
-      { id: 20, letter: "C", word: "CHICKEN", indo: "Ayam", img: "CHICKEN.png" },
-      { id: 21, letter: "C", word: "CHILI", indo: "Cabai", img: "CHILI.png" },
-      { id: 22, letter: "C", word: "CANDLE", indo: "Lilin", img: "CANDLE.png" },
-      { id: 23, letter: "C", word: "CASSAVE", indo: "Singkong", img: "CASSAVE.png" },
-      { id: 24, letter: "C", word: "COLD (1)", indo: "Dingin", img: "COLD.png" },
-      { id: 25, letter: "C", word: "COLD (2)", indo: "Dingin", img: "COLD2.png" },
-      { id: 26, letter: "C", word: "COW", indo: "Sapi", img: "COW.png" },
-      { id: 27, letter: "C", word: "CAT", indo: "Kucing", img: "CAT.png" },
-      { id: 28, letter: "C", word: "COFFEE", indo: "Kopi", img: "COFFEE.png" },
-      { id: 29, letter: "C", word: "CAR", indo: "Mobil", img: "CAR.png" },
-      { id: 30, letter: "C", word: "CARPENTER", indo: "Tukang Kayu", img: "CARPENTER.png" },
-      { id: 31, letter: "C", word: "CAT FISH", indo: "Ikan Lele", img: "CF.png" },
-      { id: 32, letter: "C", word: "CHEEK", indo: "Pipi", img: "CHEEK.png" },
-      { id: 33, letter: "C", word: "CHIN", indo: "Dagu", img: "CHIN.png" },
-      { id: 34, letter: "C", word: "CHOPPING MEAT", indo: "Memotong Daging", img: "CHOPPING.png" },
-      { id: 35, letter: "C", word: "COLA", indo: "Cola", img: "cola.png" },
-      { id: 36, letter: "C", word: "COUGH", indo: "Batuk", img: "COUGH.png" },
-      { id: 37, letter: "C", word: "CRAZY LOVE", indo: "Cinta Gila", img: "CRAZY.png" },
-
-      // --- SECTION D (7 kata) ---
-      { id: 38, letter: "D", word: "DOG", indo: "Anjing", img: "dog.png" },
-      { id: 39, letter: "D", word: "DEAD", indo: "Mati", img: "dead.png" },
-      { id: 40, letter: "D", word: "DEAF", indo: "Tuli", img: "deaf.png" },
-      { id: 41, letter: "D", word: "DREAM", indo: "Mimpi", img: "dream.png" },
-      { id: 42, letter: "D", word: "DRINKING", indo: "Minum", img: "drinking.png" },
-      { id: 43, letter: "D", word: "DRYING SHIRT", indo: "Mengeringkan Baju", img: "dryingshirt.png" },
-      { id: 44, letter: "D", word: "DURIAN", indo: "Durian", img: "durian.png" },
-
-      // --- SECTION E (8 kata) ---
-      { id: 45, letter: "E", word: "EATING", indo: "Makan", img: "eating.png" },
-      { id: 46, letter: "E", word: "EGG", indo: "Telur", img: "egg.png" },
-      { id: 47, letter: "E", word: "EYEBROW", indo: "Alis", img: "eyebrow.png" },
-      { id: 48, letter: "E", word: "EAR", indo: "Telinga", img: "ear.png" },
-      { id: 49, letter: "E", word: "ELEPHANT", indo: "Gajah", img: "elephant.png" },
-      { id: 50, letter: "E", word: "EIGHT", indo: "Delapan(1)", img: "81.png" },
-      { id: 51, letter: "E", word: "EIGHT", indo: "Delapan(2)", img: "82.png" },
-      { id: 52, letter: "E", word: "EASY", indo: "Mudah", img: "easy.png" },
-
-      // --- SECTION F (17 kata) ---
-      { id: 53, letter: "F", word: "FISH", indo: "Ikan", img: "fish.png" },
-      { id: 54, letter: "F", word: "FRUIT(A)", indo: "Buah", img: "fa.png" },
-      { id: 55, letter: "F", word: "FOUR", indo: "Empat", img: "4.png" },
-      { id: 56, letter: "F", word: "FIVE", indo: "Lima", img: "five.png" },
-      { id: 57, letter: "F", word: "FATHER", indo: "Ayah", img: "father.png" },
-      { id: 58, letter: "F", word: "FRUIT(B)", indo: "Buah", img: "fb.png" },
-      { id: 59, letter: "F", word: "FRUIT(C)", indo: "Buah", img: "fc.png" },
-      { id: 60, letter: "F", word: "FOOTBALL", indo: "Sepak Bola", img: "fball.png" },
-      { id: 61, letter: "F", word: "FIVE MILLION FIVE", indo: "lima juta lima ratus ribu", img: "fivemf.png" },
-      { id: 62, letter: "F", word: "FRIEND", indo: "Teman", img: "friend.png" },
-      { id: 63, letter: "F", word: "FIVE MILLION", indo: "Lima Juta", img: "fivem.png" },
-      { id: 64, letter: "F", word: "FINISHED", indo: "Selesai", img: "finished.png" },
-      { id: 65, letter: "F", word: "FRY", indo: "Menggoreng", img: "fry.png" },
-      { id: 66, letter: "F", word: "FERMENTED SHRIMP", indo: "Udang Fermentasi", img: "fermantedshrimp.png" },
-      { id: 67, letter: "F", word: "FORK", indo: "Garpu", img: "fork.png" },
-      { id: 68, letter: "F", word: "FEMALE", indo: "Laki-laki", img: "female.png" },
-      { id: 69, letter: "F", word: "FEVER", indo: "Demam", img: "fever.png" },
-
-      // --- SECTION G (8 kata) ---
-      { id: 70, letter: "G", word: "GARDEN", indo: "Taman", img: "garden.png" },
-      { id: 71, letter: "G", word: "GARLIC", indo: "Bawang Putih", img: "garlic.png" },
-      { id: 72, letter: "G", word: "GREEN COLOUR", indo: "Warna Hijau", img: "greenc.png" },
-      { id: 73, letter: "G", word: "GECHO", indo: "Gecho", img: "gecho.png" },
-      { id: 74, letter: "G", word: "GRAND PARENTS", indo: "Kakek Nenek", img: "grandp.png" },
-      { id: 75, letter: "G", word: "GINGER", indo: "Jahe", img: "ginger.png" },
-      { id: 76, letter: "G", word: "GROWING UP", indo: "Tumbuh", img: "growup.png" },
-      { id: 77, letter: "G", word: "GRINDING MACHINE", indo: "Mesin Gerinda", img: "grinding.png" },
-
-      // --- SECTION H (7 kata) ---
-      { id: 78, letter: "H", word: "HOUSE", indo: "Rumah", img: "house.png" },
-      { id: 79, letter: "H", word: "HAIR", indo: "Rambut", img: "hair.png" },
-      { id: 80, letter: "H", word: "HAT(1)", indo: "Topi", img: "hat.png" },
-      { id: 81, letter: "H", word: "HAT(2)", indo: "Topi", img: "hat2.png" },
-      { id: 82, letter: "H", word: "HEART", indo: "Hati", img: "heart.png" },
-      { id: 83, letter: "H", word: "HELMET", indo: "Helm", img: "helmet.png" },
-      { id: 84, letter: "H", word: "HUNGRY", indo: "Lapar", img: "hungry.png" },
-
-      // --- SECTION I (1 kata) ---
-      { id: 85, letter: "I", word: "ICE", indo: "Es", img: "ice.png" },
-
-      // --- SECTION J (1 kata) ---
-      { id: 86, letter: "J", word: "JACKFRUIT", indo: "Nangka", img: "jack.png" },
-
-      // --- SECTION K (2 kata) ---
-      { id: 87, letter: "K", word: "KNIFE", indo: "Pisau", img: "knife.png" },
-      { id: 88, letter: "K", word: "KNOWING", indo: "Tahu", img: "knowing.png" },
-
-      // --- SECTION L (4 kata) ---
-      { id: 89, letter: "L", word: "LAMP", indo: "Lampu", img: "lamp.png" },
-      { id: 90, letter: "L", word: "LIE", indo: "Berbohong", img: "lie.png" },
-      { id: 91, letter: "L", word: "LIPS", indo: "Bibir", img: "lips.png" },
-      { id: 92, letter: "L", word: "LITTLE BROTHER/SISTER", indo: "Adik", img: "adik.png" },
-
-      // --- SECTION M (11 kata) ---
-      { id: 93, letter: "M", word: "MAN", indo: "Pria", img: "man.png" },
-      { id: 94, letter: "M", word: "MOTHER", indo: "Ibu", img: "mother.png" },
-      { id: 95, letter: "M", word: "MOUNT", indo: "Gunung", img: "mount.png" },
-      { id: 96, letter: "M", word: "MONKEY", indo: "Monyet", img: "monkey.png" },
-      { id: 97, letter: "M", word: "MONEY", indo: "Uang", img: "money.png" },
-      { id: 98, letter: "M", word: "MANGO", indo: "Mangga", img: "mango.png" },
-      { id: 99, letter: "M", word: "MUSHROOM", indo: "Jamur", img: "mushroom.png" },
-      { id: 100, letter: "M", word: "MOTORCYCLE", indo: "Sepeda Motor", img: "motor.png" },
-      { id: 101, letter: "M", word: "MUSTACHE", indo: "Kumis", img: "mustache.png" },
-      { id: 102, letter: "M", word: "MILLION", indo: "Juta", img: "million.png" },
-      { id: 103, letter: "M", word: "MARRIAGE", indo: "Menikah", img: "marriage.png" },
-
-      // --- SECTION N (4 kata) ---
-      { id: 104, letter: "N", word: "NOSE", indo: "Hidung", img: "nose.png" },
-      { id: 105, letter: "N", word: "NURSE", indo: "Suster", img: "nurse.png" },
-      { id: 106, letter: "N", word: "NINE", indo: "Sembilan", img: "nine.png" },
-      { id: 107, letter: "N", word: "NAUGHTY", indo: "Nakal", img: "naughty.png" },
-
-      // --- SECTION O (4 kata) ---
-      { id: 108, letter: "O", word: "ONE", indo: "Satu", img: "one.png" },
-      { id: 109, letter: "O", word: "ONION", indo: "Bawang Merah", img: "onion.png" },
-      { id: 110, letter: "O", word: "OLDER BROTHER/SISTER", indo: "Kakak", img: "kakak.png" },
-      { id: 111, letter: "O", word: "OIL", indo: "Minyak", img: "oil.png" },
-
-      // --- SECTION P (8 kata) ---
-      { id: 112, letter: "P", word: "PIG", indo: "Babi", img: "pig.png" },
-      { id: 113, letter: "P", word: "PAN(1)", indo: "Wajan", img: "pan.png" },
-      { id: 114, letter: "P", word: "PAN(2)", indo: "Wajan", img: "pan2.png" },
-      { id: 115, letter: "P", word: "PIL/CAPSULE", indo: "Pil/Kapsul", img: "pil.png" },
-      { id: 116, letter: "P", word: "PLANTING", indo: "Menanam", img: "planting.png" },
-      { id: 117, letter: "P", word: "PLATE", indo: "Piring", img: "plate.png" },
-      { id: 118, letter: "P", word: "PLOWING", indo: "Membajak", img: "plowing.png" },
-      { id: 119, letter: "P", word: "PINEAPPLE", indo: "Nanas", img: "pineapple.png" },
-
-      // --- SECTION R (5 kata) ---
-      { id: 120, letter: "R", word: "RUNNING", indo: "Berlari", img: "running.png" },
-      { id: 121, letter: "R", word: "RELAXING", indo: "Santai", img: "relaxing.png" },
-      { id: 122, letter: "R", word: "RED", indo: "Merah", img: "red.png" },
-      { id: 123, letter: "R", word: "RICE", indo: "Nasi", img: "rice.png" },
-      { id: 124, letter: "R", word: "ROUNDED SHAPE", indo: "Bentuk Bulat", img: "roundeds.png" },
-
-      // --- SECTION S (19 kata) ---
-      { id: 125, letter: "S", word: "SOUR", indo: "Asam", img: "sour.png" },
-      { id: 126, letter: "S", word: "SHIRT", indo: "Kemeja", img: "shirt.png" },
-      { id: 127, letter: "S", word: "STUPID/IDIOT", indo: "Bodoh", img: "stupid.png" },
-      { id: 128, letter: "S", word: "SIX", indo: "Enam", img: "six.png" },
-      { id: 129, letter: "S", word: "SHY/EMBARRASSED", indo: "Malu", img: "shy.png" },
-      { id: 130, letter: "S", word: "SWEET", indo: "Manis", img: "sweet.png" },
-      { id: 131, letter: "S", word: "SKIRT", indo: "Rok", img: "skirt.png" },
-      { id: 132, letter: "S", word: "SICK/DIZZY", indo: "Sakit", img: "sick.png" },
-      { id: 133, letter: "S", word: "SAME", indo: "Sama", img: "same.png" },
-      { id: 134, letter: "S", word: "SARONG", indo: "Sarung", img: "sarong.png" },
-      { id: 135, letter: "S", word: "SATAY", indo: "Sate", img: "satay.png" },
-      { id: 136, letter: "S", word: "SAW", indo: "Gergaji", img: "saw.png" },
-      { id: 137, letter: "S", word: "SEAL", indo: "Anjing Laut", img: "seal.png" },
-      { id: 138, letter: "S", word: "SPOON", indo: "Sendok", img: "spoon.png" },
-      { id: 139, letter: "S", word: "SHOES", indo: "Sepatu", img: "shoes.png" },
-      { id: 140, letter: "S", word: "SUKESTI (NAME OF PERSON)", indo: "Sukesti", img: "sukesti.png" },
-      { id: 141, letter: "S", word: "SLEEP", indo: "Tidur", img: "sleep.png" },
-      { id: 142, letter: "S", word: "SEVEN", indo: "Tujuh", img: "seven.png" },
-      { id: 143, letter: "S", word: "SNAKE", indo: "Ular", img: "snake.png" },
-
-      // --- SECTION T (17 kata) ---
-      { id: 144, letter: "T", word: "TROUSERS/PANTS", indo: "Celana", img: "trousers.png" },
-      { id: 145, letter: "T", word: "TIE", indo: "Dasi", img: "tie.png" },
-      { id: 146, letter: "T", word: "TWO", indo: "Dua", img: "two.png" },
-      { id: 147, letter: "T", word: "TEETH", indo: "Gigi", img: "teeth.png" },
-      { id: 148, letter: "T", word: "TONGUE", indo: "Lidah", img: "tongue.png" },
-      { id: 149, letter: "T", word: "TAKING BATH/SHOWER (1)", indo: "Mandi", img: "tbath.png" },
-      { id: 150, letter: "T", word: "TAKING BATH/SHOWER (2)", indo: "Mandi", img: "tbath2.png" },
-      { id: 151, letter: "T", word: "TABLE", indo: "Meja", img: "table.png" },
-      { id: 152, letter: "T", word: "TEN", indo: "Sepuluh", img: "ten.png" },
-      { id: 153, letter: "T", word: "TRIANGLE", indo: "Segitiga", img: "triangle.png" },
-      { id: 154, letter: "T", word: "TOOTH BRUSH", indo: "Sikat Gigi", img: "toothb.png" },
-      { id: 155, letter: "T", word: "TEA (1)", indo: "Teh", img: "tea1.png" },
-      { id: 156, letter: "T", word: "TEA (2)", indo: "Teh", img: "tea2.png" },
-      { id: 157, letter: "T", word: "TEA (3)", indo: "Teh", img: "tea3.png" },
-      { id: 158, letter: "T", word: "TEA (4)", indo: "Teh", img: "tea4.png" },
-      { id: 159, letter: "T", word: "THREE", indo: "Tiga", img: "three.png" },
-      { id: 160, letter: "T", word: "TOURIST", indo: "Wisatawan", img: "tourist.png" },
-
-      // --- SECTION W (11 kata) ---
-      { id: 161, letter: "W", word: "WATER", indo: "Air", img: "water.png" },
-      { id: 162, letter: "W", word: "WORK", indo: "Bekerja", img: "work.png" },
-      { id: 163, letter: "W", word: "WIN", indo: "Menang", img: "win.png" },
-      { id: 164, letter: "W", word: "WATERMELON", indo: "Semangka", img: "waterm.png" },
-      { id: 165, letter: "W", word: "WASHING", indo: "Mencuci", img: "washing.png" },
-      { id: 166, letter: "W", word: "WANT TO", indo: "Ingin", img: "want.png" },
-      { id: 167, letter: "W", word: "WALK(2)", indo: "Berjalan", img: "walk.png" },
-      { id: 168, letter: "W", word: "WALK(1)", indo: "Berjalan", img: "walk2.png" },
-      { id: 169, letter: "W", word: "WAKE UP", indo: "Bangun", img: "wakeup.png" },
-      { id: 170, letter: "W", word: "WAIT", indo: "Tunggu", img: "wait.png" },
-      { id: 171, letter: "W", word: "WINE", indo: "Anggur", img: "wine.png" },
-
-      // --- SECTION Y (1 kata) ---
-      { id: 172, letter: "Y", word: "YELLOW", indo: "Kuning", img: "yellow.png" }
+      { id:1, letter:"A", word:"AMBULANCE", indo:"Ambulans", img:"ambulance.png" },
+      { id:2, letter:"A", word:"AIRPLANE (1)", indo:"Pesawat Terbang", img:"airplane1.png" },
+      { id:3, letter:"A", word:"AIRPLANE (2)", indo:"Pesawat Terbang", img:"airplane2.png" },
+      { id:4, letter:"B", word:"BALOON", indo:"Balon", img:"baloon.png" },
+      { id:5, letter:"B", word:"BENZINE", indo:"Bensin", img:"bensin.png" },
+      { id:6, letter:"B", word:"BIG MACHINE (BULDOSER)", indo:"Buldoser", img:"buldoser.png" },
+      { id:7, letter:"B", word:"BEER/COLA", indo:"Bir Cola", img:"cola.png" },
+      { id:8, letter:"B", word:"BALL", indo:"Bola", img:"ball.png" },
+      { id:9, letter:"B", word:"BOSS", indo:"Bos", img:"boss.png" },
+      { id:10, letter:"B", word:"BOOK", indo:"Buku", img:"book.png" },
+      { id:11, letter:"B", word:"BAD", indo:"Jelek", img:"bad.png" },
+      { id:12, letter:"B", word:"BIRD", indo:"Burung", img:"bird.png" },
+      { id:13, letter:"B", word:"BEAUTIFUL", indo:"Cantik", img:"beautifull.png" },
+      { id:14, letter:"B", word:"BITE (VERB)", indo:"Gigit", img:"bite.png" },
+      { id:15, letter:"B", word:"BANANA", indo:"Pisang", img:"banana.png" },
+      { id:16, letter:"B", word:"BICYCLE", indo:"Sepeda", img:"BICYCLE.png" },
+      { id:17, letter:"B", word:"BREAST", indo:"Dada", img:"breast.png" },
+      { id:18, letter:"C", word:"CHILD BORN (1)", indo:"Kelahiran Anak", img:"CHILDBORN.png" },
+      { id:19, letter:"C", word:"CHILD BORN (2)", indo:"Kelahiran Anak", img:"CHILDBORN2.png" },
+      { id:20, letter:"C", word:"CHICKEN", indo:"Ayam", img:"CHICKEN.png" },
+      { id:21, letter:"C", word:"CHILI", indo:"Cabai", img:"CHILI.png" },
+      { id:22, letter:"C", word:"CANDLE", indo:"Lilin", img:"CANDLE.png" },
+      { id:23, letter:"C", word:"CASSAVE", indo:"Singkong", img:"CASSAVE.png" },
+      { id:24, letter:"C", word:"COLD (1)", indo:"Dingin", img:"COLD.png" },
+      { id:25, letter:"C", word:"COLD (2)", indo:"Dingin", img:"COLD2.png" },
+      { id:26, letter:"C", word:"COW", indo:"Sapi", img:"COW.png" },
+      { id:27, letter:"C", word:"CAT", indo:"Kucing", img:"CAT.png" },
+      { id:28, letter:"C", word:"COFFEE", indo:"Kopi", img:"COFFEE.png" },
+      { id:29, letter:"C", word:"CAR", indo:"Mobil", img:"CAR.png" },
+      { id:30, letter:"C", word:"CARPENTER", indo:"Tukang Kayu", img:"CARPENTER.png" },
+      { id:31, letter:"C", word:"CAT FISH", indo:"Ikan Lele", img:"CF.png" },
+      { id:32, letter:"C", word:"CHEEK", indo:"Pipi", img:"CHEEK.png" },
+      { id:33, letter:"C", word:"CHIN", indo:"Dagu", img:"CHIN.png" },
+      { id:34, letter:"C", word:"CHOPPING MEAT", indo:"Memotong Daging", img:"CHOPPING.png" },
+      { id:35, letter:"C", word:"COLA", indo:"Cola", img:"cola.png" },
+      { id:36, letter:"C", word:"COUGH", indo:"Batuk", img:"COUGH.png" },
+      { id:37, letter:"C", word:"CRAZY LOVE", indo:"Cinta Gila", img:"CRAZY.png" },
+      { id:38, letter:"D", word:"DOG", indo:"Anjing", img:"dog.png" },
+      { id:39, letter:"D", word:"DEAD", indo:"Mati", img:"dead.png" },
+      { id:40, letter:"D", word:"DEAF", indo:"Tuli", img:"deaf.png" },
+      { id:41, letter:"D", word:"DREAM", indo:"Mimpi", img:"dream.png" },
+      { id:42, letter:"D", word:"DRINKING", indo:"Minum", img:"drinking.png" },
+      { id:43, letter:"D", word:"DRYING SHIRT", indo:"Mengeringkan Baju", img:"dryingshirt.png" },
+      { id:44, letter:"D", word:"DURIAN", indo:"Durian", img:"durian.png" },
+      { id:45, letter:"E", word:"EATING", indo:"Makan", img:"eating.png" },
+      { id:46, letter:"E", word:"EGG", indo:"Telur", img:"egg.png" },
+      { id:47, letter:"E", word:"EYEBROW", indo:"Alis", img:"eyebrow.png" },
+      { id:48, letter:"E", word:"EAR", indo:"Telinga", img:"ear.png" },
+      { id:49, letter:"E", word:"ELEPHANT", indo:"Gajah", img:"elephant.png" },
+      { id:50, letter:"E", word:"EIGHT (1)", indo:"Delapan", img:"81.png" },
+      { id:51, letter:"E", word:"EIGHT (2)", indo:"Delapan", img:"82.png" },
+      { id:52, letter:"E", word:"EASY", indo:"Mudah", img:"easy.png" },
+      { id:53, letter:"F", word:"FISH", indo:"Ikan", img:"fish.png" },
+      { id:54, letter:"F", word:"FRUIT (A)", indo:"Buah", img:"fa.png" },
+      { id:55, letter:"F", word:"FOUR", indo:"Empat", img:"4.png" },
+      { id:56, letter:"F", word:"FIVE", indo:"Lima", img:"five.png" },
+      { id:57, letter:"F", word:"FATHER", indo:"Ayah", img:"father.png" },
+      { id:58, letter:"F", word:"FRUIT (B)", indo:"Buah", img:"fb.png" },
+      { id:59, letter:"F", word:"FRUIT (C)", indo:"Buah", img:"fc.png" },
+      { id:60, letter:"F", word:"FOOTBALL", indo:"Sepak Bola", img:"fball.png" },
+      { id:61, letter:"F", word:"FIVE MILLION FIVE", indo:"Lima Juta Lima Ratus Ribu", img:"fivemf.png" },
+      { id:62, letter:"F", word:"FRIEND", indo:"Teman", img:"friend.png" },
+      { id:63, letter:"F", word:"FIVE MILLION", indo:"Lima Juta", img:"fivem.png" },
+      { id:64, letter:"F", word:"FINISHED", indo:"Selesai", img:"finished.png" },
+      { id:65, letter:"F", word:"FRY", indo:"Menggoreng", img:"fry.png" },
+      { id:66, letter:"F", word:"FERMENTED SHRIMP", indo:"Udang Fermentasi", img:"fermantedshrimp.png" },
+      { id:67, letter:"F", word:"FORK", indo:"Garpu", img:"fork.png" },
+      { id:68, letter:"F", word:"FEMALE", indo:"Perempuan", img:"female.png" },
+      { id:69, letter:"F", word:"FEVER", indo:"Demam", img:"fever.png" },
+      { id:70, letter:"G", word:"GARDEN", indo:"Taman", img:"garden.png" },
+      { id:71, letter:"G", word:"GARLIC", indo:"Bawang Putih", img:"garlic.png" },
+      { id:72, letter:"G", word:"GREEN COLOUR", indo:"Warna Hijau", img:"greenc.png" },
+      { id:73, letter:"G", word:"GECHO", indo:"Gecho", img:"gecho.png" },
+      { id:74, letter:"G", word:"GRAND PARENTS", indo:"Kakek Nenek", img:"grandp.png" },
+      { id:75, letter:"G", word:"GINGER", indo:"Jahe", img:"ginger.png" },
+      { id:76, letter:"G", word:"GROWING UP", indo:"Tumbuh", img:"growup.png" },
+      { id:77, letter:"G", word:"GRINDING MACHINE", indo:"Mesin Gerinda", img:"grinding.png" },
+      { id:78, letter:"H", word:"HOUSE", indo:"Rumah", img:"house.png" },
+      { id:79, letter:"H", word:"HAIR", indo:"Rambut", img:"hair.png" },
+      { id:80, letter:"H", word:"HAT (1)", indo:"Topi", img:"hat.png" },
+      { id:81, letter:"H", word:"HAT (2)", indo:"Topi", img:"hat2.png" },
+      { id:82, letter:"H", word:"HEART", indo:"Hati", img:"heart.png" },
+      { id:83, letter:"H", word:"HELMET", indo:"Helm", img:"helmet.png" },
+      { id:84, letter:"H", word:"HUNGRY", indo:"Lapar", img:"hungry.png" },
+      { id:85, letter:"I", word:"ICE", indo:"Es", img:"ice.png" },
+      { id:86, letter:"J", word:"JACKFRUIT", indo:"Nangka", img:"jack.png" },
+      { id:87, letter:"K", word:"KNIFE", indo:"Pisau", img:"knife.png" },
+      { id:88, letter:"K", word:"KNOWING", indo:"Tahu", img:"knowing.png" },
+      { id:89, letter:"L", word:"LAMP", indo:"Lampu", img:"lamp.png" },
+      { id:90, letter:"L", word:"LIE", indo:"Berbohong", img:"lie.png" },
+      { id:91, letter:"L", word:"LIPS", indo:"Bibir", img:"lips.png" },
+      { id:92, letter:"L", word:"LITTLE BROTHER/SISTER", indo:"Adik", img:"adik.png" },
+      { id:93, letter:"M", word:"MAN", indo:"Pria", img:"man.png" },
+      { id:94, letter:"M", word:"MOTHER", indo:"Ibu", img:"mother.png" },
+      { id:95, letter:"M", word:"MOUNT", indo:"Gunung", img:"mount.png" },
+      { id:96, letter:"M", word:"MONKEY", indo:"Monyet", img:"monkey.png" },
+      { id:97, letter:"M", word:"MONEY", indo:"Uang", img:"money.png" },
+      { id:98, letter:"M", word:"MANGO", indo:"Mangga", img:"mango.png" },
+      { id:99, letter:"M", word:"MUSHROOM", indo:"Jamur", img:"mushroom.png" },
+      { id:100, letter:"M", word:"MOTORCYCLE", indo:"Sepeda Motor", img:"motor.png" },
+      { id:101, letter:"M", word:"MUSTACHE", indo:"Kumis", img:"mustache.png" },
+      { id:102, letter:"M", word:"MILLION", indo:"Juta", img:"million.png" },
+      { id:103, letter:"M", word:"MARRIAGE", indo:"Menikah", img:"marriage.png" },
+      { id:104, letter:"N", word:"NOSE", indo:"Hidung", img:"nose.png" },
+      { id:105, letter:"N", word:"NURSE", indo:"Suster", img:"nurse.png" },
+      { id:106, letter:"N", word:"NINE", indo:"Sembilan", img:"nine.png" },
+      { id:107, letter:"N", word:"NAUGHTY", indo:"Nakal", img:"naughty.png" },
+      { id:108, letter:"O", word:"ONE", indo:"Satu", img:"one.png" },
+      { id:109, letter:"O", word:"ONION", indo:"Bawang Merah", img:"onion.png" },
+      { id:110, letter:"O", word:"OLDER BROTHER/SISTER", indo:"Kakak", img:"kakak.png" },
+      { id:111, letter:"O", word:"OIL", indo:"Minyak", img:"oil.png" },
+      { id:112, letter:"P", word:"PIG", indo:"Babi", img:"pig.png" },
+      { id:113, letter:"P", word:"PAN (1)", indo:"Wajan", img:"pan.png" },
+      { id:114, letter:"P", word:"PAN (2)", indo:"Wajan", img:"pan2.png" },
+      { id:115, letter:"P", word:"PIL/CAPSULE", indo:"Pil/Kapsul", img:"pil.png" },
+      { id:116, letter:"P", word:"PLANTING", indo:"Menanam", img:"planting.png" },
+      { id:117, letter:"P", word:"PLATE", indo:"Piring", img:"plate.png" },
+      { id:118, letter:"P", word:"PLOWING", indo:"Membajak", img:"plowing.png" },
+      { id:119, letter:"P", word:"PINEAPPLE", indo:"Nanas", img:"pineapple.png" },
+      { id:120, letter:"R", word:"RUNNING", indo:"Berlari", img:"running.png" },
+      { id:121, letter:"R", word:"RELAXING", indo:"Santai", img:"relaxing.png" },
+      { id:122, letter:"R", word:"RED", indo:"Merah", img:"red.png" },
+      { id:123, letter:"R", word:"RICE", indo:"Nasi", img:"rice.png" },
+      { id:124, letter:"R", word:"ROUNDED SHAPE", indo:"Bentuk Bulat", img:"roundeds.png" },
+      { id:125, letter:"S", word:"SOUR", indo:"Asam", img:"sour.png" },
+      { id:126, letter:"S", word:"SHIRT", indo:"Kemeja", img:"shirt.png" },
+      { id:127, letter:"S", word:"STUPID/IDIOT", indo:"Bodoh", img:"stupid.png" },
+      { id:128, letter:"S", word:"SIX", indo:"Enam", img:"six.png" },
+      { id:129, letter:"S", word:"SHY/EMBARRASSED", indo:"Malu", img:"shy.png" },
+      { id:130, letter:"S", word:"SWEET", indo:"Manis", img:"sweet.png" },
+      { id:131, letter:"S", word:"SKIRT", indo:"Rok", img:"skirt.png" },
+      { id:132, letter:"S", word:"SICK/DIZZY", indo:"Sakit", img:"sick.png" },
+      { id:133, letter:"S", word:"SAME", indo:"Sama", img:"same.png" },
+      { id:134, letter:"S", word:"SARONG", indo:"Sarung", img:"sarong.png" },
+      { id:135, letter:"S", word:"SATAY", indo:"Sate", img:"satay.png" },
+      { id:136, letter:"S", word:"SAW", indo:"Gergaji", img:"saw.png" },
+      { id:137, letter:"S", word:"SEAL", indo:"Anjing Laut", img:"seal.png" },
+      { id:138, letter:"S", word:"SPOON", indo:"Sendok", img:"spoon.png" },
+      { id:139, letter:"S", word:"SHOES", indo:"Sepatu", img:"shoes.png" },
+      { id:140, letter:"S", word:"SUKESTI (NAME)", indo:"Sukesti", img:"sukesti.png" },
+      { id:141, letter:"S", word:"SLEEP", indo:"Tidur", img:"sleep.png" },
+      { id:142, letter:"S", word:"SEVEN", indo:"Tujuh", img:"seven.png" },
+      { id:143, letter:"S", word:"SNAKE", indo:"Ular", img:"snake.png" },
+      { id:144, letter:"T", word:"TROUSERS/PANTS", indo:"Celana", img:"trousers.png" },
+      { id:145, letter:"T", word:"TIE", indo:"Dasi", img:"tie.png" },
+      { id:146, letter:"T", word:"TWO", indo:"Dua", img:"two.png" },
+      { id:147, letter:"T", word:"TEETH", indo:"Gigi", img:"teeth.png" },
+      { id:148, letter:"T", word:"TONGUE", indo:"Lidah", img:"tongue.png" },
+      { id:149, letter:"T", word:"TAKING BATH/SHOWER (1)", indo:"Mandi", img:"tbath.png" },
+      { id:150, letter:"T", word:"TAKING BATH/SHOWER (2)", indo:"Mandi", img:"tbath2.png" },
+      { id:151, letter:"T", word:"TABLE", indo:"Meja", img:"table.png" },
+      { id:152, letter:"T", word:"TEN", indo:"Sepuluh", img:"ten.png" },
+      { id:153, letter:"T", word:"TRIANGLE", indo:"Segitiga", img:"triangle.png" },
+      { id:154, letter:"T", word:"TOOTH BRUSH", indo:"Sikat Gigi", img:"toothb.png" },
+      { id:155, letter:"T", word:"TEA (1)", indo:"Teh", img:"tea1.png" },
+      { id:156, letter:"T", word:"TEA (2)", indo:"Teh", img:"tea2.png" },
+      { id:157, letter:"T", word:"TEA (3)", indo:"Teh", img:"tea3.png" },
+      { id:158, letter:"T", word:"TEA (4)", indo:"Teh", img:"tea4.png" },
+      { id:159, letter:"T", word:"THREE", indo:"Tiga", img:"three.png" },
+      { id:160, letter:"T", word:"TOURIST", indo:"Wisatawan", img:"tourist.png" },
+      { id:161, letter:"W", word:"WATER", indo:"Air", img:"water.png" },
+      { id:162, letter:"W", word:"WORK", indo:"Bekerja", img:"work.png" },
+      { id:163, letter:"W", word:"WIN", indo:"Menang", img:"win.png" },
+      { id:164, letter:"W", word:"WATERMELON", indo:"Semangka", img:"waterm.png" },
+      { id:165, letter:"W", word:"WASHING", indo:"Mencuci", img:"washing.png" },
+      { id:166, letter:"W", word:"WANT TO", indo:"Ingin", img:"want.png" },
+      { id:167, letter:"W", word:"WALK (2)", indo:"Berjalan", img:"walk.png" },
+      { id:168, letter:"W", word:"WALK (1)", indo:"Berjalan", img:"walk2.png" },
+      { id:169, letter:"W", word:"WAKE UP", indo:"Bangun", img:"wakeup.png" },
+      { id:170, letter:"W", word:"WAIT", indo:"Tunggu", img:"wait.png" },
+      { id:171, letter:"W", word:"WINE", indo:"Anggur", img:"wine.png" },
+      { id:172, letter:"Y", word:"YELLOW", indo:"Kuning", img:"yellow.png" }
     ];
 
-    /* =========================================================================
-       3. INISIALISASI & RENDERING TAMPILAN
-       ========================================================================= */
-    const letters = [...new Set(DICTIONARY_DATA.map(item => item.letter))].sort();
+    /* =================================================================
+       UTILITAS
+       ================================================================= */
+    // Acak array (Fisher-Yates) — seeded agar konsisten per huruf
+    function shuffle(arr, seed) {
+      const a = [...arr];
+      let s = seed || 1;
+      function rng() { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
 
-    // Render Tab Indeks
-    function renderAlphabetTabs() {
-      const bar = document.getElementById("alphabetList");
-      bar.innerHTML = "";
-      letters.forEach(letter => {
-        const btn = document.createElement("button");
-        btn.id = `tab-letter-${letter}`;
-        btn.className = "w-8 h-8 flex-shrink-0 rounded-lg font-book font-bold text-xs bg-slate-800 text-slate-300 hover:bg-amber-600 hover:text-white transition-all flex items-center justify-center border border-slate-700/60";
-        btn.innerText = letter;
-        btn.onclick = () => scrollToSection(letter);
-        bar.appendChild(btn);
+    // Ambil subset unik berdasarkan properti (menghindari duplikat terjemahan)
+    function uniqueBy(arr, key) {
+      const seen = new Set();
+      return arr.filter(item => {
+        const val = item[key];
+        if (seen.has(val)) return false;
+        seen.add(val);
+        return true;
       });
     }
 
-    // Scroll Mulus ke Section Huruf
-    function scrollToSection(letter) {
-      switchView('kamus');
-      const target = document.getElementById(`section-${letter}`);
-      if (target) {
-        const headerOffset = 130;
-        const elementPosition = target.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: "smooth"
-        });
+    /* =================================================================
+       BACA PARAMETER URL & BAHASA
+       ================================================================= */
+    const params = new URLSearchParams(window.location.search);
+    const letter = (params.get('huruf') || params.get('letter') || 'A').toUpperCase();
+    const lkpdNo = parseInt(params.get('no')) || 1;
+    let currentLang = params.get('lang') || localStorage.getItem('kolok_app_lang') || 'id';
+    if (currentLang !== 'id' && currentLang !== 'en') currentLang = 'id';
 
-        // Update visual tab aktif
-        letters.forEach(l => {
-          const tab = document.getElementById(`tab-letter-${l}`);
-          if (tab) {
-            tab.className = l === letter 
-              ? "w-8 h-8 flex-shrink-0 rounded-lg font-book font-bold text-xs bg-amber-600 text-white shadow-md flex items-center justify-center border border-amber-400"
-              : "w-8 h-8 flex-shrink-0 rounded-lg font-book font-bold text-xs bg-slate-800 text-slate-300 hover:bg-amber-600 hover:text-white transition-all flex items-center justify-center border border-slate-700/60";
-          }
-        });
-      }
-    }
+    const allWords = DICTIONARY_DATA.filter(w => w.letter === letter);
+    // Buat set unik untuk latihan mencocokkan (hindari duplikat indo)
+    const uniqueWords = uniqueBy(allWords, 'indo');
 
-    // Render Seluruh Kosakata Kamus
-    function renderDictionary(data) {
-      const container = document.getElementById("dictionaryContainer");
-      container.innerHTML = "";
-
-      if (data.length === 0) {
-        container.innerHTML = `
-          <div class="text-center py-16 bg-white rounded-3xl border border-dashed border-slate-300 p-8">
-            <div class="w-16 h-16 mx-auto rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-2xl mb-3">
-              <i class="fa-solid fa-magnifying-glass"></i>
-            </div>
-            <h3 class="font-bold text-slate-800 text-base">Kosakata Tidak Ditemukan</h3>
-            <p class="text-xs text-slate-500 mt-1">Coba ketik kata lain dalam bahasa Inggris yang tertera pada kamus.</p>
-            <button onclick="clearSearch()" class="mt-4 px-4 py-2 bg-slate-800 text-white text-xs font-semibold rounded-xl">
-              Lihat Semua Kata
-            </button>
-          </div>
-        `;
-        document.getElementById("wordCountLabel").innerText = "Tidak ada hasil";
-        return;
-      }
-
-      document.getElementById("wordCountLabel").innerText = `Menampilkan ${data.length} kosakata`;
-
-      const grouped = {};
-      data.forEach(item => {
-        if (!grouped[item.letter]) grouped[item.letter] = [];
-        grouped[item.letter].push(item);
-      });
-
-      Object.keys(grouped).sort().forEach(letter => {
-        const sectionDiv = document.createElement("div");
-        sectionDiv.id = `section-${letter}`;
-        sectionDiv.className = "pt-2";
-
-        sectionDiv.innerHTML = `
-          <div class="flex items-center gap-3 mb-3 border-b-2 border-slate-200 pb-2">
-            <div class="w-10 h-10 rounded-xl bg-slate-900 text-amber-400 font-book font-black text-xl flex items-center justify-center shadow-sm">
-              ${letter}
-            </div>
-            <div>
-              <h2 class="font-book text-lg font-bold text-slate-900 tracking-wide">Huruf ${letter}</h2>
-              <span class="text-[11px] text-slate-500 font-sans">${grouped[letter].length} kosakata</span>
-            </div>
-          </div>
-          
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4" id="grid-${letter}">
-          </div>
-        `;
-
-        container.appendChild(sectionDiv);
-        const grid = sectionDiv.querySelector(`#grid-${letter}`);
-
-        grouped[letter].forEach(item => {
-          const card = document.createElement("div");
-          card.className = "book-card bg-white rounded-2xl overflow-hidden border border-slate-200/90 flex flex-col group cursor-pointer relative";
-          card.onclick = () => openDetailModal(item);
-
-          card.innerHTML = `
-            <!-- Wadah Gambar -->
-            <div class="relative w-full aspect-[4/3] bg-slate-100 overflow-hidden flex items-center justify-center">
-              <img 
-                src="${item.img}" 
-                alt="${item.word}" 
-                loading="lazy"
-                onerror="this.onerror=null; this.src='https://placehold.co/400x300/f8fafc/475569?text=${encodeURIComponent(item.word)}';"
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              >
-              <span class="absolute top-2 left-2 px-1.5 py-0.5 rounded-md bg-black/60 backdrop-blur-sm text-white text-[10px] font-mono font-bold">
-                #${String(item.id).padStart(3, '0')}
-              </span>
-            </div>
-
-            <!-- Satu Kata Translate -->
-            <div class="p-3 text-center flex-grow flex items-center justify-center bg-white border-t border-slate-100">
-              <h3 class="font-book text-sm sm:text-base font-bold text-slate-800 tracking-wide uppercase group-hover:text-amber-700 transition-colors leading-snug">
-                ${item.word}
-              </h3>
-            </div>
-          `;
-          grid.appendChild(card);
-        });
-      });
-    }
-
-    /* =========================================================================
-       SISTEM MULTI BAHASA (INDONESIA / ENGLISH)
-       ========================================================================= */
-    const I18N_DATA = {
-      id: {
-        docTitle: "Kata Kolok (Bahasa Isyarat)",
-        headerTitle: "Kata Kolok (Bahasa Isyarat)",
-        headerSubtitle: "Bahasa Isyarat Asli Bengkala • Versi Digital",
-        headerHomeTitle: "Kembali ke Menu Utama",
-        headerLangTooltip: "Ubah ke Bahasa Inggris",
-        headerLangLabel: "ID | EN",
-        langMenuText: "Bahasa: <strong>Indonesia</strong> (Switch to English)",
-        badgeApp: "Aplikasi Pembelajaran Isyarat",
-        welcomeTitle: "Kata Kolok (Bahasa Isyarat)",
-        welcomeDesc: "Selamat datang di platform digital interaktif untuk mempelajari <strong class=\"text-amber-300\">Kata Kolok (Bahasa Isyarat)</strong>, bahasa isyarat tradisional unik yang lahir dan berkembang secara alami di Desa Bengkala, Buleleng, Bali.",
-        aboutTitle: "Tentang Kata Kolok & Kamus Ini",
-        aboutDesc: `<p><strong>Kata Kolok</strong> adalah bahasa isyarat alami dan unik yang diwariskan secara turun-temurun oleh masyarakat di Desa Bengkala, Buleleng, Bali. Keistimewaan desa ini adalah tingginya keharmonisan dan rasa saling menghargai, di mana warga yang dapat mendengar dan warga tuli (kolok) sama-sama terbiasa menggunakan bahasa isyarat ini untuk saling berkomunikasi setiap hari.</p><p>Kamus digital bergambar ini hadir sebagai media pembelajaran visual yang ramah anak. Melalui foto peragaan tangan yang jelas dan terstruktur, siapa saja dapat mengenal, mempelajari, serta melestarikan kebudayaan luhur bahasa isyarat asli Indonesia ini secara mudah, mandiri, dan gembira.</p>`,
-        chooseMenuTitle: `<i class="fa-solid fa-compass text-amber-600"></i> Pilih Menu Utama`,
-        menu1Title: "Kata Kolok (Bahasa Isyarat)",
-        menu1Sub: "Kamus visual & kosakata",
-        menu2Title: "Lembar Kerja",
-        menu2Sub: "Latihan mandiri & cetak",
-        menu3Title: "Latihan Video (Padlet)",
-        menu3Sub: "Praktik gerakan & unggah",
-        homeGuideTitle: "Petunjuk Penggunaan Aplikasi",
-        homeGuideSub: "Ikuti 3 langkah mudah berikut untuk mulai belajar dengan ceria:",
-        homeStep1Title: "Baca Kamus",
-        homeStep1Desc: "Buka menu kamus untuk mempelajari beragam kosakata Kata Kolok lengkap dengan foto peraga gerakan tangan dan artinya dalam Bahasa Indonesia serta Bahasa Inggris.",
-        btnStep1: "Buka Kamus Sekarang",
-        homeStep2Title: "Lanjut ke Lembar Kerja",
-        homeStep2Desc: "Pilih lembar kerja huruf sesuai materi yang ingin kamu kuasai, lalu kerjakan aktivitas latihan seru seperti mencocokkan kata dan tebak gambar.",
-        btnStep2: "Buka Lembar Kerja",
-        homeStep3Title: "Lanjut ke Latihan Video",
-        homeStep3Desc: "Peragakan gerakan isyarat yang telah dipelajari, rekam videomu, dan unggah ke Padlet kelas agar dapat dinilai dan diapresiasi oleh guru dan teman-teman!",
-        btnStep3: "Buka Latihan Video",
-        copyrightMain: "Hak Cipta © Made Hery Santosa, Ni Komang Amy Pratiwi",
-        copyrightDict: "Picture Dictionary © Anonim",
-
-        lkpdMainTitle: "Lembar Kerja Peserta Didik",
-        lkpdGuideTitle: `<i class="fa-solid fa-circle-info text-blue-600"></i> Petunjuk Pengerjaan Lembar Kerja:`,
-        lkpdStep1: "Pilih Lembar Kerja Peserta Didik (LKPD) huruf yang ingin kamu kerjakan pada daftar di bawah ini.",
-        lkpdStep2: "Buka lembar kerja untuk dikerjakan secara langsung pada layar atau dicetak (print) di atas kertas.",
-        lkpdStep3Prefix: "Jika kamu memerlukan bantuan melihat kembali gerakan isyarat saat mengerjakan, gunakan kamus ",
-        lkpdStep3Btn: "Buka Kata Kolok (Bahasa Isyarat)",
-        lkpdStep3Suffix: "sebagai panduan belajar.",
-        lkpdStep4: `Setelah selesai mengerjakan semua soal, foto lembar jawabanmu lalu unggah melalui tombol <strong>"Lanjutkan ke Padlet"</strong> yang tersedia di dalam lembar kerja tersebut.`,
-
-        padletTitle: "Latihan Video Gerakan Isyarat",
-        padletSub: "Unggah rekaman video atau foto latihan gerakan isyarat mandiri Anda di sini.",
-        padletGuideTitle: `<i class="fa-solid fa-circle-play text-rose-600"></i> Petunjuk Latihan Video:`,
-        padletStep1: "Pilih kosakata isyarat dari kamus Kata Kolok yang ingin kamu latih dan peragakan.",
-        padletStep2: "Siapkan kamera HP atau komputer, lalu rekam videomu saat mempraktikkan gerakan tangan tersebut secara jelas.",
-        padletStep3: `Klik tombol <strong>"Lanjutkan ke Padlet"</strong> di bawah untuk membuka papan tugas kelas.`,
-        padletStep4: "Unggah video atau fotomu agar bisa dilihat dan diapresiasi oleh bapak/ibu guru serta teman-teman!",
-        padletBtnPrompt: "Klik tombol untuk langsung membuka halaman Padlet latihan kelas:",
-        padletBtnText: "Lanjutkan ke Padlet",
-
-        navKamusLabel: "Kata Kolok",
-        navLkpdLabel: "Lembar Kerja",
-        navPadletLabel: "Latihan Video",
-
-        kamusGuideTitle: "Petunjuk Penggunaan Kamus:",
-        kamusStep1: "Pilih huruf pada bilah tab di atas atau ketik nama kata di kotak pencarian untuk menemukan kosakata isyarat.",
-        kamusStep2: "Klik kartu kata untuk memperbesar foto gerakan isyarat dan mempelajari maknanya secara mandiri.",
-        kamusStep3: `Setelah membaca kamus, uji kemampuanmu dengan mengerjakan latihan soal di menu <strong>Lembar Kerja (LKPD)</strong>.`,
-        kamusStep4: `Peragakan gerakan isyarat tanganmu, lalu rekam dan unggah videomu pada menu <strong>Latihan Video</strong>!`
-      },
-      en: {
-        docTitle: "Kata Kolok (Sign Language)",
-        headerTitle: "Kata Kolok (Sign Language)",
-        headerSubtitle: "Indigenous Bengkala Sign Language • Digital Version",
-        headerHomeTitle: "Back to Main Menu",
-        headerLangTooltip: "Switch Language to Indonesian",
-        headerLangLabel: "EN | ID",
-        langMenuText: "Language: <strong>English</strong> (Ganti ke Indonesia)",
-        badgeApp: "Sign Language Learning App",
-        welcomeTitle: "Kata Kolok (Sign Language)",
-        welcomeDesc: "Welcome to the interactive digital platform for learning <strong class=\"text-amber-300\">Kata Kolok (Sign Language)</strong>, a unique traditional sign language born and developed naturally in Bengkala Village, Buleleng, Bali.",
-        aboutTitle: "About Kata Kolok & This Dictionary",
-        aboutDesc: `<p><strong>Kata Kolok</strong> is a natural and unique sign language passed down through generations by the community in Bengkala Village, Buleleng, Bali. The distinction of this village lies in its high harmony and mutual respect, where hearing and deaf (kolok) villagers alike regularly use this sign language to communicate with each other every day.</p><p>This illustrated digital dictionary is designed as a child-friendly visual learning medium. Through clear and structured hand gesture demonstration photos, anyone can discover, learn, and preserve this noble indigenous Indonesian sign language culture easily, independently, and joyfully.</p>`,
-        chooseMenuTitle: `<i class="fa-solid fa-compass text-amber-600"></i> Select Main Menu`,
-        menu1Title: "Kata Kolok (Sign Language)",
-        menu1Sub: "Visual dictionary & vocabulary",
-        menu2Title: "Worksheets",
-        menu2Sub: "Independent practice & print",
-        menu3Title: "Video Practice (Padlet)",
-        menu3Sub: "Gesture practice & upload",
-        homeGuideTitle: "Application User Guide",
-        homeGuideSub: "Follow these 3 easy steps to start learning cheerfully:",
-        homeStep1Title: "Read the Dictionary",
-        homeStep1Desc: "Open the dictionary menu to learn various Kata Kolok vocabulary complete with hand sign gesture photos and their meanings in Indonesian and English.",
-        btnStep1: "Open Dictionary Now",
-        homeStep2Title: "Continue to Worksheets",
-        homeStep2Desc: "Choose a letter worksheet matching the material you want to master, then complete fun practice activities like word matching and picture guessing.",
-        btnStep2: "Open Worksheets",
-        homeStep3Title: "Continue to Video Practice",
-        homeStep3Desc: "Demonstrate the learned sign gestures, record your video, and upload it to the class Padlet to be reviewed and appreciated by teachers and classmates!",
-        btnStep3: "Open Video Practice",
-        copyrightMain: "Copyright © Made Hery Santosa, Ni Komang Amy Pratiwi",
-        copyrightDict: "Picture Dictionary © Anonymous",
-
-        lkpdMainTitle: "Student Worksheets",
-        lkpdGuideTitle: `<i class="fa-solid fa-circle-info text-blue-600"></i> Worksheet Instructions:`,
-        lkpdStep1: "Select the letter Student Worksheet (LKPD) you want to work on from the list below.",
-        lkpdStep2: "Open the worksheet to work directly on screen or print onto paper.",
-        lkpdStep3Prefix: "If you need help reviewing sign gestures while working, use the dictionary ",
-        lkpdStep3Btn: "Open Kata Kolok (Sign Language)",
-        lkpdStep3Suffix: "as a study guide.",
-        lkpdStep4: `After completing all exercises, take a photo of your answers and upload it via the <strong>"Proceed to Padlet"</strong> button inside the worksheet.`,
-
-        padletTitle: "Sign Gesture Video Practice",
-        padletSub: "Upload your independent sign gesture practice videos or photos here.",
-        padletGuideTitle: `<i class="fa-solid fa-circle-play text-rose-600"></i> Video Practice Instructions:`,
-        padletStep1: "Select Kata Kolok sign vocabulary from the dictionary that you want to practice and demonstrate.",
-        padletStep2: "Prepare your phone camera or computer, then record yourself clearly practicing the hand gestures.",
-        padletStep3: `Click the <strong>"Proceed to Padlet"</strong> button below to open the class assignment board.`,
-        padletStep4: "Upload your video or photo so it can be viewed and appreciated by teachers and classmates!",
-        padletBtnPrompt: "Click the button to directly open the class practice Padlet page:",
-        padletBtnText: "Proceed to Padlet",
-
-        navKamusLabel: "Kata Kolok",
-        navLkpdLabel: "Worksheets",
-        navPadletLabel: "Video Practice",
-
-        kamusGuideTitle: "Dictionary Usage Guide:",
-        kamusStep1: "Select a letter from the tabs above or type in the search bar to find sign vocabulary.",
-        kamusStep2: "Click a word card to view the enlarged gesture photo and study its meaning independently.",
-        kamusStep3: `After studying the dictionary, test your skills by completing exercises in the <strong>Worksheets (LKPD)</strong> menu.`,
-        kamusStep4: `Demonstrate your hand sign gestures, then record and upload your video in the <strong>Video Practice</strong> menu!`
-      }
-    };
-
-    let currentLang = localStorage.getItem('kolok_app_lang') || 'id';
-
-    function toggleLanguage() {
+    function toggleLkpdLanguage() {
       currentLang = (currentLang === 'id') ? 'en' : 'id';
       try {
         localStorage.setItem('kolok_app_lang', currentLang);
       } catch (e) {}
-      applyLanguage(currentLang);
+      const url = new URL(window.location.href);
+      url.searchParams.set('lang', currentLang);
+      window.history.replaceState({}, '', url);
+      build();
     }
 
-    function applyLanguage(lang) {
-      const t = I18N_DATA[lang] || I18N_DATA.id;
-      document.documentElement.lang = lang;
-      document.title = t.docTitle;
+    const PADLET_LKPD_URL = "https://padlet.com/mhsantosa/lkpd-s023k6ix9dydhxkbnhn4";
 
-      // Header
-      const headerTitle = document.getElementById("headerTitle");
-      if (headerTitle) headerTitle.innerText = t.headerTitle;
-      const headerSubtitle = document.getElementById("headerSubtitle");
-      if (headerSubtitle) headerSubtitle.innerText = t.headerSubtitle;
-      const btnHeaderHome = document.getElementById("btnHeaderHome");
-      if (btnHeaderHome) btnHeaderHome.title = t.headerHomeTitle;
-      const btnHeaderLang = document.getElementById("btnHeaderLang");
-      if (btnHeaderLang) btnHeaderLang.title = t.headerLangTooltip;
-      const headerLangLabel = document.getElementById("headerLangLabel");
-      if (headerLangLabel) headerLangLabel.innerText = t.headerLangLabel;
-
-      // Menu View (Beranda)
-      const langMenuText = document.getElementById("langMenuText");
-      if (langMenuText) langMenuText.innerHTML = t.langMenuText;
-      const txtBadgeApp = document.getElementById("txtBadgeApp");
-      if (txtBadgeApp) txtBadgeApp.innerText = t.badgeApp;
-      const txtWelcomeTitle = document.getElementById("txtWelcomeTitle");
-      if (txtWelcomeTitle) txtWelcomeTitle.innerText = t.welcomeTitle;
-      const txtWelcomeDesc = document.getElementById("txtWelcomeDesc");
-      if (txtWelcomeDesc) txtWelcomeDesc.innerHTML = t.welcomeDesc;
-      const txtAboutTitle = document.getElementById("txtAboutTitle");
-      if (txtAboutTitle) txtAboutTitle.innerText = t.aboutTitle;
-      const txtAboutDesc = document.getElementById("txtAboutDesc");
-      if (txtAboutDesc) txtAboutDesc.innerHTML = t.aboutDesc;
-      const txtChooseMenuTitle = document.getElementById("txtChooseMenuTitle");
-      if (txtChooseMenuTitle) txtChooseMenuTitle.innerHTML = t.chooseMenuTitle;
-
-      const txtMenu1Title = document.getElementById("txtMenu1Title");
-      if (txtMenu1Title) txtMenu1Title.innerText = t.menu1Title;
-      const txtMenu1Sub = document.getElementById("txtMenu1Sub");
-      if (txtMenu1Sub) txtMenu1Sub.innerText = t.menu1Sub;
-      const txtMenu2Title = document.getElementById("txtMenu2Title");
-      if (txtMenu2Title) txtMenu2Title.innerText = t.menu2Title;
-      const txtMenu2Sub = document.getElementById("txtMenu2Sub");
-      if (txtMenu2Sub) txtMenu2Sub.innerText = t.menu2Sub;
-      const txtMenu3Title = document.getElementById("txtMenu3Title");
-      if (txtMenu3Title) txtMenu3Title.innerText = t.menu3Title;
-      const txtMenu3Sub = document.getElementById("txtMenu3Sub");
-      if (txtMenu3Sub) txtMenu3Sub.innerText = t.menu3Sub;
-
-      const txtHomeGuideTitle = document.getElementById("txtHomeGuideTitle");
-      if (txtHomeGuideTitle) txtHomeGuideTitle.innerText = t.homeGuideTitle;
-      const txtHomeGuideSub = document.getElementById("txtHomeGuideSub");
-      if (txtHomeGuideSub) txtHomeGuideSub.innerText = t.homeGuideSub;
-      const txtHomeStep1Title = document.getElementById("txtHomeStep1Title");
-      if (txtHomeStep1Title) txtHomeStep1Title.innerText = t.homeStep1Title;
-      const txtHomeStep1Desc = document.getElementById("txtHomeStep1Desc");
-      if (txtHomeStep1Desc) txtHomeStep1Desc.innerText = t.homeStep1Desc;
-      const txtBtnStep1 = document.getElementById("txtBtnStep1");
-      if (txtBtnStep1) txtBtnStep1.innerText = t.btnStep1;
-
-      const txtHomeStep2Title = document.getElementById("txtHomeStep2Title");
-      if (txtHomeStep2Title) txtHomeStep2Title.innerText = t.homeStep2Title;
-      const txtHomeStep2Desc = document.getElementById("txtHomeStep2Desc");
-      if (txtHomeStep2Desc) txtHomeStep2Desc.innerText = t.homeStep2Desc;
-      const txtBtnStep2 = document.getElementById("txtBtnStep2");
-      if (txtBtnStep2) txtBtnStep2.innerText = t.btnStep2;
-
-      const txtHomeStep3Title = document.getElementById("txtHomeStep3Title");
-      if (txtHomeStep3Title) txtHomeStep3Title.innerText = t.homeStep3Title;
-      const txtHomeStep3Desc = document.getElementById("txtHomeStep3Desc");
-      if (txtHomeStep3Desc) txtHomeStep3Desc.innerText = t.homeStep3Desc;
-      const txtBtnStep3 = document.getElementById("txtBtnStep3");
-      if (txtBtnStep3) txtBtnStep3.innerText = t.btnStep3;
-
-      const txtCopyrightMain = document.getElementById("txtCopyrightMain");
-      if (txtCopyrightMain) txtCopyrightMain.innerText = t.copyrightMain;
-      const txtCopyrightDict = document.getElementById("txtCopyrightDict");
-      if (txtCopyrightDict) txtCopyrightDict.innerText = t.copyrightDict;
-
-      // Lembar Kerja (LKPD)
-      const lkpdMainTitle = document.getElementById("lkpdMainTitle");
-      if (lkpdMainTitle) lkpdMainTitle.innerText = t.lkpdMainTitle;
-      const lkpdGuideTitle = document.getElementById("lkpdGuideTitle");
-      if (lkpdGuideTitle) lkpdGuideTitle.innerHTML = t.lkpdGuideTitle;
-      const lkpdStep1 = document.getElementById("lkpdStep1");
-      if (lkpdStep1) lkpdStep1.innerText = t.lkpdStep1;
-      const lkpdStep2 = document.getElementById("lkpdStep2");
-      if (lkpdStep2) lkpdStep2.innerText = t.lkpdStep2;
-      const lkpdStep3Prefix = document.getElementById("lkpdStep3Prefix");
-      if (lkpdStep3Prefix) lkpdStep3Prefix.innerText = t.lkpdStep3Prefix;
-      const lkpdStep3Btn = document.getElementById("lkpdStep3Btn");
-      if (lkpdStep3Btn) lkpdStep3Btn.innerText = t.lkpdStep3Btn;
-      const lkpdStep3Suffix = document.getElementById("lkpdStep3Suffix");
-      if (lkpdStep3Suffix) lkpdStep3Suffix.innerText = t.lkpdStep3Suffix;
-      const lkpdStep4 = document.getElementById("lkpdStep4");
-      if (lkpdStep4) lkpdStep4.innerHTML = t.lkpdStep4;
-
-      renderLkpdSection();
-
-      // Padlet
-      const padletTitle = document.getElementById("padletTitle");
-      if (padletTitle) padletTitle.innerText = t.padletTitle;
-      const padletSub = document.getElementById("padletSub");
-      if (padletSub) padletSub.innerText = t.padletSub;
-      const padletGuideTitle = document.getElementById("padletGuideTitle");
-      if (padletGuideTitle) padletGuideTitle.innerHTML = t.padletGuideTitle;
-      const padletStep1 = document.getElementById("padletStep1");
-      if (padletStep1) padletStep1.innerText = t.padletStep1;
-      const padletStep2 = document.getElementById("padletStep2");
-      if (padletStep2) padletStep2.innerText = t.padletStep2;
-      const padletStep3 = document.getElementById("padletStep3");
-      if (padletStep3) padletStep3.innerHTML = t.padletStep3;
-      const padletStep4 = document.getElementById("padletStep4");
-      if (padletStep4) padletStep4.innerText = t.padletStep4;
-      const padletBtnPrompt = document.getElementById("padletBtnPrompt");
-      if (padletBtnPrompt) padletBtnPrompt.innerText = t.padletBtnPrompt;
-      const padletBtnText = document.getElementById("padletBtnText");
-      if (padletBtnText) padletBtnText.innerText = t.padletBtnText;
-
-      // Petunjuk Kamus
-      const kamusGuideTitle = document.getElementById("kamusGuideTitle");
-      if (kamusGuideTitle) kamusGuideTitle.innerText = t.kamusGuideTitle;
-      const kamusStep1 = document.getElementById("kamusStep1");
-      if (kamusStep1) kamusStep1.innerText = t.kamusStep1;
-      const kamusStep2 = document.getElementById("kamusStep2");
-      if (kamusStep2) kamusStep2.innerText = t.kamusStep2;
-      const kamusStep3 = document.getElementById("kamusStep3");
-      if (kamusStep3) kamusStep3.innerHTML = t.kamusStep3;
-      const kamusStep4 = document.getElementById("kamusStep4");
-      if (kamusStep4) kamusStep4.innerHTML = t.kamusStep4;
-
-      // Bottom Nav
-      const navKamusLabel = document.getElementById("navKamusLabel");
-      if (navKamusLabel) navKamusLabel.innerText = t.navKamusLabel;
-      const navLkpdLabel = document.getElementById("navLkpdLabel");
-      if (navLkpdLabel) navLkpdLabel.innerText = t.navLkpdLabel;
-      const navPadletLabel = document.getElementById("navPadletLabel");
-      if (navPadletLabel) navPadletLabel.innerText = t.navPadletLabel;
-    }
-
-    // Render Lembar Kerja
-    function renderLkpdSection() {
-      const grid = document.getElementById("lkpdListGrid");
-      if (!grid) return;
-      grid.innerHTML = "";
-
-      const isEn = (typeof currentLang !== 'undefined' && currentLang === 'en');
-
-      LKPD_DATA.forEach(lk => {
-        const item = document.createElement("div");
-        item.className = "bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between";
+    /* =================================================================
+       KAMUS MULTI-BAHASA LEMBAR KERJA
+       ================================================================= */
+    const I18N_LKPD = {
+      id: {
+        docTitle: `LKPD ${String(lkpdNo).padStart(2,'0')} — Huruf ${letter} — Kamus Kolok Digital`,
+        notFoundTitle: `Huruf "${letter}" tidak ditemukan`,
+        notFoundDesc: "Silakan kembali dan pilih huruf yang tersedia.",
+        notFoundBtn: "Kembali ke Lembar Kerja",
+        backToDict: "Kembali ke Lembar Kerja",
+        brandTitle: "Kamus Kolok Digital",
+        langToggle: "ID | EN",
         
-        const wordCount = DICTIONARY_DATA.filter(w => w.letter === lk.huruf).length;
-        const countText = wordCount > 0 ? wordCount : 0;
-        const titleText = isEn ? `Letter ${lk.huruf} Worksheet` : lk.title;
-        const rangeText = isEn 
-          ? `Letter ${lk.huruf} Vocabulary (${countText} words)` 
-          : lk.range;
-        const btnText = isEn ? 'Open Worksheet' : 'Buka Lembar Kerja';
-        const lkpdUrl = `${lk.drive}&lang=${currentLang}`;
-
-        item.innerHTML = `
-          <div>
-            <div class="flex items-center justify-between gap-2 mb-1.5">
-              <span class="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[11px] font-bold border border-blue-200">
-                LKPD ${String(lk.no).padStart(2, '0')}
-              </span>
-              <span class="text-[10px] text-slate-400 font-mono"> </span>
-            </div>
-            <h4 class="font-bold text-slate-800 text-sm">${titleText}</h4>
-            <p class="text-xs text-slate-500 mt-0.5 mb-3">${rangeText}</p>
-          </div>
-
-          <div class="pt-3 border-t border-slate-100">
-            <a href="${lkpdUrl}" class="w-full py-2 px-3 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm transition-all">
-              <i class="fa-solid fa-file-pen text-amber-400"></i>
-              <span>${btnText}</span>
-            </a>
-          </div>
-        `;
-        grid.appendChild(item);
-      });
-    }
-
-    /* =========================================================================
-       4. PENCARIAN & FILTER KOSAKATA
-       ========================================================================= */
-    function filterWords() {
-      const q = document.getElementById("searchInput").value.trim().toLowerCase();
-      const clearBtn = document.getElementById("clearSearchBtn");
-      
-      if (q.length > 0) {
-        clearBtn.classList.remove("hidden");
-        const filtered = DICTIONARY_DATA.filter(item => 
-          item.word.toLowerCase().includes(q) || item.letter.toLowerCase() === q || item.indo.toLowerCase().includes(q)
-        );
-        renderDictionary(filtered);
-      } else {
-        clearBtn.classList.add("hidden");
-        renderDictionary(DICTIONARY_DATA);
+        guideTitle: "Panduan Pengerjaan Lembar Kerja",
+        guideSub: `Ikuti langkah-langkah di bawah ini untuk belajar dan mengerjakan LKPD Huruf ${letter}:`,
+        badgeVocab: `${allWords.length} Kosakata Isyarat`,
+        
+        step1Title: "Isi Data Identitas:",
+        step1Desc: "Tuliskan Nama Lengkap, Kelas/Kelompok, dan Tanggal pengerjaan pada kolom data siswa di lembar kerja bawah.",
+        
+        step2Title: "Cetak Lembar Kerja:",
+        step2Desc: "Kamu dapat mencetak lembar kerja ini ke kertas agar dapat dikerjakan secara langsung dengan pensil atau bolpoin.",
+        step2Btn: "Cetak Lembar Kerja",
+        
+        step3Title: "Buka Kamus Digital jika Perlu:",
+        step3Desc: "Jika kamu ragu atau ingin memastikan arti isyarat, gunakan Kamus Kolok Digital sebagai bahan rujukan belajar.",
+        step3Btn: "Buka Kamus Kolok",
+        
+        step4Title: "Kerjakan Soal Latihan:",
+        step4Desc: `Selesaikan seluruh latihan Identifikasi Gambar, Jodohkan Kata, Terjemahan${uniqueWords.length >= 5 ? ', Pilihan Ganda' : ''}${uniqueWords.length >= 4 ? ', dan Susun Huruf' : ''} secara cermat dan jujur.`,
+        
+        step5Title: "Unggah ke Padlet:",
+        step5Desc: 'Setelah selesai, foto hasil lembar kerjamu, klik tombol "Lanjutkan ke Padlet", lalu kirimkan tugasmu.',
+        step5Btn: "Lanjutkan ke Padlet",
+        
+        sheetBadge: "Kamus Kolok Digital — Bahasa Isyarat Desa Bengkala",
+        sheetTitle: "LEMBAR KERJA PESERTA DIDIK",
+        sheetSubBadge: `LKPD ${String(lkpdNo).padStart(2,'0')} — Kosakata Huruf ${letter}`,
+        sheetWordCount: `${allWords.length} kosakata isyarat`,
+        lblFullName: "Nama Lengkap",
+        lblClass: "Kelas / Kelompok",
+        lblDate: "Tanggal",
+        
+        ex1Title: "Identifikasi Gambar Isyarat",
+        ex1Desc: "Amati foto peragaan gerakan tangan Kata Kolok di bawah ini, lalu tuliskan nama kosakata dalam <strong>Bahasa Inggris</strong> pada baris pertama dan artinya dalam <strong>Bahasa Indonesia</strong> pada baris kedua.",
+        ex1LblEng: "Inggris:",
+        ex1LblIndo: "Indonesia:",
+        
+        ex2Title: "Jodohkan Kata",
+        ex2Desc: "Pasangkan kata <strong>Bahasa Inggris</strong> di kolom kiri dengan arti <strong>Bahasa Indonesia</strong> yang sesuai di kolom kanan dengan menarik garis lurus antar titik.",
+        ex2ColEng: "Bahasa Inggris",
+        ex2ColIndo: "Bahasa Indonesia",
+        
+        ex3Title: "Terjemahkan Kosakata",
+        ex3Desc: "Tuliskan kata terjemahan yang tepat pada garis titik-titik (Bagian A: terjemahkan ke Bahasa Indonesia, Bagian B: terjemahkan ke Bahasa Inggris).",
+        ex3PartA: "Terjemahkan ke Bahasa Indonesia",
+        ex3PartB: "Terjemahkan ke Bahasa Inggris",
+        
+        ex4Title: "Pilihan Ganda",
+        ex4Desc: "Perhatikan foto gerakan isyarat pada masing-masing nomor soal, kemudian pilih satu jawaban yang paling tepat dengan memberi tanda silang (X) atau lingkaran pada opsi A, B, C, atau D.",
+        ex4Question: (num) => `${num}. Gambar isyarat di samping memiliki arti…`,
+        
+        ex5Title: "Susun Huruf (Word Scramble)",
+        ex5Desc: "Huruf-huruf di bawah ini tersusun secara acak. Gunakan petunjuk terjemahan Bahasa Indonesia untuk menyusun kembali huruf-huruf tersebut menjadi kata Bahasa Inggris yang benar pada garis yang disediakan.",
+        ex5Clue: "Petunjuk:",
+        
+        padletGuideTitle: "Panduan Pengumpulan Lembar Kerja ke Padlet",
+        padletGuideSub: "Ikuti 5 langkah berikut untuk mengumpulkan hasil LKPD kamu agar dapat dinilai guru:",
+        padletStep1Title: "Periksa Kelengkapan Jawaban:",
+        padletStep1Desc: "Pastikan Nama Lengkap, Kelas/Kelompok, Tanggal, dan seluruh nomor latihan pada lembar kerja ini sudah kamu kerjakan.",
+        padletStep2Title: "Foto Lembar Kerja:",
+        padletStep2Desc: "Ambil foto lembar kerja yang sudah kamu kerjakan dengan kamera HP. Pastikan foto tidak goyang/buram, pencahayaan cukup terang, dan seluruh tulisan jawaban terbaca dengan jelas.",
+        padletStep3Title: "Buka Halaman Padlet:",
+        padletStep3Desc: 'Klik tombol <strong class="text-rose-700">"Lanjutkan ke Padlet"</strong> di bawah ini untuk langsung menuju papan pengumpulan tugas kelas.',
+        padletStep4Title: "Unggah Foto & Cantumkan Identitas:",
+        padletStep4Desc: `Di halaman Padlet, klik tombol tanda tambah (<strong class="text-rose-600 font-bold">+</strong>) atau kolom pengumpulan kelas. Tuliskan <strong>Nama Lengkap - Kelas - LKPD Huruf ${letter}</strong> pada bagian judul, lalu lampirkan file foto lembar kerjamu.`,
+        padletStep5Title: "Submit Tugas:",
+        padletStep5Desc: 'Tekan tombol <strong>"Submit"</strong>. Lembar kerjamu kini tersimpan dan siap diperiksa serta dinilai oleh bapak/ibu guru!',
+        padletBtn: "Lanjutkan ke Padlet",
+        
+        footerEnd: `Akhir Lembar Kerja — LKPD ${String(lkpdNo).padStart(2,'0')} Huruf ${letter}`,
+        footerCopy: "Kamus Kolok Digital © Bahasa Isyarat Desa Bengkala, Buleleng, Bali",
+        btnBottomHome: "Beranda Utama",
+        btnBottomBack: "Kembali ke Lembar Kerja",
+        btnBottomPrint: "Cetak Lembar Kerja",
+        btnBottomPadlet: "Lanjutkan ke Padlet"
+      },
+      en: {
+        docTitle: `Worksheet ${String(lkpdNo).padStart(2,'0')} — Letter ${letter} — Digital Kolok Dictionary`,
+        notFoundTitle: `Letter "${letter}" not found`,
+        notFoundDesc: "Please go back and select an available letter.",
+        notFoundBtn: "Back to Worksheets",
+        backToDict: "Back to Worksheets",
+        brandTitle: "Digital Kolok Dictionary",
+        langToggle: "EN | ID",
+        
+        guideTitle: "Worksheet Guidelines",
+        guideSub: `Follow the steps below to study and complete the Letter ${letter} Worksheet:`,
+        badgeVocab: `${allWords.length} Sign Vocabulary`,
+        
+        step1Title: "Fill in Student Identity:",
+        step1Desc: "Write your Full Name, Class/Group, and Date in the student data section on the worksheet below.",
+        
+        step2Title: "Print Worksheet:",
+        step2Desc: "You can print this worksheet onto paper so you can write your answers directly with a pencil or pen.",
+        step2Btn: "Print Worksheet",
+        
+        step3Title: "Open Digital Dictionary if Needed:",
+        step3Desc: "If you are unsure or wish to verify the sign gestures, use the Digital Kolok Dictionary as a learning reference.",
+        step3Btn: "Open Dictionary",
+        
+        step4Title: "Complete Practice Exercises:",
+        step4Desc: `Carefully complete all exercises: Picture Identification, Word Matching, Translation${uniqueWords.length >= 5 ? ', Multiple Choice' : ''}${uniqueWords.length >= 4 ? ', and Word Scramble' : ''}.`,
+        
+        step5Title: "Upload to Padlet:",
+        step5Desc: 'After finishing, take a photo of your completed worksheet, click "Proceed to Padlet", and submit your assignment.',
+        step5Btn: "Proceed to Padlet",
+        
+        sheetBadge: "Digital Kolok Dictionary — Indigenous Bengkala Village Sign Language",
+        sheetTitle: "STUDENT WORKSHEET",
+        sheetSubBadge: `Worksheet ${String(lkpdNo).padStart(2,'0')} — Letter ${letter} Vocabulary`,
+        sheetWordCount: `${allWords.length} sign vocabulary`,
+        lblFullName: "Full Name",
+        lblClass: "Class / Group",
+        lblDate: "Date",
+        
+        ex1Title: "Sign Gesture Identification",
+        ex1Desc: "Observe the Kata Kolok hand gesture demonstration photos below, then write the vocabulary word in <strong>English</strong> on the first line and its meaning in <strong>Indonesian</strong> on the second line.",
+        ex1LblEng: "English:",
+        ex1LblIndo: "Indonesian:",
+        
+        ex2Title: "Match the Words",
+        ex2Desc: "Match the <strong>English</strong> words on the left with their corresponding <strong>Indonesian</strong> meanings on the right by drawing straight lines between the dots.",
+        ex2ColEng: "English",
+        ex2ColIndo: "Indonesian",
+        
+        ex3Title: "Translate Vocabulary",
+        ex3Desc: "Write the correct translation on the dotted lines provided (Part A: translate to Indonesian, Part B: translate to English).",
+        ex3PartA: "Translate to Indonesian",
+        ex3PartB: "Translate to English",
+        
+        ex4Title: "Multiple Choice",
+        ex4Desc: "Observe the sign gesture photos for each question, then choose the most correct answer by marking option A, B, C, or D.",
+        ex4Question: (num) => `${num}. The sign gesture shown on the left means…`,
+        
+        ex5Title: "Word Scramble",
+        ex5Desc: "The English letters below are scrambled. Use the Indonesian meaning clue to rearrange the letters into the correct English word on the provided line.",
+        ex5Clue: "Clue:",
+        
+        padletGuideTitle: "Worksheet Submission Guide to Padlet",
+        padletGuideSub: "Follow these 5 steps to submit your worksheet results so your teacher can review and grade them:",
+        padletStep1Title: "Check Answer Completeness:",
+        padletStep1Desc: "Ensure your Full Name, Class/Group, Date, and all exercise questions on this worksheet are completed.",
+        padletStep2Title: "Take a Photo of the Worksheet:",
+        padletStep2Desc: "Take a photo of your completed worksheet with your phone camera. Ensure the photo is clear, bright, not blurry, and all written answers are clearly legible.",
+        padletStep3Title: "Open Padlet Page:",
+        padletStep3Desc: 'Click the <strong class="text-rose-700">"Proceed to Padlet"</strong> button below to directly open the class assignment board.',
+        padletStep4Title: "Upload Photo & Add Identity:",
+        padletStep4Desc: `On the Padlet page, click the plus sign (<strong class="text-rose-600 font-bold">+</strong>) or the class column. Write <strong>Full Name - Class - Worksheet Letter ${letter}</strong> in the title field, then attach your worksheet photo.`,
+        padletStep5Title: "Submit Assignment:",
+        padletStep5Desc: 'Click the <strong>"Submit"</strong> button. Your worksheet is now submitted and ready to be reviewed and appreciated by your teacher!',
+        padletBtn: "Proceed to Padlet",
+        
+        footerEnd: `End of Worksheet — Worksheet ${String(lkpdNo).padStart(2,'0')} Letter ${letter}`,
+        footerCopy: "Digital Kolok Dictionary © Indigenous Bengkala Village Sign Language, Buleleng, Bali",
+        btnBottomHome: "Main Menu",
+        btnBottomBack: "Back to Worksheets",
+        btnBottomPrint: "Print Worksheet",
+        btnBottomPadlet: "Proceed to Padlet"
       }
-    }
-
-    function clearSearch() {
-      const input = document.getElementById("searchInput");
-      input.value = "";
-      document.getElementById("clearSearchBtn").classList.add("hidden");
-      renderDictionary(DICTIONARY_DATA);
-    }
-
-    /* =========================================================================
-       5. NAVIGASI TAMPILAN UTAMA & MENU
-       ========================================================================= */
-    function switchView(view) {
-      const menuView = document.getElementById("viewMenu");
-      const kamusView = document.getElementById("viewKamus");
-      const lkpdView = document.getElementById("viewLkpd");
-      const padletView = document.getElementById("viewPadlet");
-      
-      const mainHeader = document.getElementById("mainHeader");
-      const searchBarContainer = document.getElementById("searchBarContainer");
-      const alphaBar = document.getElementById("alphabetIndexBar");
-      const bottomNav = document.getElementById("bottomNav");
-
-      const navKamus = document.getElementById("botNavKamus");
-      const navLkpd = document.getElementById("botNavLkpd");
-      const navPadlet = document.getElementById("botNavPadlet");
-
-      // Sembunyikan semua halaman
-      menuView.classList.add("hidden");
-      kamusView.classList.add("hidden");
-      lkpdView.classList.add("hidden");
-      padletView.classList.add("hidden");
-      
-      mainHeader.classList.add("hidden");
-      searchBarContainer.classList.add("hidden");
-      alphaBar.classList.add("hidden");
-      bottomNav.classList.add("hidden");
-
-      // Reset style tombol bawah
-      const inactiveClass = "flex flex-col items-center text-slate-400 hover:text-slate-800 font-medium text-[11px] gap-1 transition-all";
-      const activeClass = "flex flex-col items-center text-amber-700 font-bold text-[11px] gap-1 transition-all";
-
-      navKamus.className = inactiveClass;
-      navLkpd.className = inactiveClass;
-      navPadlet.className = inactiveClass;
-
-      if (view === 'menu') {
-        menuView.classList.remove("hidden");
-      } else {
-        // Tampilkan header dan nav bawah untuk halaman menu dalam
-        mainHeader.classList.remove("hidden");
-        bottomNav.classList.remove("hidden");
-
-        if (view === 'kamus') {
-          kamusView.classList.remove("hidden");
-          searchBarContainer.classList.remove("hidden");
-          alphaBar.classList.remove("hidden");
-          navKamus.className = activeClass;
-        } else if (view === 'lkpd') {
-          lkpdView.classList.remove("hidden");
-          navLkpd.className = activeClass;
-        } else if (view === 'padlet') {
-          padletView.classList.remove("hidden");
-          navPadlet.className = activeClass;
-        }
-      }
-    }
-
-    // Modal Detail Kata dengan Terjemahan Bahasa Indonesia
-    function openDetailModal(item) {
-      document.getElementById("modalImage").src = item.img;
-      document.getElementById("modalImage").onerror = function() {
-        this.src = `https://placehold.co/400x300/f8fafc/475569?text=${encodeURIComponent(item.word)}`;
-      };
-      document.getElementById("modalWord").innerText = item.word;
-      document.getElementById("modalTranslation").innerText = item.indo;
-      document.getElementById("wordDetailModal").classList.remove("hidden");
-    }
-
-    function closeDetailModal() {
-      document.getElementById("wordDetailModal").classList.add("hidden");
-    }
-
-    // Inisialisasi saat Halaman Dimuat
-    window.onload = function() {
-      const uploadBtn = document.getElementById("btnUploadPadlet");
-      if (uploadBtn && typeof padletLkpdUploadUrl !== 'undefined') {
-        uploadBtn.href = padletLkpdUploadUrl;
-      }
-      const directPadlet = document.getElementById("btnDirectPadlet");
-      if (directPadlet && typeof padletLkpdUploadUrl !== 'undefined') {
-        directPadlet.href = padletLkpdUploadUrl;
-      }
-      renderAlphabetTabs();
-      renderDictionary(DICTIONARY_DATA);
-      applyLanguage(currentLang);
-      const urlParams = new URLSearchParams(window.location.search);
-      const initialView = urlParams.get('view') || 'menu';
-      switchView(initialView);
     };
-  </script>
-</body>
-</html>
+
+    /* =================================================================
+       GENERATOR LEMBAR KERJA
+       ================================================================= */
+    function build() {
+      const root = document.getElementById('worksheetRoot');
+      const t = I18N_LKPD[currentLang] || I18N_LKPD.id;
+
+      // Update Top Bar & Head
+      document.title = t.docTitle;
+      document.documentElement.lang = currentLang;
+      const backText = document.getElementById('topNavBackText');
+ 
